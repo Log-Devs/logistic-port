@@ -287,5 +287,5 @@ export default function HeroScene() {
     }
   }, [])
 
-  return <div ref={containerRef} className="absolute inset-0" />
+  return <div ref={containerRef} className="w-full h-full" />
 }

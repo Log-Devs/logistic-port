@@ -6,12 +6,16 @@ import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
+import { usePathname } from "next/navigation"
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const pathname = usePathname()
 
   useEffect(() => {
+    // Set initial scrolled state on mount
+    setScrolled(window.scrollY > 10)
     const handleScroll = () => {
       setScrolled(window.scrollY > 10)
     }
@@ -31,7 +35,9 @@ export default function Navbar() {
     <motion.header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        scrolled ? "bg-background/90 backdrop-blur-md shadow-sm border-b border-border/40" : "bg-transparent",
+        pathname === "/" && !scrolled
+          ? "bg-transparent"
+          : "bg-background/90 backdrop-blur-md shadow-sm border-b border-border/40"
       )}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
