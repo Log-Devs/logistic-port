@@ -13,7 +13,6 @@ import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import RegisterBackground from "@/public/deliveryparcel.jpg"
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -76,9 +75,8 @@ export default function RegisterPage() {
       <Navbar />
       <main className="flex-1 flex items-center justify-center px-4 py-12 relative" style={{ minHeight: '100vh' }}>
         <Image
-          src={RegisterBackground}
+          src="/deliveryparcel.jpg"
           alt="Logistics background"
-          placeholder="blur"
           className="object-cover object-center w-full h-full absolute inset-0 z-0"
           fill
           sizes="100vw"
@@ -262,7 +260,7 @@ export default function RegisterPage() {
                   >
                     {isLoading ? (
                       <span className="flex items-center justify-center gap-2">
-                        <div className="w-4 h-4 border-2 border-white/80 border-t-transparent rounded-full animate-spin" />
+                        <span className="inline-block w-5 h-5 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
                         Creating account...
                       </span>
                     ) : (
