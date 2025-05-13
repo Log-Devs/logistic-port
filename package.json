@@ -1,5 +1,5 @@
 {
-  "name": "my-v0-project",
+  "name": "logistic",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -58,7 +58,7 @@
     "sonner": "^1.7.1",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
-    "three": "latest",
+    "three": "^0.176.0",
     "vaul": "^0.9.6",
     "zod": "^3.24.1"
   },

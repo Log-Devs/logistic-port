@@ -39,11 +39,7 @@ export default function HomePage() {
                       Track Your Shipment
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </AnimatedButton>
-                    <AnimatedButton
-                      size="lg"
-                      variant="outline"
-                      className="bg-background/20 backdrop-blur-sm text-white border-white/20 hover:bg-background/30"
-                    >
+                    <AnimatedButton size="lg" variant="outline">
                       Explore Services
                     </AnimatedButton>
                   </div>
