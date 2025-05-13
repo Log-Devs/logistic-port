@@ -1,52 +1,26 @@
 import Link from "next/link"
 import { ArrowRight, Globe, Plane, Ship, Truck } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import HeroScene from "@/components/hero-scene"
+import ProfessionalHero from "@/components/professional-hero"
 import ServiceCard from "@/components/service-card"
 import WhyChooseUs from "@/components/why-choose-us"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 
-// Import the new animation components at the top of the file
+// Import the animation components
 import AnimateInView from "@/components/animate-in-view"
 import AnimatedButton from "@/components/animated-button"
 import AnimatedText from "@/components/animated-text"
 import PageTransition from "@/components/page-transition"
 
-// Replace the existing export default function with this enhanced version
 export default function HomePage() {
   return (
     <PageTransition>
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-1 pt-16">
-          {/* Hero Section */}
-          <section className="relative h-[80vh] w-full overflow-hidden">
-            <HeroScene />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="container px-4 md:px-6 z-10 text-center">
-                <AnimatedText className="text-4xl md:text-6xl font-bold tracking-tighter mb-4 text-white drop-shadow-md">
-                  Next-Generation Logistics Solutions
-                </AnimatedText>
-                <AnimateInView variant="fadeInUp" delay={0.2}>
-                  <p className="text-xl md:text-2xl text-white/90 max-w-[800px] mx-auto mb-8 drop-shadow-md">
-                    Transforming global freight with cutting-edge technology and unparalleled service
-                  </p>
-                </AnimateInView>
-                <AnimateInView variant="fadeInUp" delay={0.4}>
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <AnimatedButton size="lg" className="bg-primary hover:bg-primary/90">
-                      Track Your Shipment
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </AnimatedButton>
-                    <AnimatedButton size="lg" variant="outline">
-                      Explore Services
-                    </AnimatedButton>
-                  </div>
-                </AnimateInView>
-              </div>
-            </div>
-          </section>
+          {/* Professional Hero Section (replaces the 3D scene) */}
+          <ProfessionalHero />
 
           {/* Services Overview */}
           <section className="py-20 bg-background">
@@ -79,8 +53,8 @@ export default function HomePage() {
                 <AnimateInView variant="fadeInUp" delay={0.4}>
                   <ServiceCard
                     icon={<Globe className="h-10 w-10" />}
-                    title="Customs Brokerage"
-                    description="Expert handling of customs documentation and regulatory compliance."
+                    title="Global Solutions"
+                    description="Expert customs brokerage and international logistics management."
                   />
                 </AnimateInView>
               </div>
@@ -113,9 +87,9 @@ export default function HomePage() {
                 </AnimateInView>
                 <AnimateInView variant="fadeInUp" delay={0.2}>
                   <p className="text-muted-foreground mb-8">
-                    Enter your tracking number to check the status of your shipment.
+                    Enter your tracking number to check the status and location of your shipment in real-time.
                     <span className="block mt-2 text-sm">
-                      Note: Detailed location information requires login. Public tracking shows high-level status only.
+                      For detailed tracking information and documents, please log in to your account.
                     </span>
                   </p>
                 </AnimateInView>
@@ -137,12 +111,12 @@ export default function HomePage() {
               </AnimateInView>
               <AnimateInView variant="fadeInUp" delay={0.2}>
                 <p className="text-xl mb-8 max-w-[800px] mx-auto text-primary-foreground/90">
-                  Join the future of freight management with our innovative solutions
+                  Partner with us for innovative solutions that elevate your supply chain management
                 </p>
               </AnimateInView>
               <AnimateInView variant="fadeInUp" delay={0.3}>
                 <AnimatedButton size="lg" variant="secondary">
-                  <Link href="/contact">Get a Quote</Link>
+                  <Link href="/contact">Request a Quote</Link>
                 </AnimatedButton>
               </AnimateInView>
             </div>

@@ -13,7 +13,7 @@ import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import RegisterBackground from "@/public/register-bg.jpg"
+import RegisterBackground from "@/public/deliveryparcel.jpg"
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({

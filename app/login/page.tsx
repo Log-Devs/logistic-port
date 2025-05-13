@@ -13,7 +13,7 @@ import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import RegisterBackground from "@/public/register-bg.jpg"
+import RegisterBackground from "@/public/deliveryparcel.jpg"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -152,7 +152,7 @@ export default function LoginPage() {
                     <Checkbox
                       id="remember-me"
                       checked={rememberMe}
-                      onCheckedChange={setRememberMe}
+                      onCheckedChange={(checked) => setRememberMe(checked === true)}
                       className="text-red-600 border-slate-300/80 data-[state=checked]:border-red-600"
                     />
                     <Label htmlFor="remember-me" className="text-sm text-slate-600">
