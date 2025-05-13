@@ -104,22 +104,40 @@ export default function HomePage() {
           </section>
 
           {/* Call to Action */}
-          <section className="py-20 bg-primary text-primary-foreground">
-            <div className="container px-4 md:px-6 text-center">
-              <AnimateInView>
-                <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Transform Your Logistics?</h2>
-              </AnimateInView>
-              <AnimateInView variant="fadeInUp" delay={0.2}>
-                <p className="text-xl mb-8 max-w-[800px] mx-auto text-primary-foreground/90">
-                  Partner with us for innovative solutions that elevate your supply chain management
-                </p>
-              </AnimateInView>
-              <AnimateInView variant="fadeInUp" delay={0.3}>
-                <AnimatedButton size="lg" variant="secondary">
-                  <Link href="/contact">Request a Quote</Link>
-                </AnimatedButton>
-              </AnimateInView>
+          <section className="py-20 bg-primary relative overflow-hidden">
+            <div className="container px-4 md:px-6 flex flex-col md:flex-row items-center justify-center gap-12 text-center md:text-left relative z-10">
+              <div className="flex-1">
+                <div className="bg-white/20 backdrop-blur-md rounded-2xl p-8 shadow-lg border border-white/30">
+                  <AnimateInView>
+                    <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white drop-shadow-lg">Ready to Transform Your Logistics?</h2>
+                  </AnimateInView>
+                  <AnimateInView variant="fadeInUp" delay={0.2}>
+                    <p className="text-xl mb-8 max-w-[800px] mx-auto md:mx-0 text-white/90">
+                      Partner with us for innovative solutions that elevate your supply chain management
+                    </p>
+                  </AnimateInView>
+                  <AnimateInView variant="fadeInUp" delay={0.3}>
+                    <AnimatedButton size="lg" variant="secondary" className="bg-white/80 text-red-700 hover:bg-white">
+                      <Link href="/contact">Request a Quote</Link>
+                    </AnimatedButton>
+                  </AnimateInView>
+                </div>
+              </div>
+              <div className="flex-1 flex justify-center">
+                <AnimateInView variant="fadeInUp" delay={0.4}>
+                  <div className="relative w-full max-w-xs md:max-w-sm aspect-[4/3] rounded-xl overflow-hidden shadow-lg border-4 border-white/20">
+                    <img
+                      src="/delivery.jpg"
+                      alt="Professional logistics delivery"
+                      className="object-cover w-full h-full"
+                      loading="lazy"
+                    />
+                  </div>
+                </AnimateInView>
+              </div>
             </div>
+            {/* Optional: subtle pattern overlay for extra polish */}
+            <div className="absolute inset-0 bg-[url('/placeholder.svg')] opacity-10 pointer-events-none" />
           </section>
         </main>
         <Footer />

@@ -1,17 +1,18 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import Image from "next/image"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
 
 // Define slide content type
 interface Slide {
-	id: number
-	image: string
-	title: string
-	subtitle: string
+	id: number;
+	image: string;
+	title: string;
+	subtitle: string;
 }
 
 // Example slides with professional logistics imagery
@@ -20,53 +21,60 @@ const slides: Slide[] = [
 		id: 1,
 		image: "/industrial-port-container-yard.jpg", // Corrected path
 		title: "Global Logistics Excellence",
-		subtitle: "Seamless end-to-end supply chain solutions for businesses worldwide"
+		subtitle:
+			"Seamless end-to-end supply chain solutions for businesses worldwide",
 	},
 	{
 		id: 2,
 		image: "/register-bg.jpg", // Corrected path
 		title: "Efficient Freight Management",
-		subtitle: "Optimizing your shipping operations with advanced technology"
+		subtitle: "Optimizing your shipping operations with advanced technology",
 	},
 	{
 		id: 3,
 		image: "/warehouse.jpg", // Corrected path
 		title: "Smart Warehousing Solutions",
-		subtitle: "State-of-the-art facilities ensuring security and efficiency"
-	}
-]
+		subtitle: "State-of-the-art facilities ensuring security and efficiency",
+	},
+];
 
 export default function ProfessionalHero() {
-	const [currentSlide, setCurrentSlide] = useState(0)
-	const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-	const slideInterval = 6000 // 6 seconds per slide
+	const [currentSlide, setCurrentSlide] = useState(0);
+	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const slideInterval = 3000; // 3 seconds per slide
 
 	// Auto-advance slides
 	useEffect(() => {
 		const resetTimeout = () => {
 			if (timeoutRef.current) {
-				clearTimeout(timeoutRef.current)
+				clearTimeout(timeoutRef.current);
 			}
-		}
+		};
 
-		resetTimeout()
+		resetTimeout();
 		timeoutRef.current = setTimeout(() => {
-			setCurrentSlide((prevSlide) => (prevSlide === slides.length - 1 ? 0 : prevSlide + 1))
-		}, slideInterval)
+			setCurrentSlide((prevSlide) =>
+				prevSlide === slides.length - 1 ? 0 : prevSlide + 1
+			);
+		}, slideInterval);
 
 		return () => {
-			resetTimeout()
-		}
-	}, [currentSlide])
+			resetTimeout();
+		};
+	}, [currentSlide]);
 
 	// Handle navigation
 	const nextSlide = () => {
-		setCurrentSlide((prevSlide) => (prevSlide === slides.length - 1 ? 0 : prevSlide + 1))
-	}
+		setCurrentSlide((prevSlide) =>
+			prevSlide === slides.length - 1 ? 0 : prevSlide + 1
+		);
+	};
 
 	const prevSlide = () => {
-		setCurrentSlide((prevSlide) => (prevSlide === 0 ? slides.length - 1 : prevSlide - 1))
-	}
+		setCurrentSlide((prevSlide) =>
+			prevSlide === 0 ? slides.length - 1 : prevSlide - 1
+		);
+	};
 
 	return (
 		<div className="relative h-[80vh] w-full overflow-hidden">
@@ -77,7 +85,7 @@ export default function ProfessionalHero() {
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					exit={{ opacity: 0 }}
-					transition={{ duration: 1 }}
+					transition={{ duration: 0.5 }} // faster fade
 					className="absolute inset-0"
 				>
 					{/* Image with overlay */}
@@ -119,11 +127,18 @@ export default function ProfessionalHero() {
 									transition={{ duration: 0.7, delay: 0.6 }}
 									className="flex flex-wrap gap-4"
 								>
-									<Button size="lg" className="bg-primary hover:bg-primary/90 text-white">
-										Get Started
+									<Button
+										size="lg"
+										className="bg-primary hover:bg-primary/90 text-white"
+									>
+										<Link href="/register">Get Started</Link>
 									</Button>
-									<Button size="lg" variant="outline" className="bg-transparent border-white text-white hover:bg-white/10">
-										Learn More
+									<Button
+										size="lg"
+										variant="outline"
+										className="bg-transparent border-white text-white hover:bg-white/10"
+									>
+										<Link href="/about">Learn More</Link>
 									</Button>
 								</motion.div>
 							</div>
@@ -165,5 +180,5 @@ export default function ProfessionalHero() {
 				<ChevronRight className="h-6 w-6" />
 			</Button>
 		</div>
-	)
+	);
 }
