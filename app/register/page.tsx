@@ -1,18 +1,26 @@
-"use client"
+"use client";
 
-import { useState, FormEvent } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { TruckIcon, UserPlus, Lock, Mail, User, Phone, AlertCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Separator } from "@/components/ui/separator"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
+import { useState, FormEvent } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { TruckIcon, UserPlus, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
+import RegisterBackground from "@/public/deliver-man.jpg";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -25,126 +33,141 @@ export default function RegisterPage() {
     confirmPassword: "",
     agreeTerms: false,
     marketingConsent: false,
-  })
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
-    }))
-  }
+    }));
+  };
 
   const handlePhoneCodeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const code = e.target.value
-    let number = formData.phone.replace(/^\+233|^\+1/, "")
-    setFormData((prev) => ({ ...prev, phone: code + number }))
-  }
+    const code = e.target.value;
+    let number = formData.phone.replace(/^\+233|^\+1/, "");
+    setFormData((prev) => ({ ...prev, phone: code + number }));
+  };
 
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const code = formData.phone.startsWith("+233") ? "+233" : "+1"
-    setFormData((prev) => ({ ...prev, phone: code + e.target.value.replace(/[^0-9]/g, "") }))
-  }
+    const code = formData.phone.startsWith("+233") ? "+233" : "+1";
+    setFormData((prev) => ({
+      ...prev,
+      phone: code + e.target.value.replace(/[^0-9]/g, ""),
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.confirmPassword) {
-      setError("Please fill in all required fields")
-      return
+    e.preventDefault();
+    setError("");
+    if (
+      !formData.firstName ||
+      !formData.lastName ||
+      !formData.email ||
+      !formData.password ||
+      !formData.confirmPassword
+    ) {
+      setError("Please fill in all required fields");
+      return;
     }
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match")
-      return
+      setError("Passwords do not match");
+      return;
     }
     if (!formData.agreeTerms) {
-      setError("You must accept the Terms of Service to continue")
-      return
+      setError("You must accept the Terms of Service to continue");
+      return;
     }
-    setIsLoading(true)
+    setIsLoading(true);
     setTimeout(() => {
-      setIsLoading(false)
-      alert("Registration successful! (Simulation)")
-    }, 1000)
-  }
+      setIsLoading(false);
+      // Generate a dummy JWT (header.payload.signature)
+      const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+      const payload = btoa(
+        JSON.stringify({
+          sub: formData.email,
+          name: formData.firstName + " " + formData.lastName,
+          iat: Math.floor(Date.now() / 1000),
+          secret: process.env.JWT_SECRET,
+        })
+      );
+      const signature = "signature";
+      const dummyJwt = `${header}.${payload}.${signature}`;
+      if (typeof window !== "undefined") {
+        const dashboardUrl =
+          process.env.NEXT_PUBLIC_DASHBOARD_URL ||
+          "http://localhost:5173/dashboard";
+        window.location.href = `${dashboardUrl}?jwt=${encodeURIComponent(
+          dummyJwt
+        )}`;
+      }
+    }, 1000);
+  };
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
+    <div className="flex mt-10 min-h-screen flex-col">
       <Navbar />
-      <main className="flex-1 flex items-center justify-center px-4 py-12 relative" style={{ minHeight: '100vh' }}>
-        <Image
-          src="/deliveryparcel.jpg"
-          alt="Logistics background"
-          className="object-cover object-center w-full h-full absolute inset-0 z-0"
-          fill
-          sizes="100vw"
-          priority
-        />
-
-        <div className="w-full max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 items-center relative z-20 px-4">
-          {/* Left side: Branding with glass effect */}
-          <div className="hidden lg:block space-y-6 p-8 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 shadow-lg hover:shadow-xl transition-shadow">
-            <div className="flex items-center mb-8">
-              <TruckIcon className="h-8 w-8 text-red-400" />
-              <h1 className="text-2xl font-bold ml-2 text-slate-100">LogisticsFuture</h1>
+      <main
+        className="flex-1 flex items-center justify-center px-4 py-12 bg-cover bg-center bg-no-repeat"
+        style={{
+          minHeight: "calc(100vh - 140px)",
+          backgroundImage: "url('/login.jpg')",
+        }}
+      >
+        <div className="w-full max-w-6xl mx-auto">
+          <Card className="border-0 shadow-xl overflow-hidden rounded-2xl grid md:grid-cols-2">
+            {/* Left side - Image */}
+            <div className="relative h-64 md:h-full">
+              <Image
+                src={RegisterBackground}
+                alt="Logistics background"
+                placeholder="blur"
+                className="object-cover object-center"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-red-700/40 to-red-900/40 mix-blend-multiply" />
+              {/* <div className="absolute inset-0 flex flex-col justify-center items-center text-white p-6">
+                <TruckIcon size={48} className="mb-4" />
+                <h2 className="text-3xl font-bold text-center mb-2">Join Our Network</h2>
+                <p className="text-lg text-center max-w-xs">Create an account and experience premium delivery services</p>
+              </div> */}
             </div>
-            <h2 className="text-4xl font-bold leading-tight text-slate-100">
-              Streamline Your Personal<br />
-              Logistics Management
-            </h2>
-            <p className="text-lg text-slate-300">
-              Fast, reliable, and secure personal logistics solutions
-            </p>
 
-            <div className="mt-8 space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-white/20 rounded-full">
-                  <Lock className="h-6 w-6 text-red-400" />
-                </div>
-                <span className="text-slate-200">End-to-end encrypted communications</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-white/20 rounded-full">
-                  <Phone className="h-6 w-6 text-red-400" />
-                </div>
-                <span className="text-slate-200">Multi-country phone support</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-white/20 rounded-full">
-                  <User className="h-6 w-6 text-red-400" />
-                </div>
-                <span className="text-slate-200">Personal account management</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Right side: Registration form with glass effect */}
-          <div className="w-full max-w-md mx-auto">
-            <Card className="border-0 bg-white/80 backdrop-blur-sm hover:backdrop-blur-md transition-all shadow-xl hover:shadow-2xl rounded-2xl overflow-hidden">
-              <div className="bg-gradient-to-r from-red-600/20 to-red-400/20 absolute inset-0 -z-10" />
-              <CardHeader className="pb-4 px-8 pt-8">
-                <CardTitle className="text-3xl font-bold text-center text-slate-800">
+            {/* Right side - Registration Form */}
+            <div className="p-6 md:p-8 bg-white dark:bg-slate-800 overflow-y-auto max-h-screen">
+              <CardHeader className="px-0 pb-4">
+                <CardTitle className="text-2xl font-bold text-slate-800 dark:text-white">
                   Create Account
                 </CardTitle>
-                <CardDescription className="text-center text-slate-600 mt-2">
+                <CardDescription className="text-slate-600 dark:text-slate-300">
                   Get started with your personal account
                 </CardDescription>
               </CardHeader>
 
-              <CardContent className="px-8">
+              <CardContent className="px-0">
                 {error && (
-                  <Alert variant="destructive" className="mb-4 bg-red-50/80 backdrop-blur-sm">
+                  <Alert
+                    variant="destructive"
+                    className="mb-4 bg-red-50 dark:bg-red-900/20"
+                  >
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="first-name" className="text-slate-700">First Name *</Label>
+                      <Label
+                        htmlFor="first-name"
+                        className="text-slate-700 dark:text-slate-200"
+                      >
+                        First Name *
+                      </Label>
                       <Input
                         id="first-name"
                         name="firstName"
@@ -153,11 +176,16 @@ export default function RegisterPage() {
                         required
                         value={formData.firstName}
                         onChange={handleChange}
-                        className="bg-white/70 border-slate-200/80 hover:border-red-200/50 focus:border-red-300/50"
+                        className="bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="last-name" className="text-slate-700">Last Name *</Label>
+                      <Label
+                        htmlFor="last-name"
+                        className="text-slate-700 dark:text-slate-200"
+                      >
+                        Last Name *
+                      </Label>
                       <Input
                         id="last-name"
                         name="lastName"
@@ -166,13 +194,18 @@ export default function RegisterPage() {
                         required
                         value={formData.lastName}
                         onChange={handleChange}
-                        className="bg-white/70 border-slate-200/80 hover:border-red-200/50 focus:border-red-300/50"
+                        className="bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-slate-700">Email Address *</Label>
+                    <Label
+                      htmlFor="email"
+                      className="text-slate-700 dark:text-slate-200"
+                    >
+                      Email Address *
+                    </Label>
                     <Input
                       id="email"
                       name="email"
@@ -181,17 +214,24 @@ export default function RegisterPage() {
                       required
                       value={formData.email}
                       onChange={handleChange}
-                      className="bg-white/70 border-slate-200/80 hover:border-red-200/50 focus:border-red-300/50"
+                      className="bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-slate-700">Phone Number</Label>
+                    <Label
+                      htmlFor="phone"
+                      className="text-slate-700 dark:text-slate-200"
+                    >
+                      Phone Number
+                    </Label>
                     <div className="flex gap-2">
                       <select
                         id="country-code"
-                        className="h-10 rounded-md border border-slate-200/80 bg-white/70 px-3 text-slate-700 hover:border-red-200/50 focus:border-red-300/50"
-                        value={formData.phone.startsWith('+233') ? '+233' : '+1'}
+                        className="h-10 rounded-md border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 text-slate-700 dark:text-slate-200"
+                        value={
+                          formData.phone.startsWith("+233") ? "+233" : "+1"
+                        }
                         onChange={handlePhoneCodeChange}
                         style={{ minWidth: 100 }}
                       >
@@ -203,15 +243,20 @@ export default function RegisterPage() {
                         name="phone"
                         type="tel"
                         placeholder="(555) 000-0000"
-                        className="flex-1 bg-white/70 border-slate-200/80 hover:border-red-200/50 focus:border-red-300/50"
-                        value={formData.phone.replace(/^\+233|^\+1/, '')}
+                        className="flex-1 bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600"
+                        value={formData.phone.replace(/^\+233|^\+1/, "")}
                         onChange={handlePhoneNumberChange}
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="password" className="text-slate-700">Password *</Label>
+                    <Label
+                      htmlFor="password"
+                      className="text-slate-700 dark:text-slate-200"
+                    >
+                      Password *
+                    </Label>
                     <Input
                       id="password"
                       name="password"
@@ -219,12 +264,17 @@ export default function RegisterPage() {
                       required
                       value={formData.password}
                       onChange={handleChange}
-                      className="bg-white/70 border-slate-200/80 hover:border-red-200/50 focus:border-red-300/50"
+                      className="bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="confirm-password" className="text-slate-700">Confirm Password *</Label>
+                    <Label
+                      htmlFor="confirm-password"
+                      className="text-slate-700 dark:text-slate-200"
+                    >
+                      Confirm Password *
+                    </Label>
                     <Input
                       id="confirm-password"
                       name="confirmPassword"
@@ -232,7 +282,7 @@ export default function RegisterPage() {
                       required
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      className="bg-white/70 border-slate-200/80 hover:border-red-200/50 focus:border-red-300/50"
+                      className="bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600"
                     />
                   </div>
 
@@ -241,26 +291,59 @@ export default function RegisterPage() {
                       <Checkbox
                         id="terms"
                         checked={formData.agreeTerms}
-                        onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, agreeTerms: !!checked }))}
-                        className="mt-1 text-red-600 border-slate-300/80 data-[state=checked]:border-red-600"
+                        onCheckedChange={(checked) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            agreeTerms: !!checked,
+                          }))
+                        }
+                        className="mt-1 text-red-600 dark:text-red-500 border-slate-300 dark:border-slate-500"
                       />
-                      <Label htmlFor="terms" className="text-sm text-slate-600">
-                        I agree to the {' '}
-                        <Link href="/terms" className="text-red-600 hover:underline font-medium">
+                      <Label
+                        htmlFor="terms"
+                        className="text-sm text-slate-600 dark:text-slate-300"
+                      >
+                        I agree to the{" "}
+                        <Link
+                          href="/terms"
+                          className="text-red-600 hover:underline font-medium dark:text-red-400"
+                        >
                           Terms of Service
-                        </Link> *
+                        </Link>{" "}
+                        *
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start space-x-2">
+                      <Checkbox
+                        id="marketing"
+                        checked={formData.marketingConsent}
+                        onCheckedChange={(checked) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            marketingConsent: !!checked,
+                          }))
+                        }
+                        className="mt-1 text-red-600 dark:text-red-500 border-slate-300 dark:border-slate-500"
+                      />
+                      <Label
+                        htmlFor="marketing"
+                        className="text-sm text-slate-600 dark:text-slate-300"
+                      >
+                        I agree to receive marketing communications from your
+                        company
                       </Label>
                     </div>
                   </div>
 
                   <Button
                     type="submit"
-                    className="w-full h-12 bg-red-600/90 hover:bg-red-700/90 transition-all text-white/95 hover:text-white shadow-md hover:shadow-red-300/30"
+                    className="w-full h-12 bg-red-600 hover:bg-red-700 transition-all text-white shadow-md"
                     disabled={isLoading}
                   >
                     {isLoading ? (
                       <span className="flex items-center justify-center gap-2">
-                        <span className="inline-block w-5 h-5 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+                        <span className="inline-block w-5 h-5 border-2 border-red-300 border-t-transparent rounded-full animate-spin" />
                         Creating account...
                       </span>
                     ) : (
@@ -273,20 +356,23 @@ export default function RegisterPage() {
                 </form>
               </CardContent>
 
-              <CardFooter className="flex flex-col space-y-4 pt-2 pb-8 px-8">
-                <Separator className="my-2 bg-slate-200/80" />
-                <div className="text-sm text-center w-full text-slate-600">
-                  Already have an account?{' '}
-                  <Link href="/login" className="text-red-600 hover:underline font-semibold">
+              <CardFooter className="flex flex-col space-y-4 pt-2 px-0">
+                <Separator className="my-2 bg-slate-200 dark:bg-slate-700" />
+                <div className="text-sm text-center w-full text-slate-600 dark:text-slate-300">
+                  Already have an account?{" "}
+                  <Link
+                    href="/login"
+                    className="text-red-600 hover:underline font-semibold dark:text-red-400"
+                  >
                     Sign in
                   </Link>
                 </div>
               </CardFooter>
-            </Card>
-          </div>
+            </div>
+          </Card>
         </div>
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </div>
-  )
+  );
 }

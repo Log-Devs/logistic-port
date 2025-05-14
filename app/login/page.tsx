@@ -1,51 +1,89 @@
-"use client"
+"use client";
 
-import { useState, FormEvent } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { TruckIcon, LogIn, AlertCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Separator } from "@/components/ui/separator"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import RegisterBackground from "@/public/deliveryparcel.jpg"
+import { useState, FormEvent } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { TruckIcon, LogIn, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
+import RegisterBackground from "@/public/deliveryparcel.jpg";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [rememberMe, setRememberMe] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleLogin = async (e: FormEvent) => {
-    e.preventDefault()
-    setError("")
+    e.preventDefault();
+    setError("");
 
     if (!email || !password) {
-      setError("Please enter both email and password")
-      return
+      setError("Please enter both email and password");
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      console.log("Login attempt:", { email, rememberMe })
+      // Manual login for testing
+      // Use: test@example.com / password123
+      if (email === "test@example.com" && password === "password123") {
+        // Generate a dummy JWT (header.payload.signature)
+        const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+        const payload = btoa(
+          JSON.stringify({
+            sub: email,
+            name: "Test User",
+            iat: Math.floor(Date.now() / 1000),
+            secret: process.env.JWT_SECRET,
+          })
+        );
+        const signature = "signature";
+        const dummyJwt = `${header}.${payload}.${signature}`;
+        if (typeof window !== "undefined") {
+          const dashboardUrl =
+            process.env.NEXT_PUBLIC_DASHBOARD_URL ||
+            "http://localhost:5173/dashboard";
+          window.location.href = `${dashboardUrl}?jwt=${encodeURIComponent(
+            dummyJwt
+          )}`;
+        }
+        return;
+      } else {
+        throw new Error();
+      }
     } catch (error) {
-      setError("Invalid email or password. Please try again.")
+      setError("Invalid email or password. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-900">
       <Navbar />
-      <main className="flex-1 flex items-center justify-center px-4 py-12" style={{ minHeight: 'calc(100vh - 140px)' }}>
+      <main
+        className="flex-1 flex items-center justify-center px-4 py-12 bg-cover bg-center bg-no-repeat"
+        style={{
+          minHeight: "calc(100vh - 140px)",
+          backgroundImage: "url('/login.jpg')",
+        }}
+      >
         <div className="w-full max-w-5xl mx-auto">
           <Card className="border-0 shadow-xl overflow-hidden rounded-2xl grid md:grid-cols-2">
             {/* Left side - Image */}
@@ -80,7 +118,10 @@ export default function LoginPage() {
 
               <CardContent className="px-0">
                 {error && (
-                  <Alert variant="destructive" className="mb-4 bg-red-50 dark:bg-red-900/20">
+                  <Alert
+                    variant="destructive"
+                    className="mb-4 bg-red-50 dark:bg-red-900/20"
+                  >
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
@@ -88,7 +129,12 @@ export default function LoginPage() {
 
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-slate-700 dark:text-slate-200">Email Address</Label>
+                    <Label
+                      htmlFor="email"
+                      className="text-slate-700 dark:text-slate-200"
+                    >
+                      Email Address
+                    </Label>
                     <Input
                       id="email"
                       type="email"
@@ -102,7 +148,12 @@ export default function LoginPage() {
 
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="password" className="text-slate-700 dark:text-slate-200">Password</Label>
+                      <Label
+                        htmlFor="password"
+                        className="text-slate-700 dark:text-slate-200"
+                      >
+                        Password
+                      </Label>
                       <Link
                         href="/forgot-password"
                         className="text-sm text-red-600 hover:underline hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
@@ -124,10 +175,15 @@ export default function LoginPage() {
                     <Checkbox
                       id="remember-me"
                       checked={rememberMe}
-                      onCheckedChange={(checked) => setRememberMe(checked === true)}
+                      onCheckedChange={(checked) =>
+                        setRememberMe(checked === true)
+                      }
                       className="text-red-600 border-slate-300 dark:border-slate-500"
                     />
-                    <Label htmlFor="remember-me" className="text-sm text-slate-600 dark:text-slate-300">
+                    <Label
+                      htmlFor="remember-me"
+                      className="text-sm text-slate-600 dark:text-slate-300"
+                    >
                       Remember me for 30 days
                     </Label>
                   </div>
@@ -156,7 +212,10 @@ export default function LoginPage() {
                 <Separator className="my-2 bg-slate-200 dark:bg-slate-700" />
                 <div className="text-sm text-center w-full text-slate-600 dark:text-slate-300">
                   Don't have an account?{" "}
-                  <Link href="/register" className="text-red-600 hover:underline font-semibold dark:text-red-400">
+                  <Link
+                    href="/register"
+                    className="text-red-600 hover:underline font-semibold dark:text-red-400"
+                  >
                     Create account
                   </Link>
                 </div>
@@ -167,5 +226,5 @@ export default function LoginPage() {
       </main>
       {/* <Footer /> */}
     </div>
-  )
+  );
 }
