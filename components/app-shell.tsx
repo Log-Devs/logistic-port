@@ -30,6 +30,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     let loaded = 0;
     images.forEach((src) => {
       const img = new window.Image();
+      img.src = src;
       if (img.complete) {
         loaded++;
         if (loaded === images.length) setLoading(false);
