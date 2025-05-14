@@ -83,8 +83,52 @@ fetch('/api/me', { credentials: 'include' })
 
 ---
 
+## [2025-05-14] Edit: Now Using Environment Variables for All Secrets, URLs, and JWT
+
+### What Changed
+- All hardcoded URLs, secrets, and JWT logic have been refactored to use environment variables from `.env` files.
+- Redirect URLs (dashboard, login) and JWT secret are now loaded from `.env`.
+- Example variables:
+  - `NEXT_PUBLIC_DASHBOARD_URL` (Next.js)
+  - `JWT_SECRET` (Next.js)
+  - `VITE_DASHBOARD_URL` (Vite/React)
+  - `VITE_LOGIN_URL` (Vite/React)
+  - `VITE_JWT_SECRET` (Vite/React, if needed)
+
+### Example Usage in Code
+```js
+// Next.js (login, register, forgot-password)
+const dashboardUrl = process.env.NEXT_PUBLIC_DASHBOARD_URL;
+const jwtSecret = process.env.JWT_SECRET;
+
+// Vite/React (RequireAuth)
+const loginUrl = import.meta.env.VITE_LOGIN_URL;
+```
+
+### What To Do When Deploying or Changing URLs/Secrets
+1. **Edit your `.env` files** in each project root. Example:
+   - logistics-portfolio/.env
+   - mainfrontend/clientapp/.env
+2. **Never commit real `.env` files to git.** Only commit `.env.example`.
+3. **Update your code to always use environment variables for any secret, API URL, or redirect.**
+4. **For production:**
+   - Set real values for all secrets and URLs in your deployment environment.
+   - Use secure cookies and backend validation for JWTs (see previous section in this file for production best practices).
+
+---
+
+## Previous Logic (for reference)
+- JWT and URLs were hardcoded in the codebase.
+- Now, everything is loaded from environment variables for security and flexibility.
+
+---
+
 ## Summary
 - **Development:** JWT is passed via URL and stored in localStorage for demo/testing only.
 - **Production:** Use secure cookies and backend validation for all authentication.
+- All secrets, URLs, and JWT logic are now environment-driven.
+- Update your `.env` files for any deployment or secret change.
+- See `.env.example` for required variables.
+- For production, use secure cookies and backend validation.
 
 Keep this file as a reference for future cross-app authentication implementations.
