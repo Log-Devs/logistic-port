@@ -20,7 +20,6 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
-import RegisterBackground from "@/public/deliver-man.jpg";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -121,9 +120,8 @@ export default function RegisterPage() {
             {/* Left side - Image */}
             <div className="relative h-64 md:h-full">
               <Image
-                src={RegisterBackground}
+                src="/deliver-man.jpg"
                 alt="Logistics background"
-                placeholder="blur"
                 className="object-cover object-center"
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
