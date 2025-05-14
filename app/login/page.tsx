@@ -3,7 +3,7 @@
 import { useState, FormEvent } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { TruckIcon, LogIn, AlertCircle, Mail, Lock } from "lucide-react"
+import { TruckIcon, LogIn, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -43,80 +43,52 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
+    <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-900">
       <Navbar />
-      <main className="flex-1 flex items-center justify-center px-4 py-12 relative" style={{ minHeight: '100vh' }}>
-        <Image
-          src={RegisterBackground}
-          alt="Logistics background"
-          placeholder="blur"
-          className="object-cover object-center w-full h-full absolute inset-0 z-0"
-          fill
-          sizes="100vw"
-          priority
-        />
-
-        <div className="w-full max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 items-center relative z-20 px-4">
-          {/* Left side: Branding and description with glass effect */}
-          <div className="hidden lg:block space-y-6 p-8 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 shadow-lg hover:shadow-xl transition-shadow">
-            <div className="flex items-center mb-8">
-              <TruckIcon className="h-8 w-8 text-red-400" />
-              <h1 className="text-2xl font-bold ml-2 text-slate-100">LogisticsFuture</h1>
+      <main className="flex-1 flex items-center justify-center px-4 py-12" style={{ minHeight: 'calc(100vh - 140px)' }}>
+        <div className="w-full max-w-5xl mx-auto">
+          <Card className="border-0 shadow-xl overflow-hidden rounded-2xl grid md:grid-cols-2">
+            {/* Left side - Image */}
+            <div className="relative h-64 md:h-full">
+              <Image
+                src={RegisterBackground}
+                alt="Logistics background"
+                placeholder="blur"
+                className="object-cover object-center"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-red-700/40 to-red-900/40 mix-blend-multiply" />
+              {/* <div className="absolute inset-0 flex flex-col justify-center items-center text-white p-6">
+                <TruckIcon size={48} className="mb-4" />
+                <h2 className="text-3xl font-bold text-center mb-2">Fast Delivery Services</h2>
+                <p className="text-lg text-center max-w-xs">Your trusted partner for reliable shipping solutions</p>
+              </div> */}
             </div>
-            <h2 className="text-4xl font-bold leading-tight text-slate-100">
-              Efficient Logistics Management<br />
-              At Your Fingertips
-            </h2>
-            <p className="text-lg text-slate-300">
-              Secure access to your personal logistics management portal
-            </p>
 
-            <div className="mt-8 space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-white/20 rounded-full">
-                  <TruckIcon className="h-6 w-6 text-red-400" />
-                </div>
-                <span className="text-slate-200">Real-time shipment tracking</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-white/20 rounded-full">
-                  <Lock className="h-6 w-6 text-red-400" />
-                </div>
-                <span className="text-slate-200">Military-grade encryption</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-white/20 rounded-full">
-                  <Mail className="h-6 w-6 text-red-400" />
-                </div>
-                <span className="text-slate-200">Instant notifications</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Right side: Login form with glass effect */}
-          <div className="w-full max-w-md mx-auto">
-            <Card className="border-0 bg-white/80 backdrop-blur-sm hover:backdrop-blur-md transition-all shadow-xl hover:shadow-2xl rounded-2xl overflow-hidden">
-              <div className="bg-gradient-to-r from-red-600/20 to-red-400/20 absolute inset-0 -z-10" />
-              <CardHeader className="pb-4 px-8 pt-8">
-                <CardTitle className="text-3xl font-bold text-center text-slate-800">
+            {/* Right side - Form */}
+            <div className="p-6 md:p-8 bg-white dark:bg-slate-800">
+              <CardHeader className="px-0 pb-4">
+                <CardTitle className="text-2xl font-bold text-slate-800 dark:text-white">
                   Welcome Back
                 </CardTitle>
-                <CardDescription className="text-center text-slate-600 mt-2">
+                <CardDescription className="text-slate-600 dark:text-slate-300">
                   Sign in to your personal account
                 </CardDescription>
               </CardHeader>
 
-              <CardContent className="px-8">
+              <CardContent className="px-0">
                 {error && (
-                  <Alert variant="destructive" className="mb-4 bg-red-50/80 backdrop-blur-sm">
+                  <Alert variant="destructive" className="mb-4 bg-red-50 dark:bg-red-900/20">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
 
-                <form onSubmit={handleLogin} className="space-y-5">
+                <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-slate-700">Email Address</Label>
+                    <Label htmlFor="email" className="text-slate-700 dark:text-slate-200">Email Address</Label>
                     <Input
                       id="email"
                       type="email"
@@ -124,16 +96,16 @@ export default function LoginPage() {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="bg-white/70 border-slate-200/80 hover:border-red-200/50 focus:border-red-300/50"
+                      className="bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="password" className="text-slate-700">Password</Label>
+                      <Label htmlFor="password" className="text-slate-700 dark:text-slate-200">Password</Label>
                       <Link
                         href="/forgot-password"
-                        className="text-sm text-red-600 hover:underline hover:text-red-700"
+                        className="text-sm text-red-600 hover:underline hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                       >
                         Forgot password?
                       </Link>
@@ -144,7 +116,7 @@ export default function LoginPage() {
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="bg-white/70 border-slate-200/80 hover:border-red-200/50 focus:border-red-300/50"
+                      className="bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600"
                     />
                   </div>
 
@@ -153,21 +125,21 @@ export default function LoginPage() {
                       id="remember-me"
                       checked={rememberMe}
                       onCheckedChange={(checked) => setRememberMe(checked === true)}
-                      className="text-red-600 border-slate-300/80 data-[state=checked]:border-red-600"
+                      className="text-red-600 border-slate-300 dark:border-slate-500"
                     />
-                    <Label htmlFor="remember-me" className="text-sm text-slate-600">
+                    <Label htmlFor="remember-me" className="text-sm text-slate-600 dark:text-slate-300">
                       Remember me for 30 days
                     </Label>
                   </div>
 
                   <Button
                     type="submit"
-                    className="w-full h-12 bg-red-600/90 hover:bg-red-700/90 transition-all text-white/95 hover:text-white shadow-md hover:shadow-red-300/30"
+                    className="w-full h-12 bg-red-600 hover:bg-red-700 transition-all text-white shadow-md"
                     disabled={isLoading}
                   >
                     {isLoading ? (
                       <span className="flex items-center justify-center gap-2">
-                        <span className="inline-block w-5 h-5 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+                        <span className="inline-block w-5 h-5 border-2 border-red-300 border-t-transparent rounded-full animate-spin" />
                         Signing in...
                       </span>
                     ) : (
@@ -180,20 +152,20 @@ export default function LoginPage() {
                 </form>
               </CardContent>
 
-              <CardFooter className="flex flex-col space-y-4 pt-2 pb-8 px-8">
-                <Separator className="my-2 bg-slate-200/80" />
-                <div className="text-sm text-center w-full text-slate-600">
+              <CardFooter className="flex flex-col space-y-4 pt-2 px-0">
+                <Separator className="my-2 bg-slate-200 dark:bg-slate-700" />
+                <div className="text-sm text-center w-full text-slate-600 dark:text-slate-300">
                   Don't have an account?{" "}
-                  <Link href="/register" className="text-red-600 hover:underline font-semibold">
+                  <Link href="/register" className="text-red-600 hover:underline font-semibold dark:text-red-400">
                     Create account
                   </Link>
                 </div>
               </CardFooter>
-            </Card>
-          </div>
+            </div>
+          </Card>
         </div>
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   )
 }
