@@ -30,16 +30,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     let loaded = 0;
     images.forEach((src) => {
       const img = new window.Image();
-      img.onload = img.onerror = () => {
-        loaded++;
-        if (loaded === images.length) setLoading(false);
-      };
       img.src = src;
-      // Handle cached images: if already complete, count as loaded
       if (img.complete) {
         loaded++;
         if (loaded === images.length) setLoading(false);
+      } else {
+        img.onload = img.onerror = () => {
+          loaded++;
+          if (loaded === images.length) setLoading(false);
+        };
       }
+      img.src = src;
     });
     // Fallback: hide loader after 3s if images are slow
     const timeout = setTimeout(() => setLoading(false), 3000);
