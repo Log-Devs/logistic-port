@@ -10,6 +10,7 @@ export default function AppLoaderWrapper({
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    let cleanupFns: (() => void)[] = [];
     function checkImages() {
       const images = Array.from(document.images);
       if (images.length === 0) {
@@ -17,8 +18,10 @@ export default function AppLoaderWrapper({
         return;
       }
       let loadedCount = 0;
-      function onImgLoad() {
+      function onImgLoad(this: HTMLImageElement) {
         loadedCount++;
+        this.removeEventListener("load", onImgLoad);
+        this.removeEventListener("error", onImgLoad);
         if (loadedCount === images.length) setLoaded(true);
       }
       images.forEach((img) => {
@@ -27,6 +30,7 @@ export default function AppLoaderWrapper({
         } else {
           img.addEventListener("load", onImgLoad);
           img.addEventListener("error", onImgLoad);
+          // No additional cleanup needed for this image, as onImgLoad handles it.
         }
       });
       if (loadedCount === images.length) setLoaded(true);
@@ -35,8 +39,13 @@ export default function AppLoaderWrapper({
       checkImages();
     } else {
       window.addEventListener("DOMContentLoaded", checkImages);
-      return () => window.removeEventListener("DOMContentLoaded", checkImages);
+      cleanupFns.push(() =>
+        window.removeEventListener("DOMContentLoaded", checkImages)
+      );
     }
+    return () => {
+      cleanupFns.forEach((fn) => fn());
+    };
   }, []);
 
   return (
