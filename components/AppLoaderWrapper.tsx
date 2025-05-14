@@ -30,12 +30,7 @@ export default function AppLoaderWrapper({
         } else {
           img.addEventListener("load", onImgLoad);
           img.addEventListener("error", onImgLoad);
-          // Cleanup for this image
-          const cleanup = () => {
-            img.removeEventListener("load", onImgLoad);
-            img.removeEventListener("error", onImgLoad);
-          };
-          cleanupFns.push(cleanup);
+          // No additional cleanup needed for this image, as onImgLoad handles it.
         }
       });
       if (loadedCount === images.length) setLoaded(true);
