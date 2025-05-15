@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { APP_DISPLAY_NAME } from "./app-details-config";
 
 export const metadata: Metadata = {
-	title: "LogisticsFuture - Next-Generation Logistics Solutions",
+	title: `${APP_DISPLAY_NAME} - Next-Generation Logistics Solutions`,
 	description: "Transforming global freight with cutting-edge technology and unparalleled service"
 }
