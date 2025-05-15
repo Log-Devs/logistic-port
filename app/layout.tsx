@@ -5,7 +5,7 @@ import AppLoaderWrapper from "@/components/AppLoaderWrapper";
 import PreloadMediaProvider from "@/components/PreloadMediaProvider";
 import CookieConsentBanner from "@/components/ui/CookieConsentBanner";
 import ChatbotButtonWrapper from "@/components/ChatbotButtonWrapper";
-
+import { Analytics } from "@vercel/analytics/next";
 const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
@@ -16,6 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
       <body className={inter.className + " bg-white dark:bg-slate-900"}>
+        <Analytics />
         <PreloadMediaProvider>
           <AppLoaderWrapper>
             <AppShell>{children}</AppShell>
