@@ -4,9 +4,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 
-export default function EnterpriseLoader() {
+export default function EnterpriseLoader({ loading }: { loading: boolean }) {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
+
+  if (!loading) return null;
 
   return (
     <AnimatePresence>
