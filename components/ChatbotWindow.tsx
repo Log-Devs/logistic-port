@@ -136,7 +136,7 @@ const ChatbotWindow: React.FC<ChatbotWindowProps> = ({ onClose, isOpen }) => {
     function handleClickOutside(event: MouseEvent | TouchEvent) {
       if (!isOpen) return;
       const chatWindow = chatWindowRef.current;
-      const chatButton = document.querySelector('[data-testid="chatbot-fab"]');
+      const chatButton = chatButtonRef.current;
       if (
         chatWindow &&
         !chatWindow.contains(event.target as Node) &&

@@ -74,39 +74,13 @@ const ChatbotButton = () => {
     }, 1000);
   };
 
-  // Set up the message rotation
-  useEffect(() => {
-    if (!open) {
-      // Show message every 5 seconds
-      messageIntervalRef.current = setInterval(() => {
-        // Rotate to next message
-        setCurrentMessage((prev) => (prev + 1) % helpMessages.length);
-
-        // Show the message
-        setShowMessage(true);
-
-        // Hide after 3 seconds
-        setTimeout(() => {
-          setShowMessage(false);
-        }, 3000);
-      }, 8000); // <-- Change interval to 8s so each message stays for 3s, then 5s gap
-
-      // Show first message after a short delay
-      setTimeout(() => {
-        setShowMessage(true);
-        setTimeout(() => {
-          setShowMessage(false);
-        }, 3000);
-      }, 1000);
-    }
-
-    return () => {
-      if (messageIntervalRef.current) {
-        clearInterval(messageIntervalRef.current);
-      }
-    };
-  }, [open]);
-
+  // Use custom hook for message rotation
+  const { currentMessage, showMessage } = useRotatingMessages({
+    messages: helpMessages,
+    displayDuration: 3000,
+    intervalDuration: 8000,
+    isActive: !open,
+  });
   // Set up the interval for scatter effect
   useEffect(() => {
     // Only create scatter particles if chat is closed
