@@ -1,3 +1,34 @@
+// Reusable section components
+interface SectionProps {
+  title: string;
+  children: React.ReactNode;
+}
+
+function Section({ title, children }: SectionProps) {
+  return (
+    <div>
+      <h2 className="text-3xl font-bold mb-6 border-l-4 border-primary pl-4 dark:border-primary">
+        {title}
+      </h2>
+      {children}
+    </div>
+  );
+}
+
+interface SubSectionProps {
+  title: string;
+  children: React.ReactNode;
+}
+
+function SubSection({ title, children }: SubSectionProps) {
+  return (
+    <div className="mb-8">
+      <h3 className="text-xl font-semibold mb-4">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
 import Footer from "@/components/footer";
 import Navbar from "@/components/navbar";
 
@@ -6,15 +37,16 @@ export default function TermsPage() {
     <div className="flex flex-col min-h-screen bg-white dark:bg-slate-900">
       <Navbar />
       <main className="flex-1 container mt-10 max-w-5xl mx-auto px-4 py-16">
-        <div className="text-center mb-16">
-          <h1 className="text-5xl font-extrabold mb-4 bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent dark:from-primary dark:to-[#b30000]">
-            Terms of Service
-          </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-300">
+        <div className="flex flex-col items-center justify-center mb-10">
+          <div className="inline-flex items-center gap-3 bg-primary/10 dark:bg-primary/20 px-8 py-6 rounded-full">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent dark:from-primary dark:to-[#b30000] text-center">
+              Terms of Service
+            </h1>
+          </div>
+          <p className="text-lg text-slate-600 dark:text-slate-300 mt-4 text-center">
             Effective Date: January 1, 2024
           </p>
         </div>
-
         <section className="prose lg:prose-lg dark:prose-invert max-w-none">
           <div className="mb-20">
             <h2 className="text-3xl font-bold mb-6 border-l-4 border-primary pl-4 dark:border-primary">
@@ -206,37 +238,6 @@ export default function TermsPage() {
         </section>
       </main>
       <Footer />
-    </div>
-  );
-}
-
-// Reusable section components
-interface SectionProps {
-  title: string;
-  children: React.ReactNode;
-}
-
-function Section({ title, children }: SectionProps) {
-  return (
-    <div>
-      <h2 className="text-3xl font-bold mb-6 border-l-4 border-primary pl-4 dark:border-primary">
-        {title}
-      </h2>
-      {children}
-    </div>
-  );
-}
-
-interface SubSectionProps {
-  title: string;
-  children: React.ReactNode;
-}
-
-function SubSection({ title, children }: SubSectionProps) {
-  return (
-    <div className="mb-8">
-      <h3 className="text-xl font-semibold mb-4">{title}</h3>
-      {children}
     </div>
   );
 }

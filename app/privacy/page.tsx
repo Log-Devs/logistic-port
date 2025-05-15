@@ -6,12 +6,14 @@ export default function PrivacyPage() {
     <div className="flex flex-col min-h-screen bg-white dark:bg-slate-900">
       <Navbar />
       <main className="flex-1 container mt-10 max-w-5xl mx-auto px-4 py-16">
-        <div className="text-center mb-16">
-          <h1 className="text-5xl font-extrabold mb-4 bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent dark:from-primary dark:to-[#b30000]">
-            Privacy Policy
-          </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-300">
-            Effective Date: January 1, 2024 | Last Revised: January 1, 2024
+        <div className="flex flex-col items-center justify-center mb-10">
+          <div className="inline-flex items-center gap-3 bg-primary/10 dark:bg-primary/20 px-8 py-6 rounded-full">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent dark:from-primary dark:to-[#b30000] text-center">
+              Privacy Policy
+            </h1>
+          </div>
+          <p className="text-lg text-slate-600 dark:text-slate-300 mt-4 text-center">
+            Effective Date: 15 May 2025
           </p>
         </div>
 
