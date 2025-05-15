@@ -62,12 +62,20 @@ export function clearHistory() {
 }
 
 // Simple in-memory cache for responses (per session)
-const responseCache: Record<string, string> = {};
+const responseCache: Record<string, { answer: string; expiresAt: number }> = {};
 export function cacheResponse(question: string, answer: string) {
-	responseCache[question] = answer;
+	responseCache[question] = {
+		answer,
+		expiresAt: getExpiryTimestamp(HISTORY_EXPIRY_MINUTES),
+	};
 }
 export function getCachedResponse(question: string) {
-	return responseCache[question];
+	const cached = responseCache[question];
+	if (!cached || Date.now() > cached.expiresAt) {
+		delete responseCache[question];
+		return undefined;
+	}
+	return cached.answer;
 }
 
 // Send message to internal API route instead of OpenRouter directly
