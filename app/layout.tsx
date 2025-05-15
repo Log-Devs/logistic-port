@@ -4,6 +4,7 @@ import AppShell from "@/components/app-shell";
 import AppLoaderWrapper from "@/components/AppLoaderWrapper";
 import PreloadMediaProvider from "@/components/PreloadMediaProvider";
 import CookieConsentBanner from "@/components/ui/CookieConsentBanner";
+import ChatbotButtonWrapper from "@/components/ChatbotButtonWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,6 +20,8 @@ export default function RootLayout({
           <AppLoaderWrapper>
             <AppShell>{children}</AppShell>
             <CookieConsentBanner />
+            {/* Use the client-side wrapped component */}
+            <ChatbotButtonWrapper />
           </AppLoaderWrapper>
         </PreloadMediaProvider>
       </body>

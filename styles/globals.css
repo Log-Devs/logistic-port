@@ -91,4 +91,29 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+  .chatbot-bg-image {
+    background-image: url("/avatar-user-fallback.svg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+  }
+  .chatbot-bg-image::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(
+      255,
+      255,
+      255,
+      0.7
+    ); /* Light overlay for readability, adjust for dark mode if needed */
+    pointer-events: none;
+    z-index: 1;
+  }
+  /* Ensure chat content is above overlay */
+  [data-testid="chatbot-window"] > * {
+    position: relative;
+    z-index: 2;
+  }
 }
