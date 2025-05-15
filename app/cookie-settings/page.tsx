@@ -269,7 +269,7 @@ export default function CookieSettingsPage() {
             </a>{" "}
             and consent to cookie usage as described in our{" "}
             <a
-              href="/cookies"
+              href="/cookie-settings"
               className="text-primary hover:underline dark:text-primary"
             >
               Cookie Policy
