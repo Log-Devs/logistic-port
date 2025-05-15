@@ -1,44 +1,50 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { Menu, X, Sun, Moon } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
-import { motion, AnimatePresence } from "framer-motion"
-import { usePathname } from "next/navigation"
-import { useTheme } from "next-themes"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Menu, X, Sun, Moon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
+import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 
 export default function Navbar() {
-  const { theme, setTheme, resolvedTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const pathname = usePathname()
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
 
-  useEffect(() => setMounted(true), [])
+  useEffect(() => setMounted(true), []);
   useEffect(() => {
-    setScrolled(window.scrollY > 10)
-    const handleScroll = () => setScrolled(window.scrollY > 10)
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+    setScrolled(window.scrollY > 10);
+    const handleScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-  useEffect(() => setIsMenuOpen(false), [pathname])
+  useEffect(() => setIsMenuOpen(false), [pathname]);
 
   useEffect(() => {
-    document.body.style.overflow = isMenuOpen ? "hidden" : ""
-    return () => { document.body.style.overflow = "" }
-  }, [isMenuOpen])
+    document.body.style.overflow = isMenuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMenuOpen]);
+
+  // Hide login/register buttons on their respective pages
+  const hideLogin = pathname === "/login";
+  const hideRegister = pathname === "/register";
 
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/about", label: "About Us" },
     { href: "/services", label: "Services" },
     { href: "/contact", label: "Contact" },
-  ]
+  ];
 
-  const isDark = resolvedTheme === "dark"
+  const isDark = resolvedTheme === "dark";
 
   return (
     <motion.header
@@ -54,9 +60,15 @@ export default function Navbar() {
     >
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo section */}
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold tracking-tighter">LogisticsFuture</span>
+            <span className="text-2xl font-bold tracking-tighter">
+              LogisticsFuture
+            </span>
           </Link>
         </motion.div>
 
@@ -124,16 +136,20 @@ export default function Navbar() {
           </motion.button>
 
           {/* Auth buttons */}
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button variant="outline" asChild>
-              <Link href="/login">Login</Link>
-            </Button>
-          </motion.div>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button asChild>
-              <Link href="/register">Register</Link>
-            </Button>
-          </motion.div>
+          {!hideLogin && (
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button variant="outline" asChild>
+                <Link href="/login">Login</Link>
+              </Button>
+            </motion.div>
+          )}
+          {!hideRegister && (
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button asChild>
+                <Link href="/register">Register</Link>
+              </Button>
+            </motion.div>
+          )}
         </motion.div>
 
         {/* Mobile controls */}
@@ -178,7 +194,11 @@ export default function Navbar() {
             className="relative z-50"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {isMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
             <span className="sr-only">Toggle menu</span>
           </Button>
         </div>
@@ -223,21 +243,25 @@ export default function Navbar() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.4 }}
               >
-                <Button variant="outline" asChild className="w-full py-6">
-                  <Link href="/login" onClick={() => setIsMenuOpen(false)}>
-                    Login
-                  </Link>
-                </Button>
-                <Button asChild className="w-full py-6">
-                  <Link href="/register" onClick={() => setIsMenuOpen(false)}>
-                    Register
-                  </Link>
-                </Button>
+                {!hideLogin && (
+                  <Button variant="outline" asChild className="w-full py-6">
+                    <Link href="/login" onClick={() => setIsMenuOpen(false)}>
+                      Login
+                    </Link>
+                  </Button>
+                )}
+                {!hideRegister && (
+                  <Button asChild className="w-full py-6">
+                    <Link href="/register" onClick={() => setIsMenuOpen(false)}>
+                      Register
+                    </Link>
+                  </Button>
+                )}
               </motion.div>
             </nav>
           </motion.div>
         )}
       </AnimatePresence>
     </motion.header>
-  )
+  );
 }
