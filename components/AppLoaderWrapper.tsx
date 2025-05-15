@@ -11,6 +11,7 @@ export default function AppLoaderWrapper({
 
   useEffect(() => {
     let cleanupFns: (() => void)[] = [];
+    let timeoutId: NodeJS.Timeout | number | null = null;
     function checkImages() {
       const images = Array.from(document.images);
       if (images.length === 0) {
@@ -30,10 +31,11 @@ export default function AppLoaderWrapper({
         } else {
           img.addEventListener("load", onImgLoad);
           img.addEventListener("error", onImgLoad);
-          // No additional cleanup needed for this image, as onImgLoad handles it.
         }
       });
       if (loadedCount === images.length) setLoaded(true);
+      // Fallback: always hide loader after 5 seconds
+      timeoutId = setTimeout(() => setLoaded(true), 5000);
     }
     if (document.readyState === "complete") {
       checkImages();
@@ -45,6 +47,7 @@ export default function AppLoaderWrapper({
     }
     return () => {
       cleanupFns.forEach((fn) => fn());
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, []);
 
