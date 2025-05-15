@@ -136,7 +136,7 @@ export default function TermsPage() {
               </div>
             </div>
 
-            {/* Section 3 */}
+            {/* Financial Terms Section */}
             <div>
               <h2 className="text-3xl font-bold mb-6 border-l-4 border-primary pl-4 dark:border-primary">
                 3. Financial Terms
