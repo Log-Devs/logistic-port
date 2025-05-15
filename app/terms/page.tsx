@@ -6,8 +6,8 @@ export default function TermsPage() {
     <div className="flex flex-col min-h-screen bg-white dark:bg-slate-900">
       <Navbar />
       <main className="flex-1 container mt-10 max-w-5xl mx-auto px-4 py-16">
-        <div className="text-center mb-16">
-          <h1 className="text-5xl font-extrabold mb-4 bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent dark:from-primary dark:to-[#b30000]">
+        <div className="inline-flex items-center gap-3 mb-6 bg-primary/10 dark:bg-primary/20 px-6 py-3 rounded-full">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent dark:from-primary dark:to-[#b30000]">
             Terms of Service
           </h1>
           <p className="text-lg text-slate-600 dark:text-slate-300">
