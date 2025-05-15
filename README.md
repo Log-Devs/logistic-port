@@ -22,6 +22,9 @@ A modern, responsive web application for showcasing logistics services, built wi
 	- [Contributing](#contributing)
 	- [License](#license)
 	- [Contact](#contact)
+	- [Changelog](#changelog)
+		- [2025-05-15](#2025-05-15)
+			- [Major AI Chatbot Integration and Cross-App Auth Updates](#major-ai-chatbot-integration-and-cross-app-auth-updates)
 
 ## Overview
 
@@ -142,3 +145,47 @@ This project is licensed under the MIT License.
 ## Contact
 
 For questions or support, please contact [austinbediako4@gmail.com](mailto:austinbediako4@gmail.com).
+
+## Changelog
+
+### 2025-05-15
+
+#### Major AI Chatbot Integration and Cross-App Auth Updates
+
+- **components/ChatbotButton.tsx**
+  - Added a floating chat button available on all pages. Handles opening/closing the chatbot window.
+
+- **components/ChatbotWindow.tsx**
+  - Implements the main chatbot UI, message history, input, and displays bot/user avatars.
+
+- **lib/chatbot.ts**
+  - Provides chatbot logic: time-based greetings, service intro, message history (localStorage, 10 messages), response caching, and API integration with OpenRouter.
+  - Handles error management and input sanitization.
+
+- **app/layout.tsx**
+  - Integrated <ChatbotButton /> so the chatbot is accessible site-wide.
+
+- **app/app-details-config.ts**
+  - Centralizes company name and branding for consistent chatbot responses.
+
+- **app/api/chatbot/route.ts**
+  - Handles server-side API requests to OpenRouter, including prompt construction and error handling.
+
+- **public/avatar-nana.png, public/avatar-user.png**
+  - Added professional avatars for bot and user.
+
+- **.env.example**
+  - Added required environment variables for OpenRouter API integration.
+
+- **tests/**
+  - Added unit tests for chatbot logic and UI components.
+
+- **crosslogic.md**
+  - Updated cross-app authentication logic: all secrets, URLs, and JWTs now use environment variables. See file for migration and deployment steps.
+
+- **ai-integration.md**
+  - Expanded documentation for chatbot setup, integration, and testing.
+
+---
+
+For more details on each change, see the respective file or the AI Chatbot Implementation and Cross-App Authentication sections above.

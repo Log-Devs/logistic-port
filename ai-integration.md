@@ -84,3 +84,25 @@ tests/
 For support, email [support@transglobalfreight.com](mailto:support@transglobalfreight.com) or call +1-800-555-1234.
 
 ---
+
+## Changelog
+
+### 2025-05-15
+
+#### Major AI Chatbot Integration and Cross-App Auth Updates
+
+- **components/ChatbotButton.tsx**: Added floating chat button for opening/closing the chatbot window on all pages.
+- **components/ChatbotWindow.tsx**: Main chatbot UI, message history, input, and avatar display.
+- **lib/chatbot.ts**: Chatbot logic (greetings, service intro, message history, response caching, OpenRouter API integration, error handling, sanitization).
+- **app/layout.tsx**: Integrated <ChatbotButton /> for global chatbot access.
+- **app/app-details-config.ts**: Centralized company name/branding for chatbot.
+- **app/api/chatbot/route.ts**: Server-side API handler for OpenRouter integration.
+- **public/avatar-nana.png, public/avatar-user.png**: Professional avatars for bot and user.
+- **.env.example**: Required environment variables for OpenRouter API.
+- **tests/**: Unit tests for chatbot logic and UI.
+- **crosslogic.md**: Updated cross-app authentication logic to use environment variables for all secrets, URLs, and JWTs.
+- **ai-integration.md**: Expanded documentation for chatbot setup, integration, and testing.
+
+---
+
+For details, see the respective file or the AI Chatbot Implementation and Cross-App Authentication sections above.
