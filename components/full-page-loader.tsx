@@ -4,9 +4,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 
-export default function EnterpriseLoader() {
+export default function EnterpriseLoader({ loading }: { loading: boolean }) {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
+
+  if (!loading) return null;
 
   return (
     <AnimatePresence>
@@ -167,7 +169,7 @@ export default function EnterpriseLoader() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6, duration: 0.6 }}
               >
-                <AnimatePresence mode="wait">
+                <AnimatePresence>
                   {[
                     "Initializing platform",
                     "Loading assets",
