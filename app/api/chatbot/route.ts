@@ -5,7 +5,7 @@ import { APP_DISPLAY_NAME } from "@/app/app-details-config";
 const OPENROUTER_API_URL = process.env.NEXT_PUBLIC_OPEN_ROUTER_API_URL || "https://openrouter.ai/api";
 const OPENROUTER_API_KEY = process.env.OPEN_ROUTER_API_KEY;
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-const SITE_TITLE = "LogisticFuture";
+const SITE_TITLE = "LogisticsFuture";
 
 export async function POST(req: NextRequest) {
 	try {
