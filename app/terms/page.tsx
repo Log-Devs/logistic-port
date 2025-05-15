@@ -44,7 +44,7 @@ export default function TermsPage() {
             </h1>
           </div>
           <p className="text-lg text-slate-600 dark:text-slate-300 mt-4 text-center">
-            Effective Date: January 1, 2024
+            Effective Date: 15 May 2025
           </p>
         </div>
         <section className="prose lg:prose-lg dark:prose-invert max-w-none">
