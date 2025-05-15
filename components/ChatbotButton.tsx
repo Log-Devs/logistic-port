@@ -34,16 +34,68 @@ const helpMessages = [
   "Let Nana guide you through your questions",
 ];
 
+// Custom hook for rotating messages
+function useRotatingMessages({
+  messages,
+  displayDuration = 3000,
+  intervalDuration = 8000,
+  isActive = true,
+}: {
+  messages: string[];
+  displayDuration?: number;
+  intervalDuration?: number;
+  isActive?: boolean;
+}) {
+  const [currentMessage, setCurrentMessage] = useState(0);
+  const [showMessage, setShowMessage] = useState(false);
+  const displayTimeout = useRef<number | null>(null);
+  const intervalTimeout = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!isActive) {
+      setShowMessage(false);
+      if (displayTimeout.current) clearTimeout(displayTimeout.current);
+      if (intervalTimeout.current) clearTimeout(intervalTimeout.current);
+      return;
+    }
+    setShowMessage(true);
+    displayTimeout.current = window.setTimeout(() => {
+      setShowMessage(false);
+      intervalTimeout.current = window.setTimeout(() => {
+        setCurrentMessage((prev) => (prev + 1) % messages.length);
+        setShowMessage(true);
+      }, intervalDuration - displayDuration);
+    }, displayDuration) as number;
+    return () => {
+      if (displayTimeout.current) clearTimeout(displayTimeout.current);
+      if (intervalTimeout.current) clearTimeout(intervalTimeout.current);
+    };
+  }, [
+    currentMessage,
+    isActive,
+    displayDuration,
+    intervalDuration,
+    messages.length,
+  ]);
+
+  useEffect(() => {
+    if (!isActive) {
+      setShowMessage(false);
+    }
+  }, [isActive]);
+
+  return { currentMessage, showMessage };
+}
+
 const ChatbotButton = () => {
   const [open, setOpen] = useState(false);
   const [isScattered, setIsScattered] = useState(false);
-  const [showMessage, setShowMessage] = useState(false);
-  const [currentMessage, setCurrentMessage] = useState(0);
+  // Removed showMessage and currentMessage state declarations to avoid redeclaration
   const [dots, setDots] = useState<
     { id: number; x: number; y: number; scale: number; opacity: number }[]
   >([]);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const messageIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<number | null>(null);
+  const messageIntervalRef = useRef<number | null>(null);
   const buttonRef = useRef(null);
 
   // Create scatter particles
@@ -85,9 +137,9 @@ const ChatbotButton = () => {
   useEffect(() => {
     // Only create scatter particles if chat is closed
     if (!open) {
-      intervalRef.current = setInterval(() => {
+      intervalRef.current = window.setInterval(() => {
         createScatterParticles();
-      }, 3000);
+      }, 3000) as number;
     }
 
     return () => {
@@ -103,7 +155,6 @@ const ChatbotButton = () => {
     // First clear any scatter animations
     setIsScattered(false);
     setDots([]);
-    setShowMessage(false);
 
     // Clear intervals to prevent new animations
     if (intervalRef.current) {
