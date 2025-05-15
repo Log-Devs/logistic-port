@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
+import { APP_DISPLAY_NAME } from "@/app/app-details-config";
 
 export default function Navbar() {
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -67,7 +68,7 @@ export default function Navbar() {
         >
           <Link href="/" className="flex items-center gap-2">
             <span className="text-2xl font-bold tracking-tighter">
-              LogisticsFuture
+              {APP_DISPLAY_NAME}
             </span>
           </Link>
         </motion.div>

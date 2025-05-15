@@ -31,6 +31,13 @@ function SubSection({ title, children }: SubSectionProps) {
 
 import Footer from "@/components/footer";
 import Navbar from "@/components/navbar";
+import {
+  LEGAL_EFFECTIVE_DATE,
+  LEGAL_COMPANY_NAME,
+  LEGAL_COMPANY_ADDRESS,
+  LEGAL_EMAIL,
+  LEGAL_GOVERNING_LAW,
+} from "../legal-config";
 
 export default function TermsPage() {
   return (
@@ -44,7 +51,7 @@ export default function TermsPage() {
             </h1>
           </div>
           <p className="text-lg text-slate-600 dark:text-slate-300 mt-4 text-center">
-            Effective Date: 15 May 2025
+            Effective Date: {LEGAL_EFFECTIVE_DATE}
           </p>
         </div>
         <section className="prose lg:prose-lg dark:prose-invert max-w-none">
@@ -54,11 +61,11 @@ export default function TermsPage() {
             </h2>
             <p>
               These Terms of Service ("Agreement") govern your access to and use
-              of LogisticsFuture's ("Company", "We", "Our") digital platforms,
-              services, and solutions (collectively, "Services"). By accessing
-              or using our Services, you ("Client", "You") agree to be legally
-              bound by these Terms. If acting on behalf of an entity, you
-              represent authority to bind said entity.
+              of {LEGAL_COMPANY_NAME}'s ("Company", "We", "Our") digital
+              platforms, services, and solutions (collectively, "Services"). By
+              accessing or using our Services, you ("Client", "You") agree to be
+              legally bound by these Terms. If acting on behalf of an entity,
+              you represent authority to bind said entity.
             </p>
           </div>
 
@@ -129,7 +136,7 @@ export default function TermsPage() {
               </div>
             </div>
 
-            {/* Additional Professional Sections */}
+            {/* Section 3 */}
             <div>
               <h2 className="text-3xl font-bold mb-6 border-l-4 border-primary pl-4 dark:border-primary">
                 3. Financial Terms
@@ -167,7 +174,7 @@ export default function TermsPage() {
               </div>
             </div>
 
-            {/* More Sections */}
+            {/* Section 4+ (Professional Sections) */}
             <div className="space-y-16">
               <Section title="4. Liability Framework">
                 <SubSection title="4.1 Service Guarantees">
@@ -180,9 +187,9 @@ export default function TermsPage() {
                 </SubSection>
                 <SubSection title="4.2 Consequential Damages">
                   <p>
-                    Under no circumstances shall LogisticsFuture be liable for
-                    indirect, special, or consequential damages including lost
-                    profits, data loss, or business interruption.
+                    Under no circumstances shall {LEGAL_COMPANY_NAME} be liable
+                    for indirect, special, or consequential damages including
+                    lost profits, data loss, or business interruption.
                   </p>
                 </SubSection>
               </Section>
@@ -204,8 +211,9 @@ export default function TermsPage() {
                 </SubSection>
                 <SubSection title="6.2 Governing Law">
                   <p>
-                    This Agreement shall be governed by the laws of the State of
-                    Delaware, excluding its conflict of laws principles.
+                    This Agreement shall be governed by the laws of the{" "}
+                    {LEGAL_GOVERNING_LAW}, excluding its conflict of laws
+                    principles.
                   </p>
                 </SubSection>
               </Section>
@@ -216,21 +224,21 @@ export default function TermsPage() {
                 Contact Information
               </h2>
               <p className="mb-2">
-                LogisticsFuture Inc.
+                {LEGAL_COMPANY_NAME}
                 <br />
-                2000 Global Trade Plaza
+                {LEGAL_COMPANY_ADDRESS[0]}
                 <br />
-                Wilmington, DE 19801
+                {LEGAL_COMPANY_ADDRESS[1]}
                 <br />
-                United States
+                {LEGAL_COMPANY_ADDRESS[2]}
               </p>
               <p>
                 Legal Inquiries:{" "}
                 <a
-                  href="mailto:legal@logisticsfuture.com"
+                  href={`mailto:${LEGAL_EMAIL}`}
                   className="text-primary hover:underline dark:text-primary"
                 >
-                  legal@logisticsfuture.com
+                  {LEGAL_EMAIL}
                 </a>
               </p>
             </div>
