@@ -25,13 +25,25 @@ const ChatbotWindow = dynamic(
   }
 );
 
+// Messages that will rotate
+const helpMessages = [
+  "Need assistance? Chat with Nana!",
+  "Questions? Let Nana help you out!",
+  "Stuck? Nana is here to assist you!",
+  "Get instant help from Nana, your AI assistant",
+  "Let Nana guide you through your questions",
+];
+
 const ChatbotButton = () => {
   const [open, setOpen] = useState(false);
   const [isScattered, setIsScattered] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
+  const [currentMessage, setCurrentMessage] = useState(0);
   const [dots, setDots] = useState<
     { id: number; x: number; y: number; scale: number; opacity: number }[]
   >([]);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const messageIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const buttonRef = useRef(null);
 
   // Create scatter particles
@@ -62,6 +74,39 @@ const ChatbotButton = () => {
     }, 1000);
   };
 
+  // Set up the message rotation
+  useEffect(() => {
+    if (!open) {
+      // Show message every 5 seconds
+      messageIntervalRef.current = setInterval(() => {
+        // Rotate to next message
+        setCurrentMessage((prev) => (prev + 1) % helpMessages.length);
+
+        // Show the message
+        setShowMessage(true);
+
+        // Hide after 3 seconds
+        setTimeout(() => {
+          setShowMessage(false);
+        }, 3000);
+      }, 8000); // <-- Change interval to 8s so each message stays for 3s, then 5s gap
+
+      // Show first message after a short delay
+      setTimeout(() => {
+        setShowMessage(true);
+        setTimeout(() => {
+          setShowMessage(false);
+        }, 3000);
+      }, 1000);
+    }
+
+    return () => {
+      if (messageIntervalRef.current) {
+        clearInterval(messageIntervalRef.current);
+      }
+    };
+  }, [open]);
+
   // Set up the interval for scatter effect
   useEffect(() => {
     // Only create scatter particles if chat is closed
@@ -84,11 +129,17 @@ const ChatbotButton = () => {
     // First clear any scatter animations
     setIsScattered(false);
     setDots([]);
+    setShowMessage(false);
 
-    // Clear interval to prevent new animations
+    // Clear intervals to prevent new animations
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
+    }
+
+    if (messageIntervalRef.current) {
+      clearInterval(messageIntervalRef.current);
+      messageIntervalRef.current = null;
     }
 
     // Open the chat window
@@ -109,6 +160,42 @@ const ChatbotButton = () => {
         transition={{ type: "spring", stiffness: 260, damping: 20 }}
       >
         <div className="relative">
+          {/* Pop-up message */}
+          <AnimatePresence>
+            {showMessage && !open && (
+              <motion.div
+                className="absolute bottom-full right-0 mb-3 bg-white rounded-lg shadow-lg p-3 max-w-xs"
+                initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 5, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+                style={{
+                  transformOrigin: "bottom right",
+                  zIndex: 9999,
+                  minWidth: "200px",
+                }}
+              >
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 mr-2">
+                    <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center">
+                      <span className="text-rose-500 text-lg font-bold">N</span>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-800">
+                      {helpMessages[currentMessage]}
+                    </p>
+                  </div>
+                </div>
+                {/* Triangle pointer */}
+                <div
+                  className="absolute w-4 h-4 bg-white transform rotate-45 right-4 -bottom-2"
+                  style={{ zIndex: -1 }}
+                ></div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Notification indicator */}
           <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white z-10"></div>
 
@@ -139,7 +226,13 @@ const ChatbotButton = () => {
           <button
             ref={buttonRef}
             aria-label="Chat with Us"
-            onClick={handleOpenChat}
+            onClick={() => {
+              if (open) {
+                handleCloseChat();
+              } else {
+                handleOpenChat();
+              }
+            }}
             style={{ position: "relative", zIndex: 2 }} /* Explicit z-index */
             className={clsx(
               "flex flex-col items-center justify-center",
@@ -166,7 +259,7 @@ const ChatbotButton = () => {
       </motion.div>
 
       {/* Chatbot Window */}
-      {open && <ChatbotWindow onClose={handleCloseChat} />}
+      {open && <ChatbotWindow onClose={handleCloseChat} isOpen={open} />}
     </>
   );
 };
