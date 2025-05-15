@@ -205,7 +205,7 @@ export default function TermsPage() {
           </div>
         </section>
       </main>
-      {/* <Footer /> */}
+      <Footer />
     </div>
   );
 }
