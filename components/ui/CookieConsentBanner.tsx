@@ -14,11 +14,21 @@ export default function CookieConsentBanner() {
 
   const handleAccept = () => {
     localStorage.setItem(COOKIE_CONSENT_KEY, "accepted");
+    // Synchronize cookiePreferences: all enabled except essential is always true
+    localStorage.setItem(
+      "cookiePreferences",
+      JSON.stringify({ essential: true, analytics: true, marketing: true })
+    );
     setVisible(false);
   };
 
   const handleReject = () => {
     localStorage.setItem(COOKIE_CONSENT_KEY, "rejected");
+    // Synchronize cookiePreferences: only essential enabled
+    localStorage.setItem(
+      "cookiePreferences",
+      JSON.stringify({ essential: true, analytics: false, marketing: false })
+    );
     setVisible(false);
   };
 
