@@ -65,7 +65,13 @@ export default function LoginPage() {
         }
         return;
       } else {
-        throw new Error();
+        // Instead of redirecting to home, redirect to /register with error
+        if (typeof window !== "undefined") {
+          const registerUrl =
+            "/register?error=Invalid%20email%20or%20password.%20Please%20try%20again.";
+          window.location.href = registerUrl;
+        }
+        return;
       }
     } catch (error) {
       setError("Invalid email or password. Please try again.");
