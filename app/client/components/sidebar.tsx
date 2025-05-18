@@ -8,7 +8,7 @@ import { toast } from "@/components/ui/use-toast";
 // Import React and useState for component and state management
 import React, { useState } from "react";
 // Import Next.js router for navigation
-import router from "next/router";
+import { useRouter } from "next/navigation";
 
 /**
  * Sidebar component for navigation and logout functionality.
