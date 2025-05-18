@@ -70,6 +70,6 @@ jobs:
       
       - name: Upload CodeQL database (optional)
         if: always()
-        uses: github/codeql-action/upload-database@v3
+        uses: github/codeql-action/upload-database@v2
         with:
           name: ${{ matrix.language }}-database
