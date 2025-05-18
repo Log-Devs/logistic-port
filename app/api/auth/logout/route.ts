@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { serialize } from "cookie";
 
 export async function POST(req: NextRequest) {
-	// Clear both cookies
+	// Clear cookies
 	const accessCookie = serialize("auth_token", "", {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === "production",

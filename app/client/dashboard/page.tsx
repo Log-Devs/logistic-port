@@ -1,6 +1,23 @@
-import React from "react";
+"use client";
+
+import React, { useEffect } from "react";
+import { useAuth } from "@/components/auth-context";
+import { useRouter } from "next/navigation";
 
 export default function ClientDashboard() {
+	const { user, loading } = useAuth();
+	const router = useRouter();
+
+	useEffect(() => {
+		if (!loading && !user) {
+			router.replace("/login");
+		}
+	}, [user, loading, router]);
+
+	if (loading || !user) {
+		return <div className="text-center py-20 text-lg">Loading your dashboard...</div>;
+	}
+
 	return (
 		<div>
 			<h1 className="text-2xl font-bold mb-4">Welcome to your Dashboard</h1>

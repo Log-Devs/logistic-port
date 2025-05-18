@@ -37,7 +37,7 @@ export default function RegisterPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { user, loading, login } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -112,6 +112,9 @@ export default function RegisterPage() {
     }
     setIsLoading(false);
   };
+
+  if (loading) return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
+  if (user) return null;
 
   return (
     <div className="flex mt-10 min-h-screen flex-col">

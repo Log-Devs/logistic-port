@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { TruckIcon, LogIn, AlertCircle } from "lucide-react";
@@ -30,8 +30,14 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { login, loading } = useAuth();
+  const { login, loading, user } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace("/dashboard");
+    }
+  }, [user, loading, router]);
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
@@ -46,11 +52,12 @@ export default function LoginPage() {
     const ok = await login(email, password, rememberMe);
     if (!ok) {
       setError("Invalid email or password. Please try again.");
-    } else {
-      router.push("/dashboard");
     }
     setIsLoading(false);
   };
+
+  if (loading) return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
+  if (user) return null;
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-900">

@@ -2,35 +2,27 @@
 
 import React from "react";
 import Link from "next/link";
-import { useAuth } from "./auth-context";
-import { jwtDecode } from "jwt-decode";
+import { useAuth } from "@/components/auth-context";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function ClientHeader() {
-	const { jwt, setJwt } = useAuth();
-	let userName = "";
-	if (jwt) {
-		try {
-			const decoded: any = jwtDecode(jwt);
-			userName = decoded.name || decoded.sub || "User";
-		} catch (e) {
-			userName = "User";
-		}
-	}
+	const { user, logout } = useAuth();
+	const { toast } = useToast();
 
-	const handleLogout = () => {
-		localStorage.removeItem("client_jwt");
-		setJwt(null);
-		window.location.href = "/login";
+	const handleLogout = async () => {
+		await logout();
+		toast({ title: "Logged out", description: "You have been logged out successfully." });
 	};
 
 	return (
 		<header className="w-full h-16 flex items-center justify-between px-6 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 shadow-sm">
 			<div className="font-bold text-lg">Client Portal</div>
 			<nav className="flex items-center gap-4">
-				{jwt && <span className="text-sm text-slate-700 dark:text-slate-200">Hello, {userName}</span>}
+				{user && <span className="text-sm text-slate-700 dark:text-slate-200">Hello, {user.name}</span>}
 				<Link href="/settings" className="text-sm hover:underline">Settings</Link>
-				{jwt && (
-					<button onClick={handleLogout} className="text-sm text-red-600 hover:underline">Logout</button>
+				{user && (
+					<Button onClick={handleLogout} variant="outline" className="text-red-600 border-red-200 dark:border-red-400">Logout</Button>
 				)}
 			</nav>
 		</header>
