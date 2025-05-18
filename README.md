@@ -361,6 +361,46 @@ This is achieved through a clean, OOP-based agent architecture, making the chatb
   - Extend the agent in `lib/ai-agent.ts` for new codebase search logic or plugin LLMs.
   - The system is fully OOP and documented for maintainability.
 
+---
+
+## API Connection & Environment Variables (Updated)
+
+**API URL Construction:**
+- All API calls now use a robust utility in `lib/api.ts` that constructs the API URL using `NEXT_PUBLIC_API_BASE_URL` if set, or defaults to a relative path (e.g., `/api/auth/login`) if not set.
+- This prevents errors like `/undefined/api/auth/login` on Vercel and ensures compatibility for both local and cloud deployments.
+
+**How it works:**
+```typescript
+// In lib/api.ts
+const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+const url = `${baseUrl}${endpoint}`.replace(/([^:]\/)\/+/, "$1");
+```
+
+**Deployment Instructions:**
+- **On Vercel:**
+  - If your frontend and backend are deployed together (Next.js fullstack), you may leave `NEXT_PUBLIC_API_BASE_URL` unset or set it to an empty string.
+  - If using a separate backend, set `NEXT_PUBLIC_API_BASE_URL` to your backend's URL (e.g., `https://api.yoursite.com`).
+- **Locally:**
+  - Set `NEXT_PUBLIC_API_BASE_URL` in `.env` as needed, or leave unset for default relative API routing.
+
+**Fallback Logic:**
+- The `fetchWithFallback` utility includes a fallback to dummy data for development/testing, following clean code and OOP best practices.
+
+```typescript
+// Example usage of fetchWithFallback
+import { fetchWithFallback } from './lib/api';
+
+const endpoint = '/api/data';
+const dummyData = { key: 'value' }; // Example dummy data
+
+async function fetchData() {
+    const data = await fetchWithFallback(endpoint, dummyData);
+    console.log(data); // Logs fetched data or dummyData if the fetch fails
+}
+
+fetchData();
+---
+
 #### Example Queries
 - `find login page` → Returns route and file path for the login page.
 - `show me the AuthProvider` → Lists the file(s) where `AuthProvider` is implemented.
