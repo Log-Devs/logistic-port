@@ -87,7 +87,20 @@ function useRotatingMessages({
   return { currentMessage, showMessage };
 }
 
-const ChatbotButton = () => {
+interface ChatbotButtonProps {
+  /**
+   * Scatter animation duration in milliseconds. Useful for testing.
+   * @default 1000
+   */
+  scatterDurationMs?: number;
+  /**
+   * If true, disables opening the chat window when the FAB is clicked (for test isolation).
+   * @default false
+   */
+  disableOpenOnClick?: boolean;
+}
+
+const ChatbotButton: React.FC<ChatbotButtonProps> = ({ scatterDurationMs = 1000, disableOpenOnClick = false }) => {
   const [open, setOpen] = useState(false);
   const [isScattered, setIsScattered] = useState(false);
   // Removed showMessage and currentMessage state declarations to avoid redeclaration
@@ -96,7 +109,11 @@ const ChatbotButton = () => {
   >([]);
   const intervalRef = useRef<number | null>(null);
   const messageIntervalRef = useRef<number | null>(null);
-  const buttonRef = useRef(null);
+  // Ref to the chat button, used for outside click detection in ChatbotWindow
+  // FIX: Type is React.RefObject<HTMLDivElement> (not HTMLDivElement | null) to match ChatbotWindowProps and OOP handler expectations.
+    // Fixed ref declaration with proper null handling
+    const buttonRef = useRef<HTMLDivElement>(null);
+
 
   // Create scatter particles
   const createScatterParticles = () => {
@@ -123,7 +140,7 @@ const ChatbotButton = () => {
     // Reset after animation completes
     setTimeout(() => {
       setIsScattered(false);
-    }, 1000);
+    }, scatterDurationMs);
   };
 
   // Use custom hook for message rotation
@@ -178,6 +195,7 @@ const ChatbotButton = () => {
 
   return (
     <>
+
       <motion.div
         className="fixed bottom-8 right-8 z-[10000]"
         initial={{ scale: 0.8, opacity: 0 }}
@@ -228,9 +246,11 @@ const ChatbotButton = () => {
           <AnimatePresence>
             {isScattered &&
               dots.map((dot) => (
+                // Add data-testid for robust testability
                 <motion.div
                   key={dot.id}
                   className="absolute top-1/2 left-1/2 w-3 h-3 rounded-full bg-rose-500 pointer-events-none"
+                  data-testid="scatter-dot" // Added for robust testability
                   initial={{ x: 0, y: 0, opacity: 0.8 }}
                   animate={{
                     x: dot.x,
@@ -248,27 +268,31 @@ const ChatbotButton = () => {
           <div className="absolute inset-0 rounded-full animate-ping bg-rose-400 opacity-20 pointer-events-none"></div>
 
           {/* Main button - ensure z-index and position */}
-          <button
-            ref={buttonRef}
-            aria-label="Chat with Us"
-            onClick={() => {
-              if (open) {
-                handleCloseChat();
-              } else {
-                handleOpenChat();
-              }
-            }}
-            style={{ position: "relative", zIndex: 2 }} /* Explicit z-index */
-            className={clsx(
-              "flex flex-col items-center justify-center",
-              "w-16 h-16 rounded-full shadow-lg",
-              "bg-gradient-to-r from-rose-600 to-rose-500",
-              "text-white transition-all duration-300",
-              "hover:shadow-rose-200 hover:shadow-lg hover:scale-105",
-              "active:scale-95 focus:outline-none focus:ring-4 focus:ring-rose-300"
-            )}
-            data-testid="chatbot-fab"
-          >
+          {/* Wrap button in a div to attach buttonRef for OOP outside click handling */}
+          <div ref={buttonRef} style={{ display: "inline-block" }}>
+            <button
+              aria-label="Chat with Us"
+              onClick={() => {
+                if (open) {
+                  handleCloseChat();
+                } else if (disableOpenOnClick) {
+                  // For test: only trigger scatter animation, do not open chat
+                  createScatterParticles();
+                } else {
+                  handleOpenChat();
+                }
+              }}
+              style={{ position: "relative", zIndex: 2 }} /* Explicit z-index */
+              className={clsx(
+                "flex flex-col items-center justify-center",
+                "w-16 h-16 rounded-full shadow-lg",
+                "bg-gradient-to-r from-rose-600 to-rose-500",
+                "text-white transition-all duration-300",
+                "hover:shadow-rose-200 hover:shadow-lg hover:scale-105",
+                "active:scale-95 focus:outline-none focus:ring-4 focus:ring-rose-300"
+              )}
+              data-testid="chatbot-fab"
+            >
             <motion.div
               animate={{
                 rotate: isScattered ? [0, 15, -15, 0] : 0,
@@ -280,11 +304,19 @@ const ChatbotButton = () => {
             </motion.div>
             <span className="text-xs font-medium">Chat</span>
           </button>
+          {/* End of buttonRef wrapper div */}
+          </div>
         </div>
       </motion.div>
 
       {/* Chatbot Window */}
-      {open && <ChatbotWindow onClose={handleCloseChat} isOpen={open} />}
+      {open && (
+        <ChatbotWindow
+          onClose={handleCloseChat}
+          isOpen={open}
+          chatButtonRef={buttonRef} // Pass buttonRef for robust OOP outside click detection
+        />
+      )}
     </>
   );
 };

@@ -32,6 +32,18 @@ A modern, responsive web application for showcasing logistics services, built wi
 
 ## Features
 
+### Chatbot Error Handling
+
+### Testing Best Practices & Fixes
+- **AuthProvider isolation:** When testing multiple AuthProvider contexts, render each provider in a separate tree to avoid state leakage. See `auth-context.extra.test.tsx` for an example.
+- **ChatbotWindow tests:** Use React Testing Library's built-in queries (`getByTestId`, `getByText`) from the render result instead of custom DOM helpers. This ensures tests are robust and scoped correctly.
+
+- All chatbot API/network failures will show the following error message in the chat window:
+  
+  > Failed to connect to chatbot. Please try again.
+
+- This message is set in the `ChatbotWindow` component for consistency and to ensure tests can reliably check for error state rendering.
+
 - Responsive design for all devices
 - Animated hero sections and cards
 - Preloading and smooth transitions
@@ -48,6 +60,48 @@ A modern, responsive web application for showcasing logistics services, built wi
 - [Tailwind CSS](https://tailwindcss.com/)
 - [Three.js](https://threejs.org/) (for 3D scenes)
 - [PNPM](https://pnpm.io/) (package manager)
+
+## Authentication Dummy Login Fallback
+
+### Enabling Dummy Login (Development Only)
+
+To enable dummy login fallback for development or testing, set the following in your `.env` file:
+
+```env
+NEXT_PUBLIC_ENABLE_DUMMY_LOGIN=true
+```
+
+- When enabled, logging in with the credentials below will always succeed (even if the backend API is down):
+  - **Email:** `test@example.com`
+  - **Password:** `password123`
+- In production, set `NEXT_PUBLIC_ENABLE_DUMMY_LOGIN=false` or remove the line for security.
+
+### How Dummy Login Works
+- Dummy login fallback is **only** triggered if:
+  1. `NEXT_PUBLIC_ENABLE_DUMMY_LOGIN` is set to `true`.
+  2. The credentials are exactly `test@example.com` / `password123`.
+  3. The backend API is unavailable or returns an error.
+- All other logins require a real backend response.
+
+### Testing Auth Logic
+
+Unit tests for the authentication logic are provided in `tests/auth-context.test.tsx`.
+
+To run the tests:
+
+```bash
+pnpm test
+yarn test
+# or
+npm test
+```
+
+These tests cover:
+- Real API login
+- Dummy login fallback (with and without the flag)
+- Rejection for wrong credentials or when the flag is off
+
+---
 
 ## Getting Started
 
@@ -101,6 +155,43 @@ This app includes an AI-powered chatbot named **Nana** for LogisticsFuture, avai
 - Privacy-conscious responses (no personal data stored beyond session)
 - Clear AI identity: custom for LogisticsFuture, powered by OpenAI
 - Professional avatar and branding
+
+### Dynamic AI Routing & Self-Aware Chatbot Agent (2025-05-18)
+
+#### Overview
+The AI chatbot (Nana) now features **dynamic app discovery** and **self-awareness** via a custom agent. Nana can answer questions about:
+- App routes (pages, dynamic routes, parameters)
+- Components (UI, logic, utilities)
+- API endpoints (REST, Next.js API routes)
+
+This is achieved through a clean, OOP-based agent architecture, making the chatbot a true in-app assistant for both users and developers.
+
+#### Architecture
+- **`lib/ai-agent.ts`**: Implements `ChatbotAIAgent`, `RouteIndexer`, and `CodebaseSearcher`.
+  - Indexes all `/app` routes (static/dynamic), `/components`, `/lib`, and `/app/api`.
+  - Finds and returns relevant code artifacts by user query (e.g., "find login page", "where is the sidebar component?").
+- **`lib/chatbot.ts`**:
+  - Exports `getChatbotResponse`, which first uses the agent for discovery, then falls back to LLM (OpenRouter) for general queries.
+- **`app/api/chatbot/route.ts`**:
+  - Handles all chatbot API requests using the new dynamic logic.
+
+#### Usage
+- **End Users:**
+  - Ask Nana about any page, component, or API (e.g., "Where is the registration page?", "Show me the sidebar component.").
+  - Nana will respond with direct file paths, route info, or lists of matching components/APIs.
+- **Developers:**
+  - Extend the agent in `lib/ai-agent.ts` for new codebase search logic or plugin LLMs.
+  - The system is fully OOP and documented for maintainability.
+
+#### Example Queries
+- `find login page` → Returns route and file path for the login page.
+- `show me the AuthProvider` → Lists the file(s) where `AuthProvider` is implemented.
+- `where is the registration API?` → Returns the relevant API endpoint(s).
+
+#### Clean Code & Extensibility
+- Every agent and chatbot class/function is fully commented.
+- The architecture supports future LLM upgrades and plugin integrations.
+- All changes are indexed and discoverable for future developer onboarding.
 
 ### Setup
 1. Install dependencies:
@@ -156,6 +247,8 @@ For questions or support, please contact [austinbediako4@gmail.com](mailto:austi
   - Added a floating chat button available on all pages. Handles opening/closing the chatbot window.
 
 - **components/ChatbotWindow.tsx**
+  - Refactored outside click detection logic to use an OOP-based `OutsideClickHandler` class. The chatbot window now receives a `chatButtonRef` prop (a `React.RefObject<HTMLDivElement>`) for robust outside click logic, improving maintainability and testability. This follows clean code, OOP, and dependency injection best practices.
+  - Fixed a syntax error caused by a missing closing parenthesis in the component's return statement (see end of file). The return statement now ends with a closing parenthesis followed by the component's closing brace, ensuring valid JSX and TypeScript syntax. Added inline comments for clarity and to align with clean code architecture and best practices.
   - Implements the main chatbot UI, message history, input, and displays bot/user avatars.
 
 - **lib/chatbot.ts**

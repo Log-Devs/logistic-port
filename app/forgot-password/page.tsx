@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/navbar";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Mail, KeyRound, Lock } from "lucide-react";
+import { AlertCircle, Mail } from "lucide-react";
+import { useAuth } from "@/components/auth-context";
 
 export default function ForgotPasswordPage() {
   const [step, setStep] = useState(1);
@@ -19,7 +20,14 @@ export default function ForgotPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const { user, loading } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace("/dashboard");
+    }
+  }, [user, loading, router]);
 
   // Simulate sending code
   const handleSendCode = (e: React.FormEvent) => {

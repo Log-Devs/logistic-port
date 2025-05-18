@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { TruckIcon, UserPlus, AlertCircle } from "lucide-react";
@@ -20,6 +20,8 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
+import { useAuth } from "@/components/auth-context";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -35,6 +37,14 @@ export default function RegisterPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const { user, loading, login } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace("/dashboard");
+    }
+  }, [user, loading, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -58,7 +68,7 @@ export default function RegisterPage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     if (
@@ -80,30 +90,39 @@ export default function RegisterPage() {
       return;
     }
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      // Generate a dummy JWT (header.payload.signature)
-      const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
-      const payload = btoa(
-        JSON.stringify({
-          sub: formData.email,
+    try {
+      // Call your registration API
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
           name: formData.firstName + " " + formData.lastName,
-          iat: Math.floor(Date.now() / 1000),
-          secret: process.env.JWT_SECRET,
-        })
-      );
-      const signature = "signature";
-      const dummyJwt = `${header}.${payload}.${signature}`;
-      if (typeof window !== "undefined") {
-        const dashboardUrl =
-          process.env.NEXT_PUBLIC_DASHBOARD_URL ||
-          "http://localhost:5173/dashboard";
-        window.location.href = `${dashboardUrl}?jwt=${encodeURIComponent(
-          dummyJwt
-        )}`;
+          rememberMe: formData.agreeTerms, // or another checkbox for rememberMe
+          // phone: formData.phone, // Uncomment if you want to send phone
+          // accountType: formData.accountType, // Uncomment if you want to send account type
+          // marketingConsent: formData.marketingConsent, // Uncomment if you want to send marketing consent
+        }),
+      });
+      if (res.ok) {
+        // Optionally, call login to hydrate user state
+        await login(formData.email, formData.password, formData.agreeTerms);
+        router.push("/dashboard");
+      } else {
+        const data = await res.json();
+        setError(data.error || "Registration failed");
       }
-    }, 1000);
+    } catch (err) {
+      setError("Registration failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  if (loading) return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
+  if (user) return null;
 
   return (
     <div className="flex mt-10 min-h-screen flex-col">

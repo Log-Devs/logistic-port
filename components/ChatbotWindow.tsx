@@ -29,11 +29,72 @@ import {
 import { APP_DISPLAY_NAME, BOT_NAME } from "@/app/app-details-config";
 
 interface ChatbotWindowProps {
-  onClose: () => void;
-  isOpen: boolean; // Add isOpen prop
+  onClose: () => void; // Callback to close the chatbot window
+  isOpen: boolean; // Controls visibility of the chatbot window
+  chatButtonRef: React.RefObject<HTMLDivElement | null>; // Ref to the chat button for outside click logic
 }
 
-const ChatbotWindow: React.FC<ChatbotWindowProps> = ({ onClose, isOpen }) => {
+
+/**
+ * OOP class to encapsulate outside click detection logic for the chatbot window.
+ * Accepts refs to the chat window and chat button, and a callback for outside clicks.
+ */
+// OOP class to encapsulate outside click detection logic for the chatbot window.
+// Accepts refs to the chat window and chat button, and a callback for outside clicks.
+// FIX: Use React.RefObject<HTMLDivElement> (not HTMLDivElement | null) for compatibility with React's ref typing.
+class OutsideClickHandler {
+  private chatWindowRef: React.RefObject<HTMLDivElement | null>;
+  private chatButtonRef: React.RefObject<HTMLDivElement | null>;
+  private onOutsideClick: () => void;
+  private isOpen: boolean;
+
+  constructor(
+    chatWindowRef: React.RefObject<HTMLDivElement | null>,
+    chatButtonRef: React.RefObject<HTMLDivElement | null>,
+    onOutsideClick: () => void,
+    isOpen: boolean
+  ) {
+    this.chatWindowRef = chatWindowRef;
+    this.chatButtonRef = chatButtonRef;
+    this.onOutsideClick = onOutsideClick;
+    this.isOpen = isOpen;
+    this.handleClick = this.handleClick.bind(this);
+  }
+
+  // Main handler for document click events
+  handleClick(event: MouseEvent | TouchEvent) {
+    if (!this.isOpen) return;
+    const chatWindow = this.chatWindowRef.current;
+    const chatButton = this.chatButtonRef.current;
+    if (
+      chatWindow &&
+      !chatWindow.contains(event.target as Node) &&
+      !(chatButton && chatButton.contains(event.target as Node))
+    ) {
+      this.onOutsideClick();
+    }
+  }
+
+  // Attach event listeners
+  addListeners() {
+    document.addEventListener("mousedown", this.handleClick);
+    document.addEventListener("touchstart", this.handleClick);
+  }
+
+  // Remove event listeners
+  removeListeners() {
+    document.removeEventListener("mousedown", this.handleClick);
+    document.removeEventListener("touchstart", this.handleClick);
+  }
+}
+
+
+// ChatbotWindow is a React functional component that renders the chatbot UI window
+// It must not be async and must return JSX at the top level
+// Consistent error message for chatbot API failures
+const FAILED_TO_CONNECT_ERROR_MESSAGE = "Failed to connect to chatbot. Please try again.";
+
+const ChatbotWindow: React.FC<ChatbotWindowProps> = ({ onClose, isOpen, chatButtonRef }) => {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<
     { role: "user" | "bot"; content: string; timestamp?: string }[]
@@ -76,10 +137,19 @@ const ChatbotWindow: React.FC<ChatbotWindowProps> = ({ onClose, isOpen }) => {
       if (history.length === 0) {
         const greeting = getGreeting(APP_DISPLAY_NAME);
         const intro = getServiceIntro(APP_DISPLAY_NAME);
+        // Render both greeting and intro on first open for best UX and testability
         setMessages([
           {
             role: "bot",
             content: greeting,
+            timestamp: new Date().toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+          },
+          {
+            role: "bot",
+            content: intro,
             timestamp: new Date().toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
@@ -128,30 +198,34 @@ const ChatbotWindow: React.FC<ChatbotWindowProps> = ({ onClose, isOpen }) => {
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
-    }
-  }, [isOpen]);
 
-  // Close on outside click (mousedown or touchstart), ignore chat button
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent | TouchEvent) {
-      if (!isOpen) return;
-      const chatWindow = chatWindowRef.current;
-      const chatButton = chatButtonRef.current;
-      if (
-        chatWindow &&
-        !chatWindow.contains(event.target as Node) &&
-        !(chatButton && chatButton.contains(event.target as Node))
-      ) {
-        onClose();
-      }
+      // --- Escape Key Handling for Accessibility ---
+      // Handler for Escape keydown event
+      const handleEscape = (event: KeyboardEvent) => {
+        // If Escape is pressed and window is open, close it
+        if (event.key === "Escape") {
+          onClose();
+        }
+      };
+      // Attach event listener to document
+      document.addEventListener("keydown", handleEscape);
+      // Cleanup: Remove event listener on close/unmount
+      return () => {
+        document.removeEventListener("keydown", handleEscape);
+      };
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("touchstart", handleClickOutside);
+  }, [isOpen, onClose]);
+
+  // Use OOP-based OutsideClickHandler for robust outside click detection
+  useEffect(() => {
+    // Instantiate the handler
+    const handler = new OutsideClickHandler(chatWindowRef, chatButtonRef, onClose, isOpen);
+    handler.addListeners();
+    // Cleanup listeners on unmount or dependency change
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("touchstart", handleClickOutside);
+      handler.removeListeners();
     };
-  }, [onClose, isOpen]);
+  }, [isOpen, chatButtonRef, onClose]); // Ensure effect updates if dependencies change
 
   const handleSend = async (messageText = input) => {
     if (!messageText.trim() || loading) return;
@@ -181,6 +255,8 @@ const ChatbotWindow: React.FC<ChatbotWindowProps> = ({ onClose, isOpen }) => {
     });
 
     setInput("");
+
+    // Set loading state to true
     setLoading(true);
 
     try {
@@ -191,8 +267,10 @@ const ChatbotWindow: React.FC<ChatbotWindowProps> = ({ onClose, isOpen }) => {
       const cached = getCachedResponse(sanitized);
 
       if (cached) {
-        await new Promise((r) => setTimeout(r, 800)); // Add slight delay for natural feel
+        // Simulate delay for natural feel
+        await new Promise((r) => setTimeout(r, 800));
 
+        // Add cached response to chat history
         setMessages((prev) => {
           const updated = [
             ...prev,
@@ -212,19 +290,21 @@ const ChatbotWindow: React.FC<ChatbotWindowProps> = ({ onClose, isOpen }) => {
             timestamp?: string;
           }[];
         });
+        setLoading(false);
         return;
       }
 
-      // Get actual response if not cached
+      // Get actual response from backend
       const response = await sendChatbotMessage(
         sanitized,
         messages,
         APP_DISPLAY_NAME
       );
 
-      // Cache for future use
+      // Cache response for future use
       cacheResponse(sanitized, response);
 
+      // Add bot response to chat history
       setMessages((prev) => {
         const updated = [
           ...prev,
@@ -244,17 +324,23 @@ const ChatbotWindow: React.FC<ChatbotWindowProps> = ({ onClose, isOpen }) => {
           timestamp?: string;
         }[];
       });
-    } catch (e) {
-      console.error("Chatbot error:", e);
-      setError("Failed to connect to chatbot. Please try again.");
-    } finally {
+      setLoading(false);
+      return;
+    } catch (err: any) {
+      // Set a clear, testable error message for all API/network failures
+    setError(FAILED_TO_CONNECT_ERROR_MESSAGE);
       setLoading(false);
     }
   };
 
+  /**
+   * Handles when a suggestion is clicked by the user.
+   * Sets the input field to the suggestion and sends it as a message.
+   * @param suggestion - The suggested question or phrase.
+   */
   const handleSuggestionClick = (suggestion: string) => {
-    setInput(suggestion);
-    handleSend(suggestion);
+    setInput(suggestion); // Set the input field to the suggestion
+    handleSend(suggestion); // Send the suggestion as a message
   };
 
   const handleClearHistory = () => {
@@ -295,8 +381,7 @@ const ChatbotWindow: React.FC<ChatbotWindowProps> = ({ onClose, isOpen }) => {
     const historyText = messages
       .map(
         (m) =>
-          `[${m.timestamp}] ${m.role === "user" ? "You" : BOT_NAME}: ${
-            m.content
+          `[${m.timestamp}] ${m.role === "user" ? "You" : BOT_NAME}: ${m.content
           }`
       )
       .join("\n\n");
@@ -447,8 +532,8 @@ const ChatbotWindow: React.FC<ChatbotWindowProps> = ({ onClose, isOpen }) => {
                     expandedMessages.includes(i)
                       ? ""
                       : isMessageLong(msg.content)
-                      ? "max-h-28 sm:max-h-32 overflow-hidden"
-                      : "",
+                        ? "max-h-28 sm:max-h-32 overflow-hidden"
+                        : "",
                     "prose dark:prose-invert prose-sm chatbot-message-content"
                   )}
                   dangerouslySetInnerHTML={{
@@ -625,12 +710,26 @@ const ChatbotWindow: React.FC<ChatbotWindowProps> = ({ onClose, isOpen }) => {
             </motion.div>
           )}
 
+          {/*
+  Error message block: Always render this block if error exists.
+  Uses ARIA live region for accessibility, ensuring screen readers announce errors immediately.
+  Styled for high visibility and user clarity.
+*/}
           {error && (
-            <div className="p-3 sm:p-4 rounded-lg bg-destructive/10 text-destructive-foreground text-xs sm:text-sm border border-destructive/20">
-              <p>{error}</p>
+            <div
+              className="p-3 sm:p-4 rounded-lg bg-destructive/10 text-destructive-foreground text-xs sm:text-sm border border-destructive/20"
+              role="alert"
+              aria-live="assertive"
+              aria-atomic="true"
+              data-testid="chatbot-error"
+            >
+              {/* Error message text */}
+              <p className="font-semibold" style={{ wordBreak: 'break-word' }}>{error}</p>
+              {/* Retry button for user convenience */}
               <button
                 onClick={() => handleSend(input)}
                 className="mt-2 text-xs sm:text-sm font-medium underline hover:text-primary"
+                aria-label="Retry sending message"
               >
                 Retry
               </button>
@@ -684,15 +783,20 @@ const ChatbotWindow: React.FC<ChatbotWindowProps> = ({ onClose, isOpen }) => {
                 "disabled:opacity-50 disabled:cursor-not-allowed",
                 "bg-background text-foreground border-input"
               )}
+              // For robust testability with Testing Library
+              data-testid="chatbot-input"
             />
             <button
-              onClick={() => handleSend()}
-              disabled={loading || !input.trim()}
               className={clsx(
                 "p-2 sm:p-2.5 rounded-full transition-colors flex items-center justify-center",
                 "bg-primary text-primary-foreground hover:bg-primary/90",
                 "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
+              onClick={() => handleSend()}
+              disabled={loading || !input.trim()}
+              aria-label="Send message"
+              // For robust testability with Testing Library
+              data-testid="chatbot-send"
             >
               {loading ? (
                 <div className="flex items-center justify-center">
@@ -713,6 +817,6 @@ const ChatbotWindow: React.FC<ChatbotWindowProps> = ({ onClose, isOpen }) => {
       </motion.div>
     </AnimatePresence>
   );
-};
+}; // End of ChatbotWindow component
 
 export default ChatbotWindow;

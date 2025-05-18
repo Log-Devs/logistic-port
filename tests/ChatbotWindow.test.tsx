@@ -15,23 +15,35 @@ jest.mock("../lib/chatbot", () => ({
 }));
 
 describe("ChatbotWindow", () => {
+  beforeAll(() => {
+    window.scrollTo = jest.fn();
+  });;
+
   it("renders greeting and intro", () => {
-    const { getByText } = render(<ChatbotWindow onClose={() => {}} />);
+    // Provide required props: isOpen and onClose
+    const chatButtonRef = React.createRef<HTMLDivElement>() as React.RefObject<HTMLDivElement>;
+    const { getByText } = render(<ChatbotWindow onClose={() => { }} isOpen={true} chatButtonRef={chatButtonRef} />);
     expect(getByText(/Good morning!/)).toBeInTheDocument();
-    expect(getByText(/I’m here to help/)).toBeInTheDocument();
+    // The intro message is added to history, not initial messages, so ensure it is present in the rendered output
+    expect(getByText(/help you with TransGlobalFreight services/)).toBeInTheDocument();
   });
 
   it("sends user message and displays bot response", async () => {
+    // Render a single ChatbotWindow and use RTL queries
+    const chatButtonRef = React.createRef<HTMLDivElement>() as React.RefObject<HTMLDivElement>;
     const { getByTestId, getByText } = render(
-      <ChatbotWindow onClose={() => {}} />
+      <ChatbotWindow onClose={() => {}} isOpen={true} chatButtonRef={chatButtonRef} />
     );
-    const input = getByTestId("chatbot-input");
-    fireEvent.change(input, {
+    // Simulate user typing and sending a message
+    fireEvent.change(getByTestId("chatbot-input"), {
       target: { value: "What services do you offer?" },
     });
     fireEvent.click(getByTestId("chatbot-send"));
+    // Wait for the bot response to appear
     await waitFor(() =>
       expect(getByText("Test bot response")).toBeInTheDocument()
     );
   });
 });
+// Removed custom getByTestId and getByText helpers; use RTL's built-in queries instead for better isolation and reliability.
+

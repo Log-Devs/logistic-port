@@ -9,13 +9,21 @@ import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { APP_DISPLAY_NAME } from "@/app/app-details-config";
+import { useAuth } from "@/components/auth-context";
+import { jwtDecode } from "jwt-decode";
 
 export default function Navbar() {
   const { theme, setTheme, resolvedTheme } = useTheme();
+  const { user, logout } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+
+  let userName = "";
+  if (user) {
+    userName = user.name || "User";
+  }
 
   useEffect(() => setMounted(true), []);
   useEffect(() => {
@@ -137,19 +145,28 @@ export default function Navbar() {
           </motion.button>
 
           {/* Auth buttons */}
-          {!hideLogin && (
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button variant="outline" asChild>
-                <Link href="/login">Login</Link>
-              </Button>
-            </motion.div>
-          )}
-          {!hideRegister && (
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button asChild>
-                <Link href="/register">Register</Link>
-              </Button>
-            </motion.div>
+          {user ? (
+            <>
+              <span className="font-semibold text-base text-primary">Hi, {user.name}</span>
+              <Button onClick={logout} variant="outline" className="ml-2">Logout</Button>
+            </>
+          ) : (
+            <>
+              {!hideLogin && (
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button variant="outline" asChild>
+                    <Link href="/login">Login</Link>
+                  </Button>
+                </motion.div>
+              )}
+              {!hideRegister && (
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button asChild>
+                    <Link href="/register">Register</Link>
+                  </Button>
+                </motion.div>
+              )}
+            </>
           )}
         </motion.div>
 
@@ -244,19 +261,28 @@ export default function Navbar() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.4 }}
               >
-                {!hideLogin && (
-                  <Button variant="outline" asChild className="w-full py-6">
-                    <Link href="/login" onClick={() => setIsMenuOpen(false)}>
-                      Login
-                    </Link>
-                  </Button>
-                )}
-                {!hideRegister && (
-                  <Button asChild className="w-full py-6">
-                    <Link href="/register" onClick={() => setIsMenuOpen(false)}>
-                      Register
-                    </Link>
-                  </Button>
+                {user ? (
+                  <>
+                    <span className="font-semibold text-lg text-primary w-full py-6 text-center">Hi, {user.name}</span>
+                    <Button onClick={logout} variant="outline" className="w-full py-6">Logout</Button>
+                  </>
+                ) : (
+                  <>
+                    {!hideLogin && (
+                      <Button variant="outline" asChild className="w-full py-6">
+                        <Link href="/login" onClick={() => setIsMenuOpen(false)}>
+                          Login
+                        </Link>
+                      </Button>
+                    )}
+                    {!hideRegister && (
+                      <Button asChild className="w-full py-6">
+                        <Link href="/register" onClick={() => setIsMenuOpen(false)}>
+                          Register
+                        </Link>
+                      </Button>
+                    )}
+                  </>
                 )}
               </motion.div>
             </nav>

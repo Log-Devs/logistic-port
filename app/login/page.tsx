@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { TruckIcon, LogIn, AlertCircle } from "lucide-react";
@@ -21,6 +21,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import RegisterBackground from "@/public/deliveryparcel.jpg";
+import { useAuth } from "@/components/auth-context";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -28,6 +30,14 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const { login, loading, user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace("/dashboard");
+    }
+  }, [user, loading, router]);
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
@@ -39,40 +49,15 @@ export default function LoginPage() {
     }
 
     setIsLoading(true);
-    try {
-      // Manual login for testing
-      // Use: test@example.com / password123
-      if (email === "test@example.com" && password === "password123") {
-        // Generate a dummy JWT (header.payload.signature)
-        const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
-        const payload = btoa(
-          JSON.stringify({
-            sub: email,
-            name: "Test User",
-            iat: Math.floor(Date.now() / 1000),
-            secret: process.env.JWT_SECRET,
-          })
-        );
-        const signature = "signature";
-        const dummyJwt = `${header}.${payload}.${signature}`;
-        if (typeof window !== "undefined") {
-          const dashboardUrl =
-            process.env.NEXT_PUBLIC_DASHBOARD_URL ||
-            "http://localhost:5173/dashboard";
-          window.location.href = `${dashboardUrl}?jwt=${encodeURIComponent(
-            dummyJwt
-          )}`;
-        }
-        return;
-      } else {
-        throw new Error();
-      }
-    } catch (error) {
+    const ok = await login(email, password, rememberMe);
+    if (!ok) {
       setError("Invalid email or password. Please try again.");
-    } finally {
-      setIsLoading(false);
     }
+    setIsLoading(false);
   };
+
+  if (loading) return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
+  if (user) return null;
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-900">
