@@ -37,7 +37,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ title, icon, onClick }) =
   // Transition for all properties, shadow on hover, pointer cursor
   'transition-all hover:shadow-lg cursor-pointer',
   // Border and background for light and dark mode
-  'bg-white  dark:bg-slate-900 border-gray-200 dark:border-gray-700',
+  'bg-white  dark:bg-slate-800 border-gray-200 dark:border-gray-700',
   // Custom hover border color for light and dark mode
   'hover:border-[#e60000] dark:hover:border-[#ff3333]',
   // Fixed height and full width

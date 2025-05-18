@@ -39,7 +39,7 @@ export default function ProfessionalCardSlider() {
 	const [currentSlide, setCurrentSlide] = useState(0);
 	const [direction, setDirection] = useState(0);
 	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-	const slideInterval = 5000;
+	const slideInterval = 30000;
 
 	useEffect(() => {
 		const resetTimeout = () => {
