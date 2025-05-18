@@ -142,10 +142,10 @@ export class MyAIFallback {
     // Defensive: fallback if no dataset loaded
     if (typeof window !== 'undefined') {
       // Never run fallback logic on the client (browser)
-      return `Sorry, the AI service is temporarily unavailable. Please try again later or contact support.`;
+      return MyAIFallback.FALLBACK_ERROR_MESSAGE;
     }
     if (!this.faqs.length) {
-      return `Sorry, the AI service is temporarily unavailable. Please try again later or contact support.`;
+      return MyAIFallback.FALLBACK_ERROR_MESSAGE;
     }
     // If embeddings are present, use semantic search
     if (this.faqs[0] && this.faqs[0].embedding) {
