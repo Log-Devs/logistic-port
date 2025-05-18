@@ -345,7 +345,7 @@ const VirtualRow = ({ index, style, data }: { index: number; style: React.CSSPro
                 <div 
                     key={cell.id} 
                     className="px-4 py-2 text-sm sm:text-base overflow-hidden"
-                    style={{ width: columnWidths[i] }}
+                    style={{ width: columnWidths[i] || 150 }} // Fallback to 150px if index is out of bounds
                 >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </div>
