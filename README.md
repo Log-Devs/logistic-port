@@ -113,7 +113,7 @@ These tests cover:
 ### Installation
 
 ```bash
-git clone https://github.com/yourusername/logistics-portfolio.git
+git clone https://github.com/kaeytee/logistics-portfolio.git
 cd logistics-portfolio
 pnpm install
 ```
@@ -145,6 +145,184 @@ hooks/              # Custom React hooks
 ```
 
 ## AI Chatbot Implementation
+
+### Advanced Usage, Diagnostics, Extensibility, and AI Fallback (2025-05-18)
+
+#### Local AI Fallback Logic
+- If OpenRouter is unavailable or fails, the chatbot now uses a local fallback script (`lib/my-ai-fallback.ts`).
+- The fallback is rules-based by default, but you can extend `MyAIFallback` with your own AI model, local inference server, or custom logic.
+- All fallback logic is fully OOP, commented, and ready for developer extension.
+- See `lib/chatbot.ts` for how the fallback is integrated and tiered with OpenRouter.
+
+---
+
+### Building FAQ Management in Your Admin App
+
+To implement FAQ management in your admin app (recommended for professional operations):
+
+- **CRUD Operations:**
+  - Allow admins to Create, Read, Update, and Delete FAQ entries (question/answer pairs) via a secure UI.
+  - Store FAQs in a backend database (e.g., PostgreSQL, MongoDB, or even a flat file for MVP).
+  - Use OOP and clean code: encapsulate FAQ logic in service and repository classes, with strict validation and error handling.
+  - Add audit logs and user attribution for all edits.
+- **Validation & UX:**
+  - Validate for duplicate questions, required fields, and professional language.
+  - Preview FAQ entries as they will appear to users (including HTML rendering for links).
+- **Integration with Embeddings:**
+  - On FAQ create/update/delete, trigger the embedding regeneration pipeline automatically (see CI/CD below).
+  - Optionally, provide a "Regenerate Embeddings" button in the admin UI that calls an API endpoint to run the embedding script.
+- **API Design:**
+  - Expose RESTful or GraphQL endpoints for FAQ CRUD, secured with admin authentication.
+  - Provide endpoints for fetching all FAQs and for triggering embedding regeneration (POST /admin/faq/embeddings/rebuild).
+- **Best Practices:**
+  - Use optimistic UI updates and error boundaries.
+  - Document the admin workflow and onboarding in your internal docs.
+
+---
+
+### Automated Notifications for FAQ/Embedding Changes
+
+- **Why:** Keep your team informed of knowledge base updates, embedding regenerations, and potential issues.
+- **How:**
+  - Integrate with Slack, Discord, or email using GitHub Actions or your backend.
+  - Example: Add a GitHub Actions step after embedding regeneration:
+    ```yaml
+    - name: Notify Slack of embedding update
+      uses: slackapi/slack-github-action@v1.24.0
+      with:
+        payload: '{"text":"FAQ embeddings updated and deployed! :robot_face:"}'
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    ```
+  - For email, use `actions/send-mail@v1` or trigger a custom webhook to your backend.
+  - For Discord, use a webhook notification step.
+- **Best Practice:**
+  - Notify on both success and failure of embedding regeneration and deployment.
+  - Include a link to the PR, commit, or deployment preview in the notification.
+
+---
+
+### Advanced CI/CD Customizations for Professional Teams
+
+- **Branch Protection & PR Checks:**
+  - Require all FAQ/embedding changes to go through Pull Requests with code review.
+  - Add a CI check to ensure `company-faq-embeddings.json` is always up-to-date with `company-faq.json`.
+- **Preview Deployments:**
+  - Use Vercel, Netlify, or similar to deploy preview branches for every PR.
+  - Test FAQ changes and chatbot responses in a live preview before merging.
+- **Notification Hooks:**
+  - Integrate Slack/Discord/email notifications for PR merges, deployment failures, or embedding regeneration issues.
+- **Secrets Management:**
+  - Store all sensitive tokens (Slack, email, etc.) in CI/CD secrets, never in code.
+- **Onboarding:**
+  - Document this workflow in your internal onboarding guide and README for new developers/admins.
+
+---
+
+### How to Use Python Embeddings with Next.js (Beginner-Friendly)
+
+#### Why Python?
+- HuggingFace and Python offer state-of-the-art language models for generating semantic embeddings.
+- This approach is industry-standard for knowledge-augmented chatbots, even in Node.js/Next.js projects.
+- Python is only used for offline data processing — never in your production web server or client.
+
+#### Setting Up Your Python Environment (Best Practice)
+1. **Create a virtual environment:**
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+2. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+   - This keeps Python packages isolated from your system and Node.js dependencies.
+
+#### Updating Your FAQ and Embeddings
+
+1. **Edit your FAQ:**
+   - Update `lib/data/company-faq.json` with new Q&A pairs.
+   - **Authoring Guidelines:**
+     - Write clear, concise, and professional questions and answers.
+     - Include both common and advanced (future-facing) questions users might ask.
+     - Cover operational, technical, and customer support topics.
+     - Use proper grammar and company branding/tone.
+     - Example:
+       ```json
+       {
+         "question": "What new routes will LogisticsFuture offer in the future?",
+         "answer": "We are always expanding! For future route announcements, please sign up for our newsletter or check our Updates page."
+       }
+       ```
+2. **Regenerate embeddings (manual workflow):**
+   - With your virtual environment activated, run:
+     ```bash
+     python scripts/generate_faq_embeddings.py
+     ```
+   - This creates/updates `lib/data/company-faq-embeddings.json`.
+3. **No server restart needed:**
+   - Your Next.js app will use the updated knowledge base automatically.
+
+#### Automating Embedding Regeneration (npm scripts & CI/CD)
+
+- **Add an npm script to package.json:**
+  ```json
+  "scripts": {
+    "generate-faq-embeddings": "source .venv/bin/activate && python scripts/generate_faq_embeddings.py"
+  }
+  ```
+  - Now you (or your CI) can run:
+    ```bash
+    npm run generate-faq-embeddings
+    ```
+- **CI/CD integration:**
+  - In your pipeline (GitHub Actions, GitLab CI, etc.), add a step to:
+    - Set up Python and dependencies
+    - Run the embedding script after FAQ edits
+    - Commit or deploy the updated `company-faq-embeddings.json`
+- **Best Practice:**
+  - Always regenerate embeddings after FAQ changes, before deploying to production.
+
+---
+
+#### Advanced: Debugging & Single-Query Embeddings
+- To see the embedding for a specific question:
+  ```bash
+  python scripts/generate_faq_embeddings.py --query "How do I track my shipment?"
+  ```
+
+#### Best Practices
+- Keep all Python scripts in the `scripts/` folder.
+- Never run Python scripts from the client/browser.
+- Document this workflow for new developers (see this section for onboarding).
+- You can upgrade to a pure Node.js embedding solution later if desired.
+
+#### Industry-Standard Hybrid Pattern
+- Using Python for embedding generation and Node.js for serving is common in production AI/chatbot systems.
+- This separation ensures maintainability, performance, and access to the best models.
+
+---
+
+
+#### Enhanced Diagnostics & Error Handling
+- All chatbot API/network failures display a clear error message: `Failed to connect to chatbot. Please try again.`
+- Backend configuration errors are surfaced in the chat UI with a special warning and logged to the browser console for developer insight.
+- Full OpenRouter API responses are logged server-side for debugging.
+- All error and fallback handling is documented in `components/ChatbotWindow.tsx` and `lib/chatbot.ts`.
+
+#### Feedback & User Experience
+- Users can copy any message, expand/collapse long responses, and provide thumbs up/down feedback on bot replies.
+- The chat UI is fully accessible (keyboard navigation, escape key closes window, outside click handler via OOP class).
+- Conversation history is persisted locally and can be cleared or exported by the user.
+
+#### Developer Diagnostics & Extension
+- All agent and chatbot logic is fully OOP and commented for maintainability.
+- Extend the AI agent in `lib/ai-agent.ts` for new discovery logic or LLM plugins.
+- All messages, errors, and API interactions are testable and observable for robust CI/CD workflows.
+- Clean separation of concerns: UI, agent, and API logic are modular and independently testable.
+
+---
+
 
 This app includes an AI-powered chatbot named **Nana** for LogisticsFuture, available on all pages via a floating button. Nana provides:
 - Professional, time-based greeting and service introduction
@@ -238,6 +416,14 @@ This project is licensed under the MIT License.
 For questions or support, please contact [austinbediako4@gmail.com](mailto:austinbediako4@gmail.com).
 
 ## Changelog
+
+### 2025-05-18
+- Enhanced AI chatbot documentation for advanced usage, diagnostics, and extensibility.
+- Improved error handling and user feedback for chatbot UI and backend integration.
+- Documented OOP agent architecture and developer extension points.
+- Added changelog for advanced diagnostics and agent-based discovery features.
+- **New Feature:** Local AI fallback (`lib/my-ai-fallback.ts`) is now used if OpenRouter is down or misconfigured. Developers can extend this fallback for their own models or scripts.
+
 
 ### 2025-05-15
 
