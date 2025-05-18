@@ -27,3 +27,42 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# --- Python development ignores (for embedding and scripts) ---
+# Python virtual environment (never commit this)
+.venv/
+
+# Python bytecode and cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# pip, pytest, mypy, build, and egg-info caches
+pip-log.txt
+pip-delete-this-directory.txt
+.mypy_cache/
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+
+# Model or embedding cache files (but NOT production embeddings)
+*.pkl
+*.cache
+*.pt
+*.pth
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# VSCode and IDE settings
+.vscode/
+.idea/
+
+# Do NOT ignore production embedding output (needed by the app)
+!lib/data/company-faq-embeddings.json
+
+# Ignore local test or temp data
+lib/data/tmp-embeddings.json
+lib/data/*.bak

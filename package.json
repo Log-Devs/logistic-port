@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "generate-faq-embeddings": "bash -c 'source .venv/bin/activate && python scripts/generate_faq_embeddings.py'",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

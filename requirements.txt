@@ -1,0 +1,4 @@
+# Requirements for local embedding generation (HuggingFace)
+sentence-transformers==2.2.2
+torch>=1.10
+numpy

@@ -1,0 +1,66 @@
+[
+  {
+    "question": "What services does LogisticsFuture offer?",
+    "answer": "LogisticsFuture specializes in air freight between Ghana and the US, providing reliable shipping, real-time tracking, customs clearance, and dedicated customer support for your logistics needs."
+  },
+  {
+    "question": "How can I track my shipment?",
+    "answer": "Log in to your account and visit the <a href=\"/tracking\">Tracking</a> page for real-time updates. For assistance, contact our support team."
+  },
+  {
+    "question": "How do I get a price quote?",
+    "answer": "Visit our <a href=\"/pricing\">Pricing</a> page or reach out to our customer care team for a personalized quote tailored to your shipment needs."
+  },
+  {
+    "question": "How do I register for an account?",
+    "answer": "Go to the <a href=\"/register\">Register</a> page and complete the registration form to get started."
+  },
+  {
+    "question": "What is your privacy policy?",
+    "answer": "Your privacy is our priority. We only retain data necessary for your session. For more details, see our <a href=\"/privacy\">Privacy Policy</a>."
+  },
+  {
+    "question": "How do I contact support?",
+    "answer": "Contact our support team via the <a href=\"/contact\">Contact</a> page or email support@logisticsfuture.com."
+  },
+  {
+    "question": "What new routes or services will LogisticsFuture offer in the future?",
+    "answer": "We are expanding! For future route announcements and new services, sign up for our newsletter or check the Updates page regularly."
+  },
+  {
+    "question": "Can I ship items outside Ghana and the US?",
+    "answer": "Currently, we only offer air freight between Ghana and the US. For updates on new destinations, please subscribe to our newsletter."
+  },
+  {
+    "question": "How do I reset my password?",
+    "answer": "Click on 'Forgot Password' on the <a href=\"/login\">Login</a> page and follow the instructions to reset your password securely."
+  },
+  {
+    "question": "How does LogisticsFuture ensure shipment security?",
+    "answer": "We use advanced tracking, secure packaging, and partner with trusted carriers to ensure your shipment is safe throughout its journey."
+  },
+  {
+    "question": "What are the payment options?",
+    "answer": "We accept major credit cards, bank transfers, and selected mobile payment platforms. See our <a href=\"/payment\">Payment</a> page for more details."
+  },
+  {
+    "question": "How do I become a business partner or agent?",
+    "answer": "Visit our <a href=\"/partners\">Partners</a> page or contact us for partnership opportunities and requirements."
+  },
+  {
+    "question": "How does LogisticsFuture handle customs clearance?",
+    "answer": "Our team manages all customs documentation and clearance processes to ensure smooth and timely delivery of your shipments."
+  },
+  {
+    "question": "What should I do if my shipment is delayed?",
+    "answer": "If your shipment is delayed, please check the Tracking page or contact our support team for real-time assistance and resolution."
+  },
+  {
+    "question": "How can I provide feedback or suggestions?",
+    "answer": "We value your feedback! Use the <a href=\"/contact\">Contact</a> page to share your suggestions or experiences with us."
+  },
+  {
+    "question": "How can I stay informed about LogisticsFuture news and updates?",
+    "answer": "Subscribe to our newsletter or follow us on our social media channels for the latest updates and announcements."
+  }
+]

@@ -294,23 +294,42 @@ const ChatbotWindow: React.FC<ChatbotWindowProps> = ({ onClose, isOpen, chatButt
         return;
       }
 
+      // Filter out invalid messages (missing or empty content) before sending to API
+      const filteredHistory = messages.filter(
+        (msg) => typeof msg.content === "string" && msg.content.trim().length > 0
+      );
       // Get actual response from backend
       const response = await sendChatbotMessage(
         sanitized,
-        messages,
+        filteredHistory,
         APP_DISPLAY_NAME
       );
 
       // Cache response for future use
       cacheResponse(sanitized, response);
 
-      // Add bot response to chat history
+      // Add bot response to chat history, but only if response is a valid string
       setMessages((prev) => {
+        // Enhanced diagnostics: handle backend configuration errors
+        let botReply = typeof response === "string" && response.trim().length > 0
+          ? response
+          : "Sorry, I didn't understand that. Please try again.";
+
+        // If backend returns a configuration error, show special UI and log to console
+        if (botReply.startsWith('[Backend Error]')) {
+          // Log the backend error for developer diagnostics
+          // eslint-disable-next-line no-console
+          console.error('Chatbot backend configuration error:', botReply);
+          // Display a special message in the chat UI
+          botReply = `⚠️ <b>Configuration Error:</b><br>${botReply.replace('[Backend Error]', '').trim()}`;
+          botReply = DOMPurify.sanitize(botReply);
+        }
+
         const updated = [
           ...prev,
           {
             role: "bot",
-            content: response,
+            content: botReply,
             timestamp: new Date().toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
@@ -396,7 +415,14 @@ const ChatbotWindow: React.FC<ChatbotWindowProps> = ({ onClose, isOpen, chatButt
     setShowOptions(false);
   };
 
-  const isMessageLong = (content: string) => content.length > 150;
+  /**
+   * Checks if a message is long (>150 chars). Handles undefined/null content defensively.
+   * Returns false if content is not a valid string.
+   */
+  const isMessageLong = (content?: string | null): boolean => {
+    if (typeof content !== "string") return false;
+    return content.length > 150;
+  };
 
   if (!isOpen) return null;
 
