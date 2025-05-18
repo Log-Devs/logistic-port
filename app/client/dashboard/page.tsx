@@ -61,7 +61,7 @@ const ClientDashboard: React.FC = () => {
 
   // Render the dashboard UI
   return (
-    <div className="w-full h-full px-2 md:px-12 py-8 bg-gray-100 dark:bg-slate-900 min-h-screen flex flex-col items-start">          {/* i want to make the dashboard cards to be responsive  also , i want the darkmode background to be navy*/}
+    <div className="w-full h-full px-2 md:px-12 py-8 bg-gray-100 dark:bg-slate-900 min-h-screen flex flex-col items-start">
 
       {/* Welcome Header */}
       {/* <h1 className="text-3xl font-bold mb-2 dark:text-gray-100">Welcome</h1> */}
