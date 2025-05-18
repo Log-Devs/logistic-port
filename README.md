@@ -20,6 +20,8 @@ A modern, responsive web application for showcasing logistics services, built wi
 		- [Usage](#usage)
 		- [Developer Notes](#developer-notes)
 			- [Responsive Sidebar Behavior](#responsive-sidebar-behavior)
+      - [Authentication Mode Toggle for Testing](#authentication-mode-toggle-for-testing)
+      - [Dependency Conflict Workaround (2025-05-18)](#dependency-conflict-workaround-2025-05-18)
 	- [Contributing](#contributing)
 	- [License](#license)
 	- [Contact](#contact)
@@ -39,6 +41,67 @@ A modern, responsive web application for showcasing logistics services, built wi
 - The sidebar now uses the `useIsMobile` custom React hook (see `hooks/use-mobile.tsx`) to detect mobile viewports.
 - When navigating via the sidebar on mobile, the sidebar automatically closes for a seamless user experience.
 - This logic is encapsulated in a reusable hook for clean code, OOP, and maintainability.
+
+---
+
+### Authentication Mode Toggle for Testing
+
+**Overview:**
+
+For local development and QA, the app provides a built-in toggle to switch between real backend authentication and in-memory dummy authentication. This enables seamless testing of all authentication flows, even when the backend API is unavailable or when you want to demo the app without real user accounts.
+
+**How It Works:**
+- By default, the app uses **real** authentication (backend API).
+- To use **dummy** authentication (for local testing, demos, or offline development):
+  1. Open your browser's developer console.
+  2. Run: `localStorage.setItem('auth_mode', 'dummy')`
+  3. Refresh the page. The app will now use the dummy user for authentication.
+- To switch back to **real** authentication:
+  1. Run: `localStorage.setItem('auth_mode', 'real')`
+  2. Refresh the page.
+- No UI toggle is provided for switching modes. This is intentional for production safety and to keep the UI clean.
+
+**Dummy User for Testing:**
+- Only one dummy user is available for development and QA:
+  - **Email:** `test@example.com`
+  - **Password:** `password123`
+- Dummy user avatar and name are realistic for UI prototyping.
+
+**Session Expiration:**
+- Dummy sessions expire after 2 hours by default (configurable in code).
+- If the session is expired (e.g., after a long browser pause), you will be logged out automatically on refresh.
+- Session expiration is managed via a timestamp in the cookie (no backend required).
+
+**Behavior in Each Mode:**
+- **Real:**
+  - Login, logout, and session hydration all use the backend API.
+  - All security and redirect logic is enforced as in production.
+- **Dummy:**
+  - Log in with any of the dummy user credentials above. The session is managed in memory and persisted via cookie until expiration or logout.
+  - Logging out clears the dummy session and cookie.
+  - Useful for demos, UI/UX testing, and offline development.
+
+**Testing Checklist:**
+- Toggle the "Auth Mode" selector and verify:
+  1. In **Dummy** mode, you can log in and out using any dummy credentials, and the app behaves as if a real user is logged in (including role-based UI if implemented).
+  2. In **Real** mode, only real backend authentication works.
+  3. Switching modes instantly updates the app's authentication state.
+  4. After 2 hours (or configurable duration), dummy sessions expire and require re-login.
+- Always use **Real** mode for production and QA that require backend validation.
+
+**Troubleshooting:**
+- If you do not see the toggle, ensure you are running in development mode (`npm run dev` or `yarn dev`).
+- If you cannot log in with the dummy credentials, ensure you have selected "Dummy" mode.
+- If you are unexpectedly logged out in dummy mode, your session may have expired.
+
+**Security Note:**
+- The dummy authentication mode and toggle are only available in development. They are never exposed in production builds.
+
+**Future Enhancements:**
+- A dev-only UI for editing/adding dummy users on-the-fly for rapid prototyping.
+- More advanced session controls (e.g., warning before expiration, manual session extension).
+
+---
 - Example usage in a component:
   ```tsx
   import { useIsMobile } from "@/hooks/use-mobile";
@@ -490,6 +553,30 @@ fetchData();
 - Nana will always use a professional tone and respect your privacy.
 
 ### Developer Notes
+
+---
+
+### Dependency Conflict Workaround (2025-05-18)
+
+**Issue:**
+- Attempting to install new packages (e.g., `js-cookie`) may fail due to strict npm peer dependency conflicts between `react`, `react-day-picker`, and `date-fns`.
+- Example error: `Cannot find module 'js-cookie' or its corresponding type declarations.`
+- The project currently uses `react@19.x`, `react-day-picker@8.x`, and `date-fns@4.x`, which are not all mutually compatible.
+
+**Workaround:**
+- To install new dependencies (like `js-cookie`), use the `--legacy-peer-deps` flag:
+
+  ```bash
+  npm install js-cookie @types/js-cookie --legacy-peer-deps
+  ```
+
+- This bypasses peer dependency checks and allows installation to proceed. The same approach may be required for other packages.
+
+**Recommendation:**
+- For long-term project health, align all package versions for compatibility, or consider replacing/upgrading/removing `react-day-picker` and/or downgrading React to 18.x if feasible.
+- Document any further workarounds and keep dependencies up to date as upstream packages add React 19 support.
+
+---
 
 - **Workflow Labeler File Ignored:**
   - The file `.github/workflows/labeler.yml` is intentionally listed in `.gitignore` and will not be tracked or pushed to the repository.
