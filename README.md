@@ -448,6 +448,12 @@ fetchData();
 - Nana will always use a professional tone and respect your privacy.
 
 ### Developer Notes
+
+- **Workflow Labeler File Ignored:**
+  - The file `.github/workflows/labeler.yml` is intentionally listed in `.gitignore` and will not be tracked or pushed to the repository.
+  - This is done for local or experimental automation workflows that should not affect the main repository or CI/CD pipelines.
+  - If you need to use a labeler workflow, create your own local copy and ensure it is ignored in version control for best practices and clean code hygiene.
+
 - Components: `components/ChatbotButton.tsx`, `components/ChatbotWindow.tsx`
 - Logic: `lib/chatbot.ts`, `app/api/chatbot/route.ts` (API integration and prompt)
 - Config: `app/app-details-config.ts` (centralized company name/branding)
@@ -480,6 +486,13 @@ For questions or support, please contact [austinbediako4@gmail.com](mailto:austi
 - Added changelog for advanced diagnostics and agent-based discovery features.
 - **New Feature:** Local AI fallback (`lib/my-ai-fallback.ts`) is now used if OpenRouter is down or misconfigured. Developers can extend this fallback for their own models or scripts.
 
+### [2025-05-18] Workflow Fix: Manual Build Step Name
+
+- **Issue:** YAML syntax error in `.github/workflows/codeql.yml` due to missing `name:` field in the step with `if: matrix.build-mode == 'manual'`.
+- **Fix:** Added a `name: Manual build instructions` to the affected step. This resolves the implicit map key error and ensures the workflow follows GitHub Actions and YAML best practices.
+- **Reference:** See `.github/workflows/codeql.yml`, step under manual build instructions.
+- **Reason:** Every step must have a `name:` when using `if:` to avoid YAML parsing errors and improve workflow clarity.
+- **YAML Best Practice:** Comments above a step must not be indented as if they are part of the previous step. This ensures the YAML parser does not misinterpret comments as part of a previous mapping, which can cause 'implicit map key' errors. See the fix in `.github/workflows/codeql.yml` for an example.
 
 ### 2025-05-15
 

@@ -26,7 +26,7 @@ const ClientHeader: React.FC<ClientHeaderProps> = ({
 
   return (
     <header
-      className="w-full h-16 flex items-center justify-between px-4 sm:px-6 md:px-8 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700"
+      className="w-full h-16 flex items-center justify-between px-4 sm:px-6 md:px-8 bg-white dark:bg-slate-900 border-b border-slate-600 dark:border-slate-700"
       style={{ minWidth: 0 }}
     >
       {/* Left Section: Title with optional menu button */}
@@ -44,9 +44,9 @@ const ClientHeader: React.FC<ClientHeaderProps> = ({
 
         {/* Title that adapts text size based on screen width */}
         {/*a welcome message that will be displayed when the user is logged in Hi {user?.name} it should just show the surname name not the entire name */}
-        <div className="font-bold text-xl sm:text-2xl text-slate-900 truncate">
+        <div className="font-bold text-xl sm:text-2xl text-slate-900 truncate dark:text-white">
           {/*add the comment on how it can display the firstname just change the 1 to 0*/}
-          Hi, {user?.name?.split(" ").length > 1 ? user.name.split(" ")[1] : user.name}
+          Hi, {user?.name ? (user.name.split(" ").length > 1 ? user.name.split(" ")[1] : user.name) : "Guest"}
         </div>
       </div>
 
@@ -62,9 +62,13 @@ const ClientHeader: React.FC<ClientHeaderProps> = ({
             {user?.email || "emailgoeshere"}
           </span>
         </div>
-        {/* User icon, themed border for clarity */}
-        <div className="flex items-center justify-center rounded-full border-2 border-slate-800 dark:border-white p-0.5">
-          <UserCircle size={26} className="text-slate-800 dark:text-white" />
+        {/* User icon, themed border for clarity it should use the persons profile by default and let the styling be professional  */}
+        <div className="flex items-center justify-center border-slate-800 dark:border-white p-0.5">
+          <img
+            src={user?.image || "https://www.pngall.com/wp-content/uploads/12/Avatar-PNG-Background.png"}
+            alt="User Profile"
+            className="w-8 h-8 rounded-full object-cover"
+          />
         </div>
         {/* Theme toggle button - animated, consistent with navbar */}
         <ThemeToggle />

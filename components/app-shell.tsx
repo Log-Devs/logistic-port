@@ -49,7 +49,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {loading && <FullPageLoader loading={false} />}
+      {loading && (
+        <FullPageLoader loading={loading} />
+      )}
       {!loading && (
         <>
           <CursorEffect />
