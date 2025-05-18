@@ -46,7 +46,7 @@ const ClientHeader: React.FC<ClientHeaderProps> = ({
         {/*a welcome message that will be displayed when the user is logged in Hi {user?.name} it should just show the surname name not the entire name */}
         <div className="font-bold text-xl sm:text-2xl text-slate-900 truncate">
           {/*add the comment on how it can display the firstname just change the 1 to 0*/}
-          Hi, {user?.name?.split(" ").length > 1 ? user.name.split(" ")[1] : user.name}
+          Hi, {user?.name ? (user.name.split(" ").length > 1 ? user.name.split(" ")[1] : user.name) : "Guest"}
         </div>
       </div>
 

@@ -25,7 +25,13 @@ jobs:
       # Get the pnpm cache directory and write it to the environment file (GITHUB_ENV)
       - name: Get pnpm cache directory
         id: pnpm-cache
-        run: echo "PNPM_CACHE_DIR=$(pnpm store path)" >> $GITHUB_ENV
+        run: |
+          PNPM_CACHE_DIR=$(pnpm store path)
+          if [ -z "$PNPM_CACHE_DIR" ]; then
+            echo "PNPM cache directory not found. Please ensure pnpm is installed and configured correctly."
+            exit 1
+          fi
+          echo "PNPM_CACHE_DIR=$PNPM_CACHE_DIR" >> $GITHUB_ENV
       # Cache pnpm modules using the directory from the environment variable
       - name: Cache pnpm modules
         uses: actions/cache@v4
