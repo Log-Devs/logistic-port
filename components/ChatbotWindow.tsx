@@ -322,6 +322,7 @@ const ChatbotWindow: React.FC<ChatbotWindowProps> = ({ onClose, isOpen, chatButt
           console.error('Chatbot backend configuration error:', botReply);
           // Display a special message in the chat UI
           botReply = `⚠️ <b>Configuration Error:</b><br>${botReply.replace('[Backend Error]', '').trim()}`;
+          botReply = DOMPurify.sanitize(botReply);
         }
 
         const updated = [
