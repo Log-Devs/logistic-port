@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { Clock, ArrowRight } from "lucide-react";
-import AwaitingShipmentCard from "@/app/client/component/AwaitingShipmentCard";
-import AwaitingShipmentTable from "@/app/client/component/AwaitingShipmentTable";
+import AwaitingShipmentCard from "@/app/client/components/AwaitingShipmentCard";
+import AwaitingShipmentTable from "@/app/client/components/AwaitingShipmentTable";
 
 export default function AwaitingShipmentsPage() {
   const [awaitingShipments, setAwaitingShipments] = useState([

@@ -7,58 +7,24 @@ import ModeSwitcher from "@/components/mode-switcher";
 import CursorEffect from "@/components/cursor-effect";
 import ScrollProgress from "@/components/scroll-progress";
 
+/**
+ * AppShell component
+ * Responsible for rendering core UI elements and children.
+ * All loading UI is now handled globally by AppLoaderWrapper.
+ * - Clean code, OOP, and best practices applied.
+ */
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Preload all key images and assets
-    const images = [
-      "/deliveryparcel.jpg",
-      "/industrial-port-container-yard.jpg",
-      "/register-bg.jpg",
-      "/warehouse.jpg",
-      "/delivery.jpg",
-      "/rider.jpg",
-      "/vehicles.jpg",
-      "/notes-warehouse.jpg",
-      "/parcel.jpg",
-      "/shipment.jpg",
-      "/placeholder-logo.png",
-      "/placeholder-user.jpg",
-      // ...add more as needed
-    ];
-    let loaded = 0;
-    images.forEach((src) => {
-      const img = new window.Image();
-      img.src = src;
-      if (img.complete) {
-        loaded++;
-        if (loaded === images.length) setLoading(false);
-      } else {
-        img.onload = img.onerror = () => {
-          loaded++;
-          if (loaded === images.length) setLoading(false);
-        };
-      }
-      img.src = src;
-    });
-    // Fallback: hide loader after 3s if images are slow
-    const timeout = setTimeout(() => setLoading(false), 3000);
-    return () => clearTimeout(timeout);
-  }, []);
+  // No local loading state. All loading is handled by the global loader.
+  // If image preloading is needed for UX, move to a dedicated context/provider (not blocking UI).
 
   return (
     <>
-      {loading && (
-        <FullPageLoader loading={loading} />
-      )}
-      {!loading && (
-        <>
-          <CursorEffect />
-          <ScrollProgress />
-          {children}
-        </>
-      )}
+      {/* Render cursor effect and scroll progress for enhanced UX */}
+      <CursorEffect />
+      <ScrollProgress />
+      {/* Render children content */}
+      {children}
     </>
   );
 }
+

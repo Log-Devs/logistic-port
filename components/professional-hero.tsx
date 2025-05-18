@@ -8,52 +8,72 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
 interface Slide {
-	id: number;
-	image: string;
-	title: string;
-	subtitle: string;
+  id: number;
+  image: string;
+  title: string;
+  subtitle: string;
 }
 
+// Array of slide objects for the professional hero carousel
 const slides = [
-	{
-		id: 1,
-		image: "/industrial-port-container-yard.jpg",
-		title: "Global Logistics Excellence",
-		subtitle: "Seamless end-to-end supply chain solutions for businesses worldwide",
-	},
-	{
-		id: 2,
-		image: "/register-bg.jpg",
-		title: "Efficient Freight Management",
-		subtitle: "Optimizing your shipping operations with advanced technology",
-	},
-	{
-		id: 3,
-		image: "/warehouse.jpg",
-		title: "Smart Warehousing Solutions",
-		subtitle: "State-of-the-art facilities ensuring security and efficiency",
-	},
-];
+  {
+    id: 1,
+    image: "/industrial-port-container-yard.jpg",
+    title: "Global Logistics Excellence",
+    subtitle: "Seamless end-to-end supply chain solutions for businesses worldwide",
+  },
+  {
+    id: 2,
+    image: "/register-bg.jpg",
+    title: "Efficient Freight Management",
+    subtitle: "Optimizing your shipping operations with advanced technology",
+  },
+  {
+    id: 3,
+    image: "/warehouse.jpg",
+    title: "Smart Warehousing Solutions",
+    subtitle: "State-of-the-art facilities ensuring security and efficiency",
+  },
+]; // Array of slide objects for the professional hero carousel
 
-export default function ProfessionalCardSlider() {
-	const [currentSlide, setCurrentSlide] = useState(0);
-	const [direction, setDirection] = useState(0);
-	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-	const slideInterval = 5000;
+// Default interval (in milliseconds) for auto-sliding between cards
+// Extracted as a named constant for clarity and maintainability
+const DEFAULT_SLIDE_INTERVAL = 30000; // 30 seconds
 
-	useEffect(() => {
-		const resetTimeout = () => {
-			if (timeoutRef.current) clearTimeout(timeoutRef.current);
-		};
+/**
+ * ProfessionalCardSlider component displays a carousel of professional slides.
+ * The slide interval is configurable via the 'slideInterval' prop, defaulting to 30 seconds.
+ * @param {number} slideInterval - Optional. Interval in ms between slides. Defaults to DEFAULT_SLIDE_INTERVAL.
+ */
+interface ProfessionalCardSliderProps {
+  /**
+   * Interval (in ms) between automatic slide transitions.
+   * Defaults to 30,000 ms (30 seconds).
+   */
+  slideInterval?: number;
+}
 
-		resetTimeout();
-		timeoutRef.current = setTimeout(() => {
-			setDirection(1);
-			setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
-		}, slideInterval);
+export default function ProfessionalCardSlider({ slideInterval = DEFAULT_SLIDE_INTERVAL }: ProfessionalCardSliderProps) {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [direction, setDirection] = useState(0);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-		return () => resetTimeout();
-	}, [currentSlide]);
+  useEffect(() => {
+    // Helper function to clear the existing timeout if any
+    const resetTimeout = () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+
+    // Clear previous timeout before setting a new one
+    resetTimeout();
+    // Set up the auto-slide interval
+    timeoutRef.current = setTimeout(() => {
+      setDirection(1);
+      setCurrentSlide((prev: number) => (prev === slides.length - 1 ? 0 : prev + 1));
+    }, slideInterval);
+    // Cleanup function to clear timeout on unmount or before next effect
+    return () => resetTimeout();
+  }, [currentSlide, slideInterval]);
 
 	const nextSlide = () => {
 		setDirection(1);

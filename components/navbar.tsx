@@ -46,7 +46,11 @@ export default function Navbar() {
   const hideLogin = pathname === "/login";
   const hideRegister = pathname === "/register";
 
+  // Conditionally add Dashboard link only if user is authenticated
+  // This ensures that only logged-in users see the Dashboard option
   const navLinks = [
+    // Only include Dashboard if user is present (authenticated)
+    ...(user ? [{ href: "/dashboard", label: "Dashboard" }] : []),
     { href: "/", label: "Home" },
     { href: "/about", label: "About Us" },
     { href: "/services", label: "Services" },
@@ -144,12 +148,26 @@ export default function Navbar() {
             </AnimatePresence>
           </motion.button>
 
-          {/* Auth buttons */}
+          {/* Auth section: user info, avatar, and logout (professional, styled, right-aligned) */}
           {user ? (
-            <>
-              <span className="font-semibold text-base text-primary">Hi, {user.name}</span>
-              <Button onClick={logout} variant="outline" className="ml-2">Logout</Button>
-            </>
+            <div className="flex items-center gap-2 sm:gap-3 min-w-[170px] justify-end">
+              {/* User info stacked, always visible, themed color, right-aligned */}
+              <div className="flex flex-col items-end text-right mr-2">
+                <span className="text-xs text-slate-600 dark:text-slate-300 leading-tight">
+                  {user?.email || "emailgoeshere"}
+                </span>
+              </div>
+              {/* User icon, themed border for clarity, uses user's profile image or fallback */}
+              <div className="flex items-center justify-center border-slate-800 dark:border-white p-0.5">
+                <img
+                  src={user?.image || "https://www.pngall.com/wp-content/uploads/12/Avatar-PNG-Background.png"}
+                  alt="User Profile"
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+              </div>
+              {/* Logout button, styled professionally */}
+              <Button onClick={logout} variant="outline" className="ml-2 text-xs px-3 py-1 h-8">Logout</Button>
+            </div>
           ) : (
             <>
               {!hideLogin && (

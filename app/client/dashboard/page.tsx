@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { useAuth } from "@/components/auth-context";
 import { useRouter } from "next/navigation";
-import DashboardCard from "../component/dashboard-card";
+import DashboardCard from "../components/dashboard-card"; // Fixed: directory renamed to 'components'
 
 // Import static images from the public directory for dashboard card icons
 // Place your images in /public and use the relative path (e.g., "/submit-shipment.png")
@@ -54,14 +54,16 @@ const ClientDashboard: React.FC = () => {
     }
   }, [user, loading, router]);
 
-  // Show loading state while authentication is in progress
+  // Only render dashboard content if not loading and user exists
+  // Global loader (AppLoaderWrapper) will handle loading state
   if (loading || !user) {
-    return <div className="text-center py-20 text-lg">Loading your dashboard...</div>;
+    // Render nothing while loading; global loader will show
+    return null;
   }
 
   // Render the dashboard UI
   return (
-    <div className="w-full h-full px-2 md:px-12 py-8 bg-gray-100 dark:bg-slate-900 min-h-screen flex flex-col items-start">
+    <div className="w-full max-h-screen px-2 md:px-12 py-8 bg-gray-100 dark:bg-slate-900 min-h-screen flex flex-col items-start">
 
       {/* Welcome Header */}
       {/* <h1 className="text-3xl font-bold mb-2 dark:text-gray-100">Welcome</h1> */}

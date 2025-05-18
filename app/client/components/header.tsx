@@ -26,7 +26,7 @@ const ClientHeader: React.FC<ClientHeaderProps> = ({
 
   return (
     <header
-      className="w-full h-16 flex items-center justify-between px-4 sm:px-6 md:px-8 bg-white dark:bg-slate-900 border-b border-slate-600 dark:border-slate-700"
+      className="w-full h-16 flex items-center justify-between px-4 sm:px-6 md:px-8 bg-white dark:bg-slate-800 border-b border-slate-600 dark:border-slate-700"
       style={{ minWidth: 0 }}
     >
       {/* Left Section: Title with optional menu button */}
