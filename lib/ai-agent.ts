@@ -7,8 +7,9 @@
  * Usage: Import and use in chatbot logic for context-aware answers.
  */
 
-import fs from 'fs';
-import path from 'path';
+// Remove Node.js-only imports from shared code to fix build error
+// import path from 'path';
+// import * as fs from 'fs'; // Node.js File System module, required for server-side route indexing. Do not use on client-side code.
 
 /**
  * Represents a discovered route in the app.
@@ -39,37 +40,55 @@ export class RouteIndexer {
   /**
    * Recursively index all routes.
    */
+  /**
+   * Recursively index all routes in the app directory.
+   * Uses Node.js fs only on the server. On the client, returns an empty array (cannot index files at runtime).
+   * This ensures no fs usage in client bundles.
+   */
   private indexRoutes(dir = this.appDir, prefix = ''): AppRoute[] {
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
-    let routes: AppRoute[] = [];
-    for (const entry of entries) {
-      if (entry.isDirectory()) {
-        // Dynamic route: [param]
-        const isDynamic = entry.name.startsWith('[') && entry.name.endsWith(']');
-        const param = isDynamic ? entry.name.slice(1, -1) : undefined;
-        const childPrefix = prefix + '/' + (isDynamic ? `[${param}]` : entry.name);
-        routes = routes.concat(this.indexRoutes(path.join(dir, entry.name), childPrefix));
-      } else if (entry.isFile() && entry.name.endsWith('.tsx')) {
-        // Only index page/route files
-        if (['page.tsx', 'route.ts'].includes(entry.name)) {
-          const url = prefix || '/';
-          const params = (url.match(/\[([^\]]+)\]/g) || []).map(s => s.slice(1, -1));
-          routes.push({
-            url,
-            filePath: path.join(dir, entry.name),
-            dynamic: params.length > 0,
-            params,
-          });
+    const routes: AppRoute[] = [];
+    // Only run file system code on the server (SSR/build time)
+    if (typeof window === 'undefined') {
+      // Dynamically require fs only on server
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const fs = require('fs');
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const path = require('path');
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.isDirectory()) {
+          // Dynamic route: [param]
+          const isDynamic = entry.name.startsWith('[') && entry.name.endsWith(']');
+          const param = isDynamic ? entry.name.slice(1, -1) : undefined;
+          const childPrefix = prefix + '/' + (isDynamic ? `[${param}]` : entry.name);
+          routes.push(...this.indexRoutes(path.join(dir, entry.name), childPrefix));
+        } else if (entry.isFile() && entry.name.endsWith('.tsx')) {
+          // Only index page/route files
+          if (['page.tsx', 'route.ts'].includes(entry.name)) {
+            const url = prefix || '/';
+            const params = (url.match(/\[([^\]]+)\]/g) || []).map((s: string) => s.slice(1, -1));
+            routes.push({
+              url,
+              filePath: path.join(dir, entry.name),
+              dynamic: params.length > 0,
+              params,
+            });
+          }
         }
       }
     }
+
+    // Return the indexed routes
     return routes;
   }
 
   /**
    * Find a route by URL or param (e.g. 'register', 'services', 'id').
+   * Returns the first matching AppRoute or undefined if not found.
+   * @param query The string to match against route url, filePath, or params
    */
   public findRoute(query: string): AppRoute | undefined {
+    // Search for a route whose url, filePath, or params include the query string
     return this.routes.find(r =>
       r.url.includes(query) ||
       r.filePath.includes(query) ||
@@ -83,7 +102,11 @@ export class RouteIndexer {
  */
 export class CodebaseSearcher {
   private baseDirs: string[];
+
   constructor(baseDirs = [
+    'components',
+    'lib',
+    'app/api',
     path.join(process.cwd(), 'components'),
     path.join(process.cwd(), 'lib'),
     path.join(process.cwd(), 'app', 'api'),

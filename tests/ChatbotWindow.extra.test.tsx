@@ -19,6 +19,7 @@ jest.mock("../lib/chatbot", () => ({
 beforeAll(() => {
   window.scrollTo = jest.fn();
 });
+// Use React.RefObject<HTMLDivElement> to match ChatbotWindow and follow best practices
 const chatButtonRef: React.RefObject<HTMLDivElement | null> = React.createRef();
 
 describe("ChatbotWindow - Advanced UI and Logic", () => {
