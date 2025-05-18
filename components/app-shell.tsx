@@ -48,9 +48,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <ModeSwitcher />
-      {loading && <FullPageLoader />}
+    <>
+      {loading && <FullPageLoader loading={false} />}
       {!loading && (
         <>
           <CursorEffect />
@@ -58,6 +57,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           {children}
         </>
       )}
-    </ThemeProvider>
+    </>
   );
 }

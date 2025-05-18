@@ -32,6 +32,22 @@ A modern, responsive web application for showcasing logistics services, built wi
 
 ## Features
 
+### Feature Toggles
+
+- **Chatbot Button Temporarily Disabled**
+  - The Chatbot button (`ChatbotButtonWrapper`) in `app/layout.tsx` is currently commented out for future updates.
+  - To re-enable, simply uncomment the relevant line in the layout file.
+  - This approach keeps the codebase clean while allowing easy restoration of the feature when ready.
+
+### Architectural Notes
+
+- **Global Theming:**
+  - The `ThemeProvider` from `next-themes` is now applied **only at the root layout** (`app/layout.tsx` or `app/client/layout.tsx`).
+  - This ensures that the theme context is shared globally across the entire application, allowing the theme toggle button in the header to update the theme everywhere.
+  - **Do not wrap nested components (such as `AppShell`) in another `ThemeProvider`**; doing so would create a new context and break global theme switching.
+  - The `ModeSwitcher` component has been removed from `AppShell`.
+  - All theme toggling is now managed via the header's `ThemeToggle` component, which uses the global theme context.
+
 ### Chatbot Error Handling
 
 ### Testing Best Practices & Fixes
