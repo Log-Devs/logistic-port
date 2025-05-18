@@ -54,13 +54,17 @@ describe('Global Loader Integration', () => {
   });
 
   it('never shows duplicate loaders from local/component state', () => {
-    // Simulate a component with its own loading state (should not trigger loader)
+    // Simulate a component with its own loading state (should not trigger global loader)
     function LocalLoaderComponent() {
       const [localLoading] = React.useState(true);
-      return <div data-testid="local-loader">Local Loading</div>;
+      return localLoading ? <div data-testid="local-loader">Local Loading</div> : null;
     }
-    renderWithGlobalLoading(false);
+    render(
+      <AppLoaderWrapper>
+        <LocalLoaderComponent />
+      </AppLoaderWrapper>
+    );
     expect(screen.queryByTestId('global-loader')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('local-loader')).not.toBeInTheDocument();
+    expect(screen.getByTestId('local-loader')).toBeInTheDocument();
   });
 });
