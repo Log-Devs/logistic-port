@@ -50,7 +50,7 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
                                     <tr
                                         key={shipment.id}
                                         className="border-b border-gray-300 dark:border-slate-700 transition-colors hover:bg-gray-200 dark:hover:bg-slate-700 cursor-pointer"
-                                        style={{ height: "60px" }} // 16px top + 16px bottom padding (total 64px row height)
+                                        style={{ height: "64px" }} // 16px top + 16px bottom padding (total 64px row height)
                                     >
                                         <td className="px-4 py-2 text-sm sm:text-base">{shipment.id}</td>
                                         <td className="px-4 py-2 text-sm sm:text-base">{shipment.recipient}</td>
