@@ -15,7 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { ThemeProvider } from "@/components/theme-provider";
+// Line removed as ThemeProvider is no longer used in this file.
 // Interface for sidebar items
 interface SidebarItemProps {
   icon: React.ReactNode;
