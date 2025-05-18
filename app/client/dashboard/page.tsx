@@ -63,7 +63,7 @@ const ClientDashboard: React.FC = () => {
 
   // Render the dashboard UI
   return (
-    <div className="w-full h-full px-2 md:px-12 py-8 bg-gray-100 dark:bg-slate-900 min-h-screen flex flex-col items-start">
+    <div className="w-full max-h-screen px-2 md:px-12 py-8 bg-gray-100 dark:bg-slate-900 min-h-screen flex flex-col items-start">
 
       {/* Welcome Header */}
       {/* <h1 className="text-3xl font-bold mb-2 dark:text-gray-100">Welcome</h1> */}

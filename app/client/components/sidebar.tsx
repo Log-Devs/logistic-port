@@ -23,6 +23,7 @@ const Sidebar: React.FC = () => {
   const isMobileView = useIsMobile();
   // Access logout method from authentication context
   const { logout } = useAuth();
+  const router = useRouter();
 
   /**
    * Handles navigation item clicks, including logout logic.
