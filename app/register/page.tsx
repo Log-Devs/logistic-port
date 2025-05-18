@@ -37,7 +37,7 @@ export default function RegisterPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { user, loading } = useAuth();
+  const { user, loading, login } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -90,27 +90,35 @@ export default function RegisterPage() {
       return;
     }
     setIsLoading(true);
-    // Call your registration API
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        email: formData.email,
-        password: formData.password,
-        name: formData.firstName + " " + formData.lastName,
-        rememberMe: formData.agreeTerms, // or another checkbox for rememberMe
-      }),
-    });
-    if (res.ok) {
-      // Optionally, call login to hydrate user state
-      await login(formData.email, formData.password, formData.agreeTerms);
-      router.push("/dashboard");
-    } else {
-      const data = await res.json();
-      setError(data.error || "Registration failed");
+    try {
+      // Call your registration API
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          name: formData.firstName + " " + formData.lastName,
+          rememberMe: formData.agreeTerms, // or another checkbox for rememberMe
+          // phone: formData.phone, // Uncomment if you want to send phone
+          // accountType: formData.accountType, // Uncomment if you want to send account type
+          // marketingConsent: formData.marketingConsent, // Uncomment if you want to send marketing consent
+        }),
+      });
+      if (res.ok) {
+        // Optionally, call login to hydrate user state
+        await login(formData.email, formData.password, formData.agreeTerms);
+        router.push("/dashboard");
+      } else {
+        const data = await res.json();
+        setError(data.error || "Registration failed");
+      }
+    } catch (err) {
+      setError("Registration failed. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   if (loading) return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
