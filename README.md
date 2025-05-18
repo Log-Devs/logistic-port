@@ -386,6 +386,19 @@ const url = `${baseUrl}${endpoint}`.replace(/([^:]\/)\/+/, "$1");
 **Fallback Logic:**
 - The `fetchWithFallback` utility includes a fallback to dummy data for development/testing, following clean code and OOP best practices.
 
+```typescript
+// Example usage of fetchWithFallback
+import { fetchWithFallback } from './lib/api';
+
+const endpoint = '/api/data';
+const dummyData = { key: 'value' }; // Example dummy data
+
+async function fetchData() {
+    const data = await fetchWithFallback(endpoint, dummyData);
+    console.log(data); // Logs fetched data or dummyData if the fetch fails
+}
+
+fetchData();
 ---
 
 #### Example Queries
