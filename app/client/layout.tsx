@@ -68,11 +68,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     { icon: <Settings size={20} />, text: 'Settings', path: '/settings' },
   ];
 
-  // Footer items
+  // Footer items (excluding logout for custom button)
   const footerItems = [
     { icon: <Headphones size={20} />, text: 'Support', path: '/support' },
     { icon: <Info size={20} />, text: 'About', path: '/about' },
-    { icon: <LogOut size={20} />, text: 'Exit', path: '/logout' },
+    // Logout is now a dedicated button for best UX/security
   ];
 
   // Listen for window resize to detect mobile view
@@ -100,18 +100,34 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
    */
   const toggleSidebar = () => setIsSidebarOpen((open) => !open);
 
-  // Handle navigation item click
-  const handleItemClick = (path: string) => {
+  // Import the authentication context
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { logout } = require("@/components/auth-context").useAuth();
+
+  /**
+   * Handles navigation item clicks.
+   * For '/logout', calls the logout function and redirects to home.
+   * For other paths, navigates normally.
+   * Uses async/await for logout to ensure clean flow and SSR safety.
+   */
+  const handleItemClick = async (path: string) => {
     // Close sidebar on mobile after navigation
     if (isMobileView) setIsSidebarOpen(false);
-
-    // Navigate to path
     if (path === '/logout') {
-      console.log('Logout clicked');
+      try {
+        // Await logout for reliability and security
+        await logout();
+        // Redirect to home after logout
+        await router.push('/');
+      } catch (err) {
+        // Optionally handle/log errors
+        console.error('Logout failed:', err);
+      }
     } else {
       router.push(path);
     }
   };
+
 
   return (
     <div className="flex h-screen w-full bg-slate-100 dark:bg-slate-900">
@@ -178,7 +194,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               ))}
             </div>
             {/* Footer Links */}
-            <div className="mt-auto p-0">
+            <div className="flex flex-col gap-1 px-2 pb-4">
               {footerItems.map((item) => (
                 <SidebarItem
                   key={item.text}
@@ -188,6 +204,24 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   collapsed={!isSidebarOpen && !isMobileView}
                 />
               ))}
+              {/* Logout Button: Rendered exactly where the 'Exit' SidebarItem was, using SidebarItem style */}
+              <SidebarItem
+                icon={<LogOut size={20} />}
+                text="Exit"
+                active={false}
+                onClick={async () => {
+                  try {
+                    // Call the logout function from the authentication context
+                    await logout();
+                    // Redirect to home after logout for security and UX
+                    await router.push('/');
+                  } catch (err) {
+                    // Log any error that occurs during logout
+                    console.error('Logout failed:', err);
+                  }
+                }}
+                collapsed={!isSidebarOpen && !isMobileView}
+              />
             </div>
           </div>
         </div>

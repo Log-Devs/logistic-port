@@ -47,14 +47,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // State to track loading status
   const [loading, setLoading] = useState(true);
   // State to control authentication mode: 'real' or 'dummy' (for testing)
-  // Persist authMode in localStorage for consistency across reloads and remounts
-  const [authMode, setAuthModeState] = useState<'real' | 'dummy'>(() => {
-    if (typeof window !== 'undefined') {
-      const stored = window.localStorage.getItem('auth_mode');
-      if (stored === 'dummy' || stored === 'real') return stored;
+  // IMPORTANT: To avoid SSR hydration mismatches, always initialize with a deterministic value ('real').
+  // Sync with localStorage on the client after mount.
+  const [authMode, setAuthModeState] = useState<'real' | 'dummy'>('real');
+  useEffect(() => {
+    // Only runs on client
+    const stored = typeof window !== 'undefined' ? window.localStorage.getItem('auth_mode') : null;
+    if (stored === 'dummy' || stored === 'real') {
+      setAuthModeState(stored);
     }
-    return 'real';
-  });
+  }, []);
 
   // Custom setter to update both state and localStorage
   const setAuthMode = (mode: 'real' | 'dummy') => {
@@ -182,6 +184,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * Clears user state and redirects to home.
    */
   // Logout function supports both real and dummy auth modes
+  /**
+   * Logs out the user and redirects to '/'.
+   * Ensures that both state and navigation are handled reliably.
+   * Follows clean code and OOP best practices.
+   */
   const logout = async () => {
     setLoading(true);
     try {
@@ -200,9 +207,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } finally {
       setLoading(false);
-      router.push("/");
+      // Defensive: log before and after navigation for debugging
+      console.log("[Logout] Redirecting to '/'");
+      // Await navigation for reliability
+      await router.push("/");
+      console.log("[Logout] Navigation to '/' complete");
     }
   };
+
 
 
 

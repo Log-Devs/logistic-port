@@ -46,9 +46,11 @@ export default function Navbar() {
   const hideLogin = pathname === "/login";
   const hideRegister = pathname === "/register";
 
-  // Add Dashboard link as the first nav item for quick access
+  // Conditionally add Dashboard link only if user is authenticated
+  // This ensures that only logged-in users see the Dashboard option
   const navLinks = [
-    { href: "/dashboard", label: "Dashboard" },
+    // Only include Dashboard if user is present (authenticated)
+    ...(user ? [{ href: "/dashboard", label: "Dashboard" }] : []),
     { href: "/", label: "Home" },
     { href: "/about", label: "About Us" },
     { href: "/services", label: "Services" },

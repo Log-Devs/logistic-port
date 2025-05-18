@@ -37,6 +37,13 @@ A modern, responsive web application for showcasing logistics services, built wi
 
 ## Features
 
+### [2025-05-18] Sidebar Logout Button Refactor
+- The sidebar/footer now uses a dedicated **Logout** button instead of a navigation link.
+- The button directly calls the `logout` function from the authentication context (`useAuth`), ensuring best practices for security, SSR, and clean code.
+- Button is styled consistently with sidebar items and is fully commented for maintainability.
+- This change prevents navigation to a `/logout` route and ensures logout logic is always executed.
+- See `app/client/layout.tsx` for implementation details.
+
 ### Responsive Sidebar Behavior
 - The sidebar now uses the `useIsMobile` custom React hook (see `hooks/use-mobile.tsx`) to detect mobile viewports.
 - When navigating via the sidebar on mobile, the sidebar automatically closes for a seamless user experience.

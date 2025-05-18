@@ -54,9 +54,11 @@ const ClientDashboard: React.FC = () => {
     }
   }, [user, loading, router]);
 
-  // Show loading state while authentication is in progress
+  // Only render dashboard content if not loading and user exists
+  // Global loader (AppLoaderWrapper) will handle loading state
   if (loading || !user) {
-    return <div className="text-center py-20 text-lg">Loading your dashboard...</div>;
+    // Render nothing while loading; global loader will show
+    return null;
   }
 
   // Render the dashboard UI
