@@ -38,7 +38,121 @@ A modern, responsive web application for showcasing logistics services, built wi
 
 ## Features
 
+### [2025-05-18] AwaitingShipmentTable.tsx Refactor
+
+---
+
+### AwaitingShipmentTable (Production-Ready)
+
+The `AwaitingShipmentTable` component is a highly scalable, production-grade React table for displaying large datasets of shipments. It is fully typed with TypeScript, supports API integration, and handles loading and error states. The table is virtualized for performance using `react-window` and uses `@tanstack/react-table` for table logic. All code follows clean code architecture, OOP principles, and is fully commented.
+
+**Features:**
+- Accepts data from a real API or static source
+- Handles loading and error UI states
+- Virtualized rendering for large datasets
+- Responsive: Table on desktop, cards on mobile
+- Modular, maintainable, and fully documented
+
+#### Props
+
+```tsx
+interface AwaitingShipmentTableProps {
+
+---
+
+### 🔄 Switching from Dummy Data to Real API (Production Integration)
+
+The Awaiting Shipments API is currently configured to always return dummy data for development and demo purposes.
+
+**When your backend is ready, update the handler as follows:**
+
+```typescript
+// /app/api/awaiting-shipments/route.ts
+import { NextResponse } from 'next/server';
+
+const DUMMY_SHIPMENTS = [ /* ...dummy data... */ ];
+
+export async function GET() {
+  const devMode = process.env.DEV_MODE === 'true';
+  const realApiUrl = process.env.REAL_AWAITING_SHIPMENTS_API_URL;
+
+  // Use real API if not in dev mode and the URL is set
+  if (!devMode && realApiUrl) {
+    try {
+      const response = await fetch(realApiUrl);
+      if (!response.ok) throw new Error('Failed to fetch from real API');
+      const data = await response.json();
+      if (!Array.isArray(data)) throw new Error('API did not return an array');
+      return NextResponse.json(data);
+    } catch (e) {
+      // Fallback to dummy data if the real API fails
+      return NextResponse.json(DUMMY_SHIPMENTS);
+    }
+  }
+  // Default to dummy data for development or missing API URL
+  return NextResponse.json(DUMMY_SHIPMENTS);
+}
+```
+
+**How to Enable Real API:**
+1. Set `DEV_MODE=false` in your `.env` or deployment environment.
+2. Set `REAL_AWAITING_SHIPMENTS_API_URL` to your backend endpoint.
+3. Replace the `GET` handler in `/app/api/awaiting-shipments/route.ts` with the snippet above.
+4. Restart your server.
+
+_This ensures a seamless transition from dummy data to real backend integration with zero code changes elsewhere in your app._
+
+---
+
+  awaitingShipments: AwaitingShipment[]; // Array of shipments (from API or static)
+  loading?: boolean;                    // Optional loading state
+  error?: string;                       // Optional error message
+}
+```
+
+#### API Data Fetching Hook
+
+A custom hook, `useAwaitingShipments(endpoint)`, is provided for fetching data from your API with built-in loading and error state management:
+
+```tsx
+const [data, loading, error] = useAwaitingShipments("/api/awaiting-shipments");
+```
+
+#### Example Usage
+
+```tsx
+import { AwaitingShipmentTable, useAwaitingShipments } from "@/app/client/components/AwaitingShipmentTable";
+
+function AwaitingShipmentPage() {
+  const [data, loading, error] = useAwaitingShipments("/api/awaiting-shipments");
+  return <AwaitingShipmentTable awaitingShipments={data} loading={loading} error={error} />;
+}
+```
+
+#### Best Practices
+- All code is modular and follows OOP and clean code principles
+- Every line is commented for clarity and maintainability
+- Error and loading states are surfaced to the user for robust UX
+- Component is ready to drop in for real-world API integration
+
+---
+
+- Refactored `AwaitingShipmentTable.tsx` to use the correct TanStack React Table v8+ API.
+- Removed legacy `useTable` and `usePagination` usage (not part of v8+).
+- Now uses `useReactTable`, `getCoreRowModel`, and `ColumnDef` for table logic.
+- Manual pagination and virtualization are handled outside the table instance, for full control and performance.
+- All code is modular, fully commented, and follows OOP, clean code, and best practices.
+- This ensures compatibility, scalability, and professional UX for large logistics data tables.
+
+
 ### ProfessionalCardSlider Slide Interval Configuration (2025-05-18)
+
+### AwaitingShipmentTable Column API Migration (2025-05-18)
+- Refactored `AwaitingShipmentTable` to use the new column definition API from `@tanstack/react-table` v8+.
+- Migrated all column objects from using `Header` (capital H) to `header` (lowercase h), and from `accessor` to `accessorKey` (for direct property access) or `accessorFn` (for computed values).
+- All columns are now fully commented and typed, following clean code architecture and OOP best practices.
+- This resolves type errors and ensures compatibility with the latest table library version.
+
 - The `ProfessionalCardSlider` component now supports a configurable `slideInterval` prop for carousel auto-advance.
 - The default interval is set by the `DEFAULT_SLIDE_INTERVAL` constant (30 seconds), but you can override it for any instance.
 - This follows clean code architecture and OOP best practices: the interval is clearly named, documented, and easily adjustable.

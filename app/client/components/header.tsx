@@ -44,7 +44,7 @@ const ClientHeader: React.FC<ClientHeaderProps> = ({
 
         {/* Title that adapts text size based on screen width */}
         {/*a welcome message that will be displayed when the user is logged in Hi {user?.name} it should just show the surname name not the entire name */}
-        <div className="font-bold text-xl sm:text-2xl text-slate-900 truncate dark:text-white">
+        <div className="font-bold text-xl sm:text-2xl text-[color:#1A2B6D] truncate dark:text-white">
           {/*add the comment on how it can display the firstname just change the 1 to 0*/}
           Hi, {user?.name ? (user.name.split(" ").length > 1 ? user.name.split(" ")[1] : user.name) : "Guest"}
         </div>
@@ -58,7 +58,7 @@ const ClientHeader: React.FC<ClientHeaderProps> = ({
           <span className="text-sm font-bold text-slate-800 dark:text-white leading-tight">
             {user?.name || "UserName"}
           </span>
-          <span className="text-xs text-slate-600 dark:text-slate-300 leading-tight">
+          <span className="text-xs text-[color:#1A2B6D] dark:text-slate-300 leading-tight">
             {user?.email || "emailgoeshere"}
           </span>
         </div>
