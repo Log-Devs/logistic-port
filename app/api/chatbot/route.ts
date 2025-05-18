@@ -15,7 +15,8 @@ export async function POST(req: NextRequest) {
     console.log("[API/chatbot] Incoming payload:", { message, history, company });
     // Use the dynamic chatbot logic (AI agent + LLM fallback)
     const response = await getChatbotResponse({ message, history, company });
-    return NextResponse.json({ response });
+    // Include both `response` and `reply` keys for backward compatibility
+    return NextResponse.json({ response, reply: response });
   } catch (err: any) {
     // Log all error details for debugging
     console.error("[API/chatbot] Unexpected error:", err);
