@@ -3,32 +3,39 @@
 import React, { useEffect } from "react";
 import { useAuth } from "@/components/auth-context";
 import { useRouter } from "next/navigation";
-import { FaBoxOpen, FaClock, FaWallet, FaHistory } from "react-icons/fa";
-import Link from "next/link";
+import DashboardCard from "../component/dashboard-card";
 
-// Card data for dashboard actions
+// Import static images from the public directory for dashboard card icons
+// Place your images in /public and use the relative path (e.g., "/submit-shipment.png")
+const submitShipmentIcon = "/submit-shipment.png"; // Replace with your actual image
+const awaitingShipmentsIcon = "/awaiting-shipments.png"; // Replace with your actual image
+const fundWalletIcon = "/fund-wallet.png"; // Replace with your actual image
+const shipmentHistoryIcon = "/shipment-history.png"; // Replace with your actual image
+
+// Dashboard card configuration array with title, icon, and action
 const dashboardCards = [
   {
-    label: "Submit Shipment",
+    title: "Submit Shipment",
+    icon: submitShipmentIcon,
     href: "/submit-shipment",
-    icon: <FaBoxOpen size={48} className="text-orange-500" />,
   },
   {
-    label: "Awaiting Shipments",
+    title: "Awaiting Shipments",
+    icon: awaitingShipmentsIcon,
     href: "/awaiting-shipments",
-    icon: <FaClock size={48} className="text-green-600" />,
   },
   {
-    label: "Fund Wallet",
+    title: "Fund Wallet",
+    icon: fundWalletIcon,
     href: "/wallet",
-    icon: <FaWallet size={48} className="text-yellow-500" />,
   },
   {
-    label: "Shipment History",
+    title: "Shipment History",
+    icon: shipmentHistoryIcon,
     href: "/shipment-history",
-    icon: <FaHistory size={48} className="text-pink-500" />,
   },
 ];
+
 
 /**
  * Dashboard page for Logistics app
@@ -47,33 +54,38 @@ const ClientDashboard: React.FC = () => {
     }
   }, [user, loading, router]);
 
+  // Show loading state while authentication is in progress
   if (loading || !user) {
     return <div className="text-center py-20 text-lg">Loading your dashboard...</div>;
   }
 
+  // Render the dashboard UI
   return (
-    <div className="w-full h-full px-2 md:px-12 py-8">
+    <div className="w-full h-full px-2 md:px-12 py-8 bg-gray-100 dark:bg-slate-900 min-h-screen flex flex-col items-start">          {/* i want to make the dashboard cards to be responsive  also , i want the darkmode background to be navy*/}
+
       {/* Welcome Header */}
-      <h1 className="text-3xl font-bold mb-2">Welcome</h1>
+      {/* <h1 className="text-3xl font-bold mb-2 dark:text-gray-100">Welcome</h1> */}
       {/* Prompt */}
-      <div className="text-lg font-semibold mb-8">What would you like to do?</div>
-      {/* 2x2 Grid of Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl">
-        {dashboardCards.map((card) => (
-          <Link
-            key={card.label}
-            href={card.href}
-            className="flex flex-col items-center justify-center bg-white rounded-lg shadow-md border border-slate-200 hover:shadow-lg transition-shadow p-8 gap-4 min-h-[180px] group"
-          >
-            <div>{card.icon}</div>
-            <div className="text-base font-semibold text-slate-700 group-hover:text-red-600 transition-colors">
-              {card.label}
-            </div>
-          </Link>
-        ))}
+      <div className="mb-8 w-full">
+        <div className="text-2xl font-semibold dark:text-gray-300">
+          What would you like to do?
+        </div>
+      </div>      {/* Responsive 2x2 Grid of Dashboard Cards */}
+      <div className="flex-1 w-full flex items-center justify-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-4xl w-full">
+          {dashboardCards.map((card) => (
+            <DashboardCard
+              key={card.title}
+              title={card.title}
+              icon={card.icon}
+              onClick={() => router.push(card.href)}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
 };
+
 
 export default ClientDashboard;
