@@ -89,7 +89,7 @@ For local development and QA, the app provides a built-in toggle to switch betwe
   - Useful for demos, UI/UX testing, and offline development.
 
 **Testing Checklist:**
-- Toggle the "Auth Mode" selector and verify:
+- Switch the authentication mode via `localStorage` commands and verify:
   1. In **Dummy** mode, you can log in and out using any dummy credentials, and the app behaves as if a real user is logged in (including role-based UI if implemented).
   2. In **Real** mode, only real backend authentication works.
   3. Switching modes instantly updates the app's authentication state.
