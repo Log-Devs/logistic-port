@@ -14,7 +14,7 @@ const AwaitingShipmentCard: React.FC<AwaitingShipmentCardProps> = ({ title, desc
       >
       {title}
       </h1>
-      <p className="text-gray-500 text-sm pt-1 sm:pt-2">{description}</p>
+      <p className=" text-sm pt-1 sm:pt-2">{description}</p>
       <p className="text-2xl sm:text-3xl font-bold pt-4 sm:pt-5">{value}</p>
     </div>
   );

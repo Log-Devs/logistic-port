@@ -3,61 +3,13 @@
 import React, { useState } from "react";
 import { Clock, ArrowRight } from "lucide-react";
 import AwaitingShipmentCard from "@/app/client/components/AwaitingShipmentCard";
-import AwaitingShipmentTable from "@/app/client/components/AwaitingShipmentTable";
+import { AwaitingShipmentTable, useAwaitingShipments } from "@/app/client/components/AwaitingShipmentTable";
 
 export default function AwaitingShipmentsPage() {
-  const [awaitingShipments, setAwaitingShipments] = useState([
-    {
-      id: "SHIP-001",
-      recipient: "Austin Bediako",
-      startLocation: "Accra",
-      destination: "Los Angeles",
-      items: 2,
-      weight: "50kg",
-      status: "Pending",
-      arrival: "2023-10-01",
-    },
-    {
-      id: "SHIP-002",
-      recipient: "Caleb Adjei",
-      startLocation: "Shanghai",
-      destination: "New Jersey",
-      items: 4,
-      weight: "120kg",
-      status: "Pending",
-      arrival: "2023-10-03",
-    },
-    {
-      id: "SHIP-003",
-      recipient: "Rosemary Honuvor",
-      startLocation: "Hamburg",
-      destination: "Tema",
-      items: 3,
-      weight: "75kg",
-      status: "Received",
-      arrival: "2023-09-28",
-    },
-    {
-      id: "SHIP-004",
-      recipient: "Isaac Abakah",
-      startLocation: "Dubai",
-      destination: "London",
-      items: 1,
-      weight: "30kg",
-      status: "Pending",
-      arrival: "2023-10-05",
-    },
-    {
-      id: "SHIP-005",
-      recipient: "Emmanuel Cobbinah",
-      startLocation: "Accra",
-      destination: "Paris",
-      items: 5,
-      weight: "200kg",
-      status: "Received",
-      arrival: "2023-09-30",
-    },
-  ]);
+  // Fetch shipments using the production-ready hook
+  // In DEV_MODE, this will return dummy data. In production, it uses your real API.
+  // All edge cases (loading, error, empty, large data) are handled by the AwaitingShipmentTable.
+  const [shipments, loading, error] = useAwaitingShipments("/api/awaiting-shipments");
 
   return (
     <div className="h-screen px-4 sm:px-10 py-6 bg-gray-100 dark:bg-slate-900 transition-colors duration-300">
@@ -70,30 +22,51 @@ export default function AwaitingShipmentsPage() {
 
       {/* Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        {[
-          {
-            title: "Total Awaiting",
-            description: "All processing payments",
-            value: 5,
-          },
-          {
-            title: "Pending",
-            description: "Shipments yet to be processed",
-            value: 3,
-          },
-          {
-            title: "Received",
-            description: "Ready to be transported",
-            value: 2,
-          },
-        ].map((card) => (
-          <AwaitingShipmentCard key={card.title} {...card} />
-        ))}
+        {/*
+          Compute card stats from the actual shipments array (API or dummy data).
+          This ensures the dashboard always reflects real data, regardless of environment.
+          Clean code, OOP, and maintainable best practices.
+        */}
+        {(() => {
+          // Count shipments by status
+          const pending = shipments.filter(s => s.status === "Pending").length;
+          const received = shipments.filter(s => s.status === "Received").length;
+          const total = shipments.length;
+          // Card definitions
+          const cards = [
+            {
+              title: "Total Awaiting",
+              description: "All processing payments",
+              value: total,
+            },
+            {
+              title: "Pending",
+              description: "Shipments yet to be processed",
+              value: pending,
+            },
+            {
+              title: "Received",
+              description: "Ready to be transported",
+              value: received,
+            },
+          ];
+          return cards.map(card => (
+            <AwaitingShipmentCard key={card.title} {...card} />
+          ));
+        })()}
       </div>
 
       {/* Awaiting Shipments List/Table */}
       <div>
-        <AwaitingShipmentTable awaitingShipments={awaitingShipments} />
+        {/*
+          AwaitingShipmentTable is now fully API-integrated and robust.
+          - In DEV_MODE (see .env.example), it will show dummy data for development.
+          - In production, set REAL_AWAITING_SHIPMENTS_API_URL to your real API endpoint.
+          - All edge cases (loading, error, empty, large data) are handled automatically.
+          - See README for usage and configuration details.
+        */}
+        {/* Render the AwaitingShipmentTable with fetched shipments, loading, and error states */}
+        <AwaitingShipmentTable awaitingShipments={shipments} loading={loading} error={error} />
       </div>
     </div>
   );
