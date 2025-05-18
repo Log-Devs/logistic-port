@@ -1,5 +1,6 @@
 import axios from "axios";
 import { ChatbotAIAgent } from "./ai-agent";
+import { myAIFallback } from "./my-ai-fallback";
 
 /**
  * Chatbot logic for LogisticsFuture
@@ -8,7 +9,8 @@ import { ChatbotAIAgent } from "./ai-agent";
  */
 
 const BOT_NAME = "LogisticsFuture";
-const OPENROUTER_API_URL = process.env.NEXT_PUBLIC_OPEN_ROUTER_API_URL || "https://openrouter.ai/api";
+// Use the correct environment variable for OpenRouter API URL
+const OPENROUTER_API_URL = process.env.OPEN_ROUTER_API_URL || "https://openrouter.ai/api/v1";
 const OPENROUTER_API_KEY = process.env.OPEN_ROUTER_API_KEY;
 
 // --- AI Agent for dynamic discovery ---
@@ -125,7 +127,8 @@ export async function sendChatbotMessage(
 		});
 		const data = await res.json();
 		if (!res.ok) throw new Error(data.error || "Failed to connect to chatbot");
-		return data.reply;
+		// The backend returns { response: string }, not { reply: string }
+		return data.response;
 	} catch (err: any) {
 		console.error("[sendChatbotMessage] Client error:", err);
 		throw new Error("Failed to connect to chatbot");
@@ -140,6 +143,13 @@ export async function sendChatbotMessage(
 // @param history   Chat history (optional)
 // @param company   Company name (optional)
 // @returns         Chatbot response string
+/**
+ * getChatbotResponse: Main chatbot logic with multi-tier fallback
+ * - Uses AI agent for discovery queries
+ * - Tries OpenRouter LLM for general queries
+ * - Falls back to MyAIFallback (local AI/script) if OpenRouter fails or is unavailable
+ * Clean code, OOP, and extensibility best practices
+ */
 export async function getChatbotResponse({ message, history, company }: {
   message: string;
   history?: any[];
@@ -176,30 +186,58 @@ export async function getChatbotResponse({ message, history, company }: {
     { role: "user", content: message },
   ];
 
-  try {
-    const res = await axios.post(
-      OPENROUTER_API_URL,
-      {
-        model: "openai/gpt-4o",
-        messages: openRouterMessages,
-        max_tokens: 256,
-        temperature: 0.7,
-      },
-      {
-        headers: {
-          "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-          "Content-Type": "application/json",
+  // --- Tiered fallback logic: OpenRouter, then MyAIFallback ---
+  // 1. Try OpenRouter if API key is valid
+  if (OPENROUTER_API_KEY && typeof OPENROUTER_API_KEY === 'string' && OPENROUTER_API_KEY.length >= 10) {
+    try {
+      // Send the request to OpenRouter API
+      const res = await axios.post(
+        OPENROUTER_API_URL,
+        {
+          model: "openai/gpt-4o",
+          messages: openRouterMessages,
+          max_tokens: 256,
+          temperature: 0.7,
         },
-        timeout: 15000,
+        {
+          headers: {
+            "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          timeout: 15000,
+        }
+      );
+      // Log the full OpenRouter API response for diagnostics
+      // eslint-disable-next-line no-console
+      console.log('[OpenRouter API response]', res.data);
+      // Extract the AI reply from the response
+      const reply = res.data.choices?.[0]?.message?.content?.trim();
+      if (reply) {
+        return reply;
       }
-    );
-    const reply = res.data.choices?.[0]?.message?.content?.trim();
-    if (!reply) {
-      return "Sorry, I did not receive a valid response from the AI.";
+      // If reply is missing, fall through to fallback
+    } catch (apiErr: any) {
+      // Log OpenRouter failure for diagnostics
+      // eslint-disable-next-line no-console
+      console.error('[OpenRouter API error]', apiErr);
+      // Continue to fallback
     }
-    return reply;
-  } catch (apiErr: any) {
-    // Error handling for LLM fallback
-    return "Sorry, I could not process your request at this time. Please try again later or contact support.";
+  } else {
+    // Log missing/invalid API key
+    // eslint-disable-next-line no-console
+    console.warn('[Chatbot] OpenRouter API key missing or invalid, using fallback AI.');
+  }
+
+  // 2. Use MyAIFallback as a local/script fallback
+  try {
+    // Use your own AI/script logic (can be extended to call a local server)
+    const fallbackResponse = await myAIFallback.getResponse(message, history || [], company || BOT_NAME);
+    return fallbackResponse;
+  } catch (fallbackErr) {
+    // Log fallback error for diagnostics
+    // eslint-disable-next-line no-console
+    console.error('[Chatbot Fallback Error]', fallbackErr);
+    // Final error message if all else fails
+    return "Sorry, the AI service is temporarily unavailable. Please try again later or contact support.";
   }
 }
