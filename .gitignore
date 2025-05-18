@@ -38,6 +38,9 @@ __pycache__/
 *.pyo
 *.pyd
 
+# Ignore all GitHub Actions workflow files for CI/CD
+.github/workflows/
+
 # pip, pytest, mypy, build, and egg-info caches
 pip-log.txt
 pip-delete-this-directory.txt
