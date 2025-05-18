@@ -27,6 +27,7 @@ A modern, responsive web application for showcasing logistics services, built wi
 	- [Contact](#contact)
 	- [Changelog](#changelog)
 		- [2025-05-18](#2025-05-18)
+			- [ProfessionalCardSlider Slide Interval Prop](#professionalcardslider-slide-interval-configuration-2025-05-18)
 			- [Refactored Mobile Sidebar Logic](#refactored-mobile-sidebar-logic)
 		- [2025-05-15](#2025-05-15)
 			- [Major AI Chatbot Integration and Cross-App Auth Updates](#major-ai-chatbot-integration-and-cross-app-auth-updates)
@@ -36,6 +37,26 @@ A modern, responsive web application for showcasing logistics services, built wi
 **Logistics Portfolio** is designed to present logistics, warehousing, and delivery services in a visually appealing and interactive way. It features animated components, image preloading, and a clean, professional UI to help logistics businesses establish a strong online presence.
 
 ## Features
+
+### ProfessionalCardSlider Slide Interval Configuration (2025-05-18)
+- The `ProfessionalCardSlider` component now supports a configurable `slideInterval` prop for carousel auto-advance.
+- The default interval is set by the `DEFAULT_SLIDE_INTERVAL` constant (30 seconds), but you can override it for any instance.
+- This follows clean code architecture and OOP best practices: the interval is clearly named, documented, and easily adjustable.
+- All logic is fully commented and type-safe for maintainability.
+
+**Usage Example:**
+```tsx
+import ProfessionalCardSlider from "@/components/professional-hero";
+
+// Use default interval (30s)
+<ProfessionalCardSlider />
+
+// Use a custom interval (e.g., 10 seconds)
+<ProfessionalCardSlider slideInterval={10000} />
+```
+
+**Prop:**
+- `slideInterval?: number` — Interval in milliseconds between slides (default: 30000)
 
 ### [2025-05-18] Sidebar Logout Button Refactor
 - The sidebar/footer now uses a dedicated **Logout** button instead of a navigation link.
