@@ -480,6 +480,13 @@ For questions or support, please contact [austinbediako4@gmail.com](mailto:austi
 - Added changelog for advanced diagnostics and agent-based discovery features.
 - **New Feature:** Local AI fallback (`lib/my-ai-fallback.ts`) is now used if OpenRouter is down or misconfigured. Developers can extend this fallback for their own models or scripts.
 
+### [2025-05-18] Workflow Fix: Manual Build Step Name
+
+- **Issue:** YAML syntax error in `.github/workflows/codeql.yml` due to missing `name:` field in the step with `if: matrix.build-mode == 'manual'`.
+- **Fix:** Added a `name: Manual build instructions` to the affected step. This resolves the implicit map key error and ensures the workflow follows GitHub Actions and YAML best practices.
+- **Reference:** See `.github/workflows/codeql.yml`, step under manual build instructions.
+- **Reason:** Every step must have a `name:` when using `if:` to avoid YAML parsing errors and improve workflow clarity.
+- **YAML Best Practice:** Comments above a step must not be indented as if they are part of the previous step. This ensures the YAML parser does not misinterpret comments as part of a previous mapping, which can cause 'implicit map key' errors. See the fix in `.github/workflows/codeql.yml` for an example.
 
 ### 2025-05-15
 

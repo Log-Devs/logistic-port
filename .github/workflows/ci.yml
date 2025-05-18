@@ -1,0 +1,112 @@
+# Professional CI workflow for Node.js/TypeScript/React monorepo
+# Runs on PRs and pushes to main. Ensures code quality, lint, typecheck, build, and test coverage.
+
+name: CI (Professional)
+description: >
+  Runs lint, typecheck, build, and tests for all packages. Fails fast and caches dependencies for speed.
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  install:
+    name: Install Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Get pnpm cache directory
+        id: pnpm-cache
+        run: echo "::set-output name=dir::$(pnpm store path)"
+      - name: Cache pnpm modules
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.dir }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Run linter
+        run: pnpm run lint
+
+  typecheck:
+    name: TypeScript Typecheck
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Run typecheck
+        run: pnpm run typecheck
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [install, lint, typecheck]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build project
+        run: pnpm run build
+
+  test:
+    name: Test & Coverage
+    runs-on: ubuntu-latest
+    needs: [install, build]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Run tests with coverage
+        run: pnpm run test -- --coverage
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/*.json
+          flags: unittests
+          name: codecov-umbrella
+
+# Documentation:
+# - This workflow ensures all PRs and pushes to main are production-ready.
+# - Add secret CODECOV_TOKEN for coverage reporting.
+# - Adjust scripts in package.json as needed for your repo.

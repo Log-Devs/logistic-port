@@ -6,7 +6,7 @@ import AppLoaderWrapper from "@/components/AppLoaderWrapper";
 import { ThemeProvider } from "@/components/theme-provider";
 import PreloadMediaProvider from "@/components/PreloadMediaProvider";
 import CookieConsentBanner from "@/components/ui/CookieConsentBanner";
-import ChatbotButtonWrapper from "@/components/ChatbotButtonWrapper";
+// ChatbotButtonWrapper import removed as the component is currently disabled. Re-add when re-enabling the chatbot button.
 import { Analytics } from "@vercel/analytics/next";
 import { AuthProvider } from "@/components/auth-context";
 const inter = Inter({ subsets: ["latin"] });
