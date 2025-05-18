@@ -8,7 +8,7 @@
  */
 
 // Remove Node.js-only imports from shared code to fix build error
-// import path from 'path';
+import path from 'path';
 // import * as fs from 'fs'; // Node.js File System module, required for server-side route indexing. Do not use on client-side code.
 
 /**
@@ -49,11 +49,17 @@ export class RouteIndexer {
     const routes: AppRoute[] = [];
     // Only run file system code on the server (SSR/build time)
     if (typeof window === 'undefined') {
-      // Dynamically require fs only on server
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const fs = require('fs');
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const path = require('path');
+      // Dynamically require fs and path only if available (server-side)
+      let fs: typeof import('fs') | undefined;
+      let path: typeof import('path') | undefined;
+      try {
+        fs = require('fs');
+        path = require('path');
+      } catch {
+        // If fs/path are not available, skip indexing
+        return routes;
+      }
+      if (!fs.existsSync(dir)) return routes;
       const entries = fs.readdirSync(dir, { withFileTypes: true });
       for (const entry of entries) {
         if (entry.isDirectory()) {
@@ -77,18 +83,14 @@ export class RouteIndexer {
         }
       }
     }
-
-    // Return the indexed routes
+    // On client, return empty array (cannot index files)
     return routes;
   }
 
   /**
    * Find a route by URL or param (e.g. 'register', 'services', 'id').
-   * Returns the first matching AppRoute or undefined if not found.
-   * @param query The string to match against route url, filePath, or params
    */
   public findRoute(query: string): AppRoute | undefined {
-    // Search for a route whose url, filePath, or params include the query string
     return this.routes.find(r =>
       r.url.includes(query) ||
       r.filePath.includes(query) ||
@@ -102,11 +104,7 @@ export class RouteIndexer {
  */
 export class CodebaseSearcher {
   private baseDirs: string[];
-
   constructor(baseDirs = [
-    'components',
-    'lib',
-    'app/api',
     path.join(process.cwd(), 'components'),
     path.join(process.cwd(), 'lib'),
     path.join(process.cwd(), 'app', 'api'),
@@ -126,14 +124,26 @@ export class CodebaseSearcher {
   }
 
   private searchDir(dir: string, query: string, results: string[]) {
-    if (!fs.existsSync(dir)) return;
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
-    for (const entry of entries) {
-      const fullPath = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        this.searchDir(fullPath, query, results);
-      } else if (entry.isFile() && fullPath.toLowerCase().includes(query.toLowerCase())) {
-        results.push(fullPath);
+    // Only run file system code on the server (SSR/build time)
+    if (typeof window === 'undefined') {
+      let fs: typeof import('fs') | undefined;
+      let path: typeof import('path') | undefined;
+      try {
+        fs = require('fs');
+        path = require('path');
+      } catch {
+        // If fs/path are not available, skip searching
+        return;
+      }
+      if (!fs.existsSync(dir)) return;
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          this.searchDir(fullPath, query, results);
+        } else if (entry.isFile() && fullPath.toLowerCase().includes(query.toLowerCase())) {
+          results.push(fullPath);
+        }
       }
     }
   }
