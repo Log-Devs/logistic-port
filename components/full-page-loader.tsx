@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useTheme } from "next-themes";
@@ -7,6 +7,15 @@ import { useTheme } from "next-themes";
 export default function EnterpriseLoader({ loading }: { loading: boolean }) {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    if (!loading) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % 3);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [loading]);
 
   if (!loading) return null;
 
@@ -181,11 +190,7 @@ export default function EnterpriseLoader({ loading }: { loading: boolean }) {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -20 }}
                       transition={{ duration: 0.5 }}
-                      className={
-                        index === Math.floor((Date.now() / 2000) % 3)
-                          ? "block"
-                          : "hidden"
-                      }
+                      className={index === currentIndex ? "block" : "hidden"}
                     >
                       {text}
                     </motion.p>
