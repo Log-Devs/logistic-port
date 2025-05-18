@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { useAuth } from "@/components/auth-context";
 import { useRouter } from "next/navigation";
-import DashboardCard from "../component/dashboard-card";
+import DashboardCard from "../components/dashboard-card"; // Fixed: directory renamed to 'components'
 
 // Import static images from the public directory for dashboard card icons
 // Place your images in /public and use the relative path (e.g., "/submit-shipment.png")

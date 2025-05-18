@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import ClientHeader from './component/header';  // Import the header component
+import ClientHeader from './components/header';  // Import the header component (fixed: directory renamed to 'components')
 import { useRouter, usePathname } from "next/navigation";
 import {
   LayoutDashboard,

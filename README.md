@@ -19,10 +19,13 @@ A modern, responsive web application for showcasing logistics services, built wi
 		- [Setup](#setup)
 		- [Usage](#usage)
 		- [Developer Notes](#developer-notes)
+			- [Responsive Sidebar Behavior](#responsive-sidebar-behavior)
 	- [Contributing](#contributing)
 	- [License](#license)
 	- [Contact](#contact)
 	- [Changelog](#changelog)
+		- [2025-05-18](#2025-05-18)
+			- [Refactored Mobile Sidebar Logic](#refactored-mobile-sidebar-logic)
 		- [2025-05-15](#2025-05-15)
 			- [Major AI Chatbot Integration and Cross-App Auth Updates](#major-ai-chatbot-integration-and-cross-app-auth-updates)
 
@@ -32,6 +35,18 @@ A modern, responsive web application for showcasing logistics services, built wi
 
 ## Features
 
+### Responsive Sidebar Behavior
+- The sidebar now uses the `useIsMobile` custom React hook (see `hooks/use-mobile.tsx`) to detect mobile viewports.
+- When navigating via the sidebar on mobile, the sidebar automatically closes for a seamless user experience.
+- This logic is encapsulated in a reusable hook for clean code, OOP, and maintainability.
+- Example usage in a component:
+  ```tsx
+  import { useIsMobile } from "@/hooks/use-mobile";
+  const isMobileView = useIsMobile();
+  // ...
+  if (isMobileView) setIsOpen(false);
+  ```
+
 ### Feature Toggles
 
 - **Chatbot Button Temporarily Disabled**
@@ -40,6 +55,33 @@ A modern, responsive web application for showcasing logistics services, built wi
   - This approach keeps the codebase clean while allowing easy restoration of the feature when ready.
 
 ### Architectural Notes
+
+- **Global Loader Architecture:**
+  - All loading UI is now managed by a single global loader (`AppLoaderWrapper`).
+  - The loader listens to the global loading state from `AuthProvider` (via the `useAuth` hook).
+  - All page/component-level loaders have been removed for consistency and maintainability.
+  - The loader is only displayed during authentication/user hydration or other global loading events.
+  - This ensures a professional, non-redundant, and cohesive user experience.
+  - See the `AppLoaderWrapper` and `AuthProvider` components for implementation details.
+
+#### Migration Steps
+  1. Removed all local/component-level loading state and loader UI from pages and components (e.g., `AppShell`).
+  2. Refactored `AppLoaderWrapper` to consume loading state from `AuthProvider` only.
+  3. Updated all documentation and tests to reflect the new architecture.
+
+#### Usage
+  - To trigger the global loader, set the `loading` state in `AuthProvider` to `true`.
+  - The loader will automatically appear and hide based on the global loading state.
+  - No component/page should manage its own loading UI—use the context instead.
+
+#### Testing the Loader
+  - Automated tests are provided in `tests/global-loader.test.tsx`.
+  - These tests ensure:
+    - The loader is visible when the global loading state is `true`.
+    - The loader is hidden and content is visible when loading is `false`.
+    - No duplicate loaders appear from local/component state.
+  - Run tests with `npm test` or `yarn test` (see package.json for details).
+  - All tests follow clean code and OOP best practices.
 
 - **Global Theming:**
   - The `ThemeProvider` from `next-themes` is now applied **only at the root layout** (`app/layout.tsx` or `app/client/layout.tsx`).
