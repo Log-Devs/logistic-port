@@ -68,4 +68,4 @@ dist/
 
 # Ignore local test or temp data
 lib/data/tmp-embeddings.json
-lib/data/*.bak
+lib/data/*.bak.github/workflows/labeler.yml

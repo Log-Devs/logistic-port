@@ -448,6 +448,12 @@ fetchData();
 - Nana will always use a professional tone and respect your privacy.
 
 ### Developer Notes
+
+- **Workflow Labeler File Ignored:**
+  - The file `.github/workflows/labeler.yml` is intentionally listed in `.gitignore` and will not be tracked or pushed to the repository.
+  - This is done for local or experimental automation workflows that should not affect the main repository or CI/CD pipelines.
+  - If you need to use a labeler workflow, create your own local copy and ensure it is ignored in version control for best practices and clean code hygiene.
+
 - Components: `components/ChatbotButton.tsx`, `components/ChatbotWindow.tsx`
 - Logic: `lib/chatbot.ts`, `app/api/chatbot/route.ts` (API integration and prompt)
 - Config: `app/app-details-config.ts` (centralized company name/branding)
