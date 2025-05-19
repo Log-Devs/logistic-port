@@ -38,6 +38,50 @@ A modern, responsive web application for showcasing logistics services, built wi
 
 ## Features
 
+---
+
+## Shipment Status Dashboard & Table Architecture
+
+### Dynamic Status Card Rendering (Dashboard)
+- The Awaiting Shipments dashboard renders exactly three cards: **Total Awaiting** (green), **Pending** (yellow), and **Received** (blue).
+- All status cards are dynamically sourced from the shared `SHIPMENT_STATUSES` constant in `lib/logistics-statuses.ts`.
+- Card colors are mapped via a single color map object for maintainability and professional UX.
+- The "Total Awaiting" card uses a green color scheme for positive emphasis, as requested.
+- If you add or change statuses in `SHIPMENT_STATUSES`, the dashboard will automatically reflect those changes (extensible, no hardcoding).
+- All props for cards are type-safe and guaranteed, eliminating runtime or TypeScript errors.
+- Code is modular, commented, and follows OOP and clean code architecture best practices.
+
+### AwaitingShipmentCard Component
+- Accepts a `color` prop (Tailwind classes) for status-based color coding.
+- Uses a clean, professional layout with responsive design.
+- All logic is fully commented inline for maintainability and onboarding.
+- Follows OOP and clean code principles for reuse and extensibility.
+
+### AwaitingShipmentTable Component
+- Renders shipment statuses dynamically from `SHIPMENT_STATUSES` (never hardcoded).
+- Statuses are color-coded and include tooltips for descriptions, improving user experience and accessibility.
+- Uses `@tanstack/react-table` for scalable table logic and `react-window` for virtualization, supporting thousands of rows efficiently.
+- Table is fully responsive: shows table on desktop, cards on mobile.
+- All code is modular, type-safe, and documented inline.
+
+### Clean Code and OOP Best Practices
+- Every component and function is fully commented for clarity and maintainability.
+- All logic is modular, DRY, and type-safe for scalability and professional development.
+- Status rendering and color logic are centralized for easy updates and onboarding.
+
+### UX Rationale
+- Color coding provides instant, intuitive feedback for shipment statuses.
+- Dynamic rendering ensures the UI always matches the business logic and status config.
+- All changes are maintainable, extensible, and easy for new developers to understand (see code comments and this section).
+
+---
+
+### [2025-05-19] Secure, Unguessable Public Tracking Codes
+- All shipment tracking now uses a secure, random, unguessable public tracking code: `trackingCode` (e.g., `SHIP-7G9X2A`).
+- Internal shipment IDs remain linear/incrementing for backend/database use, but are never exposed to users.
+- This approach ensures security (codes can't be guessed or brute-forced), scalability, and professional UX.
+- All logic is fully commented and documented for maintainability and best practices.
+
 ### [2025-05-18] AwaitingShipmentTable.tsx Refactor
 
 ---
@@ -764,6 +808,14 @@ For questions or support, please contact [austinbediako4@gmail.com](mailto:austi
 - **Reference:** See `.github/workflows/codeql.yml`, step under manual build instructions.
 - **Reason:** Every step must have a `name:` when using `if:` to avoid YAML parsing errors and improve workflow clarity.
 - **YAML Best Practice:** Comments above a step must not be indented as if they are part of the previous step. This ensures the YAML parser does not misinterpret comments as part of a previous mapping, which can cause 'implicit map key' errors. See the fix in `.github/workflows/codeql.yml` for an example.
+
+### 2025-05-19
+
+#### Secure, Unguessable Public Tracking Codes
+- Awaiting shipments now expose a random, unguessable `trackingCode` (e.g., `SHIP-7G9X2A`) for all user-facing tracking and display.
+- Internal IDs remain linear and are used only by backend/database logic.
+- This change improves security, prevents tracking code enumeration, and keeps the UI professional and scalable.
+- See `app/api/awaiting-shipments/route.ts` and `AwaitingShipmentTable.tsx` for implementation details and comments.
 
 ### 2025-05-15
 

@@ -4,15 +4,21 @@ import { FixedSizeList as List } from 'react-window';
 import { Clock, ArrowRight, ChevronRight } from "lucide-react";
 
 // Define the AwaitingShipment type for each row
+// AwaitingShipment type for each row
+// id: Internal linear ID (not shown to users)
+// trackingCode: Public, random, unguessable shipment tracking code (shown to users)
+import { SHIPMENT_STATUSES } from '@/lib/logistics-statuses';
+
 interface AwaitingShipment {
-    id: string | number;
+    id: string | number; // Internal use only
+    trackingCode: string; // Public tracking code (e.g., SHIP-7G9X2A)
     recipient: string;
     startLocation: string;
     destination: string;
     arrival: string;
     items: number;
     weight: string | number;
-    status: string;
+    status: ShipmentStatusCode; // Must be one of SHIPMENT_STATUSES codes
 }
 
 // Props for the table component
@@ -21,6 +27,8 @@ export interface AwaitingShipmentTableProps {
     /**
      * Array of AwaitingShipment objects to display in the table.
      * This should be fetched from your API and passed as a prop.
+     *
+     * Note: Only 10 awaiting shipments are displayed per page (pageSize = 10).
      */
     awaitingShipments: AwaitingShipment[];
     /**
@@ -76,12 +84,13 @@ export function useAwaitingShipments(endpoint: string): [AwaitingShipment[], boo
  */
 const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingShipments, loading = false, error = undefined }) => {
     // Define columns for the table using useMemo for performance
+    // Table columns definition: show trackingCode as 'Tracking Code' for users
     const columns = useMemo<ColumnDef<AwaitingShipment>[]>(
         () => [
             {
-                header: 'ID',
-                accessorKey: 'id',
-                // Render the ID value in bold for emphasis and clarity
+                header: 'Tracking Code',
+                accessorKey: 'trackingCode',
+                // Render the tracking code value in bold for emphasis and clarity
                 cell: ({ getValue }) => (
                     <span className="font-bold">{getValue() as string}</span>
                 ),
@@ -116,22 +125,36 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
             {
                 header: 'Status',
                 accessorKey: 'status',
-                cell: ({ getValue }) => {
-                    const status = getValue() as string;
-                    return (
-                        <span
-                            className={`font-semibold px-3 py-1 rounded-full text-xs whitespace-nowrap
-                                ${
-                                    status === "Pending"
-                                        ? "text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30"
-                                        : "text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30"
-                                }
-                            `}
-                        >
-                            {status}
-                        </span>
-                    );
-                },
+                // Render the status label with a tooltip for description, using SHIPMENT_STATUSES
+cell: ({ getValue }) => {
+    const statusCode = getValue() as string;
+    // Find the status object from SHIPMENT_STATUSES
+    const statusObj = SHIPMENT_STATUSES.find(s => s.code === statusCode);
+    // Fallbacks for unknown status
+    const label = statusObj ? statusObj.label : statusCode;
+    const description = statusObj ? statusObj.description : '';
+    // Map of status code to color classes for dynamic rendering
+    const statusColorMap: Record<string, string> = {
+        PENDING: 'text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30',
+        RECEIVED_AT_ORIGIN: 'text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/30',
+        READY_FOR_TRANSPORT: 'text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/30',
+        IN_TRANSIT: 'text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/30',
+        RECEIVED_AT_DESTINATION: 'text-purple-600 bg-purple-100 dark:text-purple-400 dark:bg-purple-900/30',
+        READY_FOR_PICKUP: 'text-purple-600 bg-purple-100 dark:text-purple-400 dark:bg-purple-900/30',
+        OUT_FOR_DELIVERY: 'text-orange-600 bg-orange-100 dark:text-orange-400 dark:bg-orange-900/30',
+        DELIVERED: 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30',
+    };
+    // Dynamically assign color class based on status code
+    const colorClass = statusColorMap[statusCode] || 'text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-900/30';
+    return (
+        <span
+            className={`font-semibold px-3 py-1 rounded-full text-xs whitespace-nowrap ${colorClass}`}
+            title={description}
+        >
+            {label}
+        </span>
+    );
+},
             },
         ],
         []
@@ -139,12 +162,28 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
 
     // Pagination state
     const [pageIndex, setPageIndex] = useState(0);
-    const pageSize = 20;
+    // Page size constant: only 10 awaiting shipments are shown per page for optimal UX and performance
+const pageSize = 10; // Changed from 20 to 10 as per latest requirements
 
-    // Calculate paginated data
+    // Sort shipments so the latest (most recent arrival) comes first for best UX
+    const sortedShipments = useMemo(() => {
+        // Parse arrival as Date; fallback to string compare if invalid
+        return [...awaitingShipments].sort((a, b) => {
+            const dateA = new Date(a.arrival);
+            const dateB = new Date(b.arrival);
+            // If both are valid dates, sort descending
+            if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
+                return dateB.getTime() - dateA.getTime();
+            }
+            // Fallback: string compare
+            return String(b.arrival).localeCompare(String(a.arrival));
+        });
+    }, [awaitingShipments]);
+
+    // Calculate paginated data from sorted shipments
     const paginatedData = useMemo(
-        () => awaitingShipments.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize),
-        [awaitingShipments, pageIndex, pageSize]
+        () => sortedShipments.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize),
+        [sortedShipments, pageIndex, pageSize]
     );
 
     // Table instance
@@ -178,7 +217,7 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
                     <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
                         <div className="flex items-center">
                             <Clock size={24} className="text-primary" />
-                            <h1 className="text-[color:#1A2B6D] text-lg sm:text-xl font-bold px-3 sm:px-5 text-gray-900 dark:text-gray-100">
+                            <h1 className="text-[color:#1A2B6D] text-lg sm:text-xl font-bold px-3 sm:px-5 dark:text-gray-100">
                                 Awaiting Shipment List
                             </h1>
                         </div>
@@ -226,7 +265,7 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
                     {/* Pagination Controls */}
                     <div className="flex justify-between items-center mt-4 px-2">
                         <button
-                            className="px-4 py-2 bg-gray-200 dark:bg-slate-700 rounded disabled:opacity-50"
+                            className="px-4 py-2 bg-gray-200 dark:bg-slate-700 rounded disabled:opacity-50 text-[color:#1A2B6D] dark:text-gray-200"
                             onClick={() => setPageIndex((prev) => Math.max(prev - 1, 0))}
                             disabled={pageIndex === 0}
                         >
@@ -236,7 +275,7 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
                             Page {pageIndex + 1} of {Math.ceil(awaitingShipments.length / pageSize)}
                         </span>
                         <button
-                            className="px-4 py-2 bg-gray-200 dark:bg-slate-700 rounded disabled:opacity-50"
+                            className="px-4 py-2 bg-gray-200 dark:bg-slate-700 rounded disabled:opacity-50 text-[color:#1A2B6D] dark:text-gray-200"
                             onClick={() => setPageIndex((prev) =>
                                 Math.min(prev + 1, Math.floor(awaitingShipments.length / pageSize))
                             )}
@@ -356,14 +395,25 @@ const VirtualRow = ({ index, style, data }: { index: number; style: React.CSSPro
 
 // Demo component with sample data for testing
 const DemoAwaitingShipmentTable = () => {
+    // Helper to generate a random, unguessable tracking code for demo data
+    function generateDemoTrackingCode(): string {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let code = '';
+        for (let i = 0; i < 6; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return `SHIP-${code}`;
+    }
+
     // Generate a large dataset for testing
     const generateDemoData = () => {
         const locations = ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "San Francisco", 
                           "Seattle", "Miami", "Boston", "Denver", "Washington DC", "Atlanta", "Dallas"];
         const statuses = ["Pending", "Processing"];
-        
+        // Generate AwaitingShipment[] with trackingCode for demo/testing compatibility
         return Array.from({ length: 500 }, (_, i) => ({
             id: `SHP-${2023 + Math.floor(i/100)}-${String(i % 1000).padStart(3, '0')}`,
+            trackingCode: generateDemoTrackingCode(),
             recipient: `Customer ${i + 1}`,
             startLocation: locations[i % locations.length],
             destination: locations[(i + 3) % locations.length],
