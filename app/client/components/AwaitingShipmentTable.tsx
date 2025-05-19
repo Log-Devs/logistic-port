@@ -318,7 +318,7 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
                                     </div>
                                         <span
                                             className={`font-semibold px-3 py-1 rounded-full text-xs
-                                            ${shipment.status === "Pending"
+                                            ${shipment.status === "PENDING"
                                                     ? "text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30"
                                                     : "text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30"
                                                 }
