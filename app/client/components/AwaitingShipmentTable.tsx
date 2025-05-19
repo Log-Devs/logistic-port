@@ -18,7 +18,7 @@ interface AwaitingShipment {
     arrival: string;
     items: number;
     weight: string | number;
-    status: string; // Must be one of SHIPMENT_STATUSES codes
+    status: ShipmentStatusCode; // Must be one of SHIPMENT_STATUSES codes
 }
 
 // Props for the table component
