@@ -16,7 +16,7 @@ export const SHIPMENT_STATUSES = [
   },
   {
     code: 'RECEIVED_AT_ORIGIN',
-    label: 'At Origin',
+    label: 'Received at Origin',
     description: 'Origin Warehouse'
   },
   {
@@ -31,12 +31,12 @@ export const SHIPMENT_STATUSES = [
   },
   {
     code: 'RECEIVED_AT_DESTINATION',
-    label: 'At Destination',
+    label: 'Received at Destination',
     description: 'Destination' // Changed from 'Destination Warehouse' to concise phrase
   },
   {
     code: 'READY_FOR_PICKUP',
-    label: 'Pickup Ready',
+    label: 'Ready for Pickup',
     description: 'Ready for Pickup'
   },
   {
