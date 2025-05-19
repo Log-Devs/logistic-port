@@ -169,8 +169,8 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
         // For all other statuses, set arrival to 2 days from now
         const now = new Date();
         const arrivalDate = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
-        // Format as YYYY-MM-DD or a more user-friendly format
-        return arrivalDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+        // Format as YYYY-MM-DD for consistency
+        return arrivalDate.toISOString().split('T')[0];
     };
 
     // Map shipments to update the arrival field
