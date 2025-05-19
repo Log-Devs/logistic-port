@@ -230,9 +230,10 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <div className="flex flex-col flex-1 min-w-0">
         {/* Pass toggleSidebar to header for hamburger menu */}
         <ClientHeader isMobileView={isMobileView} toggleSidebar={toggleSidebar} />
-        <main className="flex-1 min-h-0 overflow-y-auto bg-slate-50 dark:bg-slate-800">
-          {children}
-        </main>
+        {/* Main content area grows naturally with content, no fixed or constrained height */}
+<main className="w-full overflow-y-auto bg-slate-50 dark:bg-slate-800">
+  {children}
+</main>
       </div>
     </div>
   );
