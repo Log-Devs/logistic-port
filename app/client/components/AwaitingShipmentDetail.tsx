@@ -214,7 +214,8 @@ const AwaitingShipmentDetail: React.FC<AwaitingShipmentDetailProps> = ({ shipmen
               return (
                 <span
                   title={description}
-                  className={`mt-2 sm:mt-0 rounded-full px-3 py-1 text-sm font-medium border whitespace-nowrap ${colorClass}`}
+                  // Professional: Allow status label to wrap and break on mobile for better UX
+                  className={`mt-2 sm:mt-0 rounded-full px-3 py-1 text-sm font-medium border break-words whitespace-normal ${colorClass}`}
                 >
                   {label}
                 </span>
