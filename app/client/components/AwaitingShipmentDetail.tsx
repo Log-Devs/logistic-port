@@ -305,18 +305,14 @@ const AwaitingShipmentDetail: React.FC<AwaitingShipmentDetailProps> = ({ shipmen
             disabled
             tabIndex={-1}
             onClick={(e) => {
-              e.preventDefault();
-              // Show a professional message using a toast or alert
-              if (typeof window !== 'undefined' && window?.toast) {
-                window.toast({
-                  title: 'Tracking Unavailable',
-                  description: 'Shipment tracking is not yet available. Please check back soon.',
-                  variant: 'info',
-                });
-              } else {
-                alert('Shipment tracking is not yet available. Please check back soon.');
-              }
-            }}
+               e.preventDefault();
+               // Always use the imported toast for reliability and clean code
+               toast({
+                 title: 'Tracking Unavailable',
+                 description: 'Shipment tracking is not yet available. Please check back soon.',
+                 variant: 'info',
+               });
+             }}
             aria-disabled="true"
             title="Shipment tracking is not yet available."
           >
@@ -361,28 +357,47 @@ const DetailCard: React.FC<{
  * Uses useEffect for dynamic script loading and a React ref for the player.
  * Shows a fallback message if the component fails to load.
  */
+// Import toast directly for reliable notification (clean code best practice)
+import { toast } from '@/components/ui/use-toast';
+
+/**
+ * LottiePlayerSection
+ * Robust, client-only loader for the dotlottie-player web component.
+ * Ensures the Lottie animation always renders after hydration and SSR.
+ * OOP/clean code: Prevents double script loads, documents every step, and handles errors gracefully.
+ * See README for troubleshooting and usage notes.
+ */
 const LottiePlayerSection: React.FC = () => {
+  // Ref for the animation container (reserved for future OOP extensions)
   const playerRef = React.useRef<HTMLDivElement>(null);
+  // State to track if the Lottie script has loaded
   const [loaded, setLoaded] = React.useState(false);
+  // State to track if an error occurred loading the script
   const [error, setError] = React.useState(false);
 
   React.useEffect(() => {
-    // Only load the script if window is defined (client-side)
+    // Ensure this runs only on the client (never during SSR)
     if (typeof window === 'undefined') return;
-    // Prevent loading multiple times
-    if (document.querySelector('script[data-dotlottie-player]')) {
+    // Prevent loading the script multiple times (robust check)
+    const existingScript = document.querySelector('script[data-dotlottie-player]');
+    if (existingScript) {
+      // If script is already loaded, set loaded state
       setLoaded(true);
       return;
     }
+    // Dynamically create the script element for the dotlottie-player web component
     const script = document.createElement('script');
     script.src = 'https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs';
     script.type = 'module';
     script.async = true;
     script.setAttribute('data-dotlottie-player', 'true');
+    // On successful load, set loaded state
     script.onload = () => setLoaded(true);
+    // On error, set error state for fallback UI
     script.onerror = () => setError(true);
+    // Append the script to the document body
     document.body.appendChild(script);
-    // Clean up if component unmounts
+    // Clean up listeners on unmount
     return () => {
       script.onload = null;
       script.onerror = null;
@@ -392,14 +407,12 @@ const LottiePlayerSection: React.FC = () => {
   return (
     <div className="px-6 flex justify-center items-center my-4 w-full">
       {error ? (
+        // Show error message if animation fails to load
         <div className="text-red-500 text-sm">Animation failed to load.</div>
       ) : (
         // Responsive container for the Lottie animation
         <div ref={playerRef} className="w-full flex justify-center">
-          {/*
-            Use the custom element only after the script is loaded.
-            Responsive: 100% width on mobile, 480px on desktop.
-          */}
+          {/* Only render the animation after the script is loaded */}
           {loaded ? (
             <dotlottie-player
               src="https://lottie.host/476832d6-b952-454f-8d3b-dbe814f04d83/6IvdD4bQFr.lottie"
@@ -410,6 +423,7 @@ const LottiePlayerSection: React.FC = () => {
               autoplay
             />
           ) : (
+            // Show loading state while the script is loading
             <div className="text-gray-400 text-sm py-12">Loading animation...</div>
           )}
         </div>
