@@ -8,8 +8,8 @@ import { NextResponse } from 'next/server';
 
 // Helper function to generate a professional, short internal shipment ID
 function generateShipmentId(index: number): string {
-  // Pads the number to 4 digits: 1 -> 0001, 12 -> 0012, etc.
-  return (index + 1).toString().padStart(4, '0');
+  // Pads the number to 4 digits and adds the SHIP- prefix: 1 -> SHIP-0001, 12 -> SHIP-0012, etc.
+  return `SHIP-${(index + 1).toString().padStart(4, '0')}`;
 }
 
 // Helper function to generate a random, unguessable tracking code (e.g., SHIP-7G9X2A)

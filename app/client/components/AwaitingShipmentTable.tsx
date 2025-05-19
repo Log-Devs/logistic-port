@@ -7,12 +7,12 @@ import { Clock, ArrowRight, ChevronRight } from "lucide-react";
 export interface AwaitingShipment {
     id: string | number; // Internal use only
     trackingCode: string; // Public tracking code (e.g., SHIP-7G9X2A)
-    recipient: string; // Recipient's name
-    startLocation: string; // Origin location
-    destination: string; // Destination location
-    arrival: string; // Estimated arrival date/time
-    items: number; // Number of items in the shipment
-    weight: string | number; // Weight of the shipment
+    recipient: string;
+    startLocation: string;
+    destination: string;
+    arrival: string;
+    items: number;
+    weight: string | number;
     status: string; // Must be one of SHIPMENT_STATUSES codes
 }
 // NOTE: This interface should be imported wherever shipment typing is needed to avoid duplication.
