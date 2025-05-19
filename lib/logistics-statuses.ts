@@ -16,7 +16,7 @@ export const SHIPMENT_STATUSES = [
   },
   {
     code: 'RECEIVED_AT_ORIGIN',
-    label: 'Received',
+    label: 'Received at Origin',
     description: 'Origin Warehouse'
   },
   {
