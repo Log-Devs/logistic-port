@@ -160,7 +160,7 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
     const pageSize = 10; // Only 10 shipments per page for optimal UX (see README for rationale)
 
     // Sort shipments so the latest (most recent arrival) comes first for best UX
-    // Professional: Set expected arrival to always be 2 days from now for non-delivered shipments
+    // Set expected arrival to always be 2 days from now for non-delivered shipments
     const computeArrival = (shipment: AwaitingShipment): string => {
         if (shipment.status === 'DELIVERED') {
             // For delivered shipments, keep the original arrival
