@@ -3,6 +3,8 @@
 A modern, responsive web application for showcasing logistics services, built with Next.js, React, and Tailwind CSS.
 
 ## Table of Contents
+- [Custom Elements TypeScript Support](#custom-elements-typescript-support)
+- [Troubleshooting: Custom Elements & TypeScript Errors](#troubleshooting-custom-elements--typescript-errors)
 
 - [Logistics Portfolio](#logistics-portfolio)
 	- [Table of Contents](#table-of-contents)
@@ -35,6 +37,54 @@ A modern, responsive web application for showcasing logistics services, built wi
 ## Overview
 
 **Logistics Portfolio** is designed to present logistics, warehousing, and delivery services in a visually appealing and interactive way. It features animated components, image preloading, and a clean, professional UI to help logistics businesses establish a strong online presence.
+
+## Custom Elements TypeScript Support
+
+This project uses custom web components such as `<dotlottie-player>`. To enable TypeScript and JSX support for these elements:
+
+- All custom elements are declared in `custom-elements.d.ts` at the project root.
+- This ensures TypeScript recognizes custom tags in `.tsx` files and prevents JSX type errors.
+- The interface for each custom element can be extended with specific attributes for better type safety.
+- The file is fully commented and follows clean code/OOP best practices for maintainability.
+
+## Troubleshooting: Custom Elements & TypeScript Errors
+
+If you see an error like:
+
+```
+Property 'dotlottie-player' does not exist on type 'JSX.IntrinsicElements'.
+```
+
+**Follow these steps:**
+
+1. Ensure `custom-elements.d.ts` exists at the project root and contains the correct declaration for your custom element:
+
+   ```typescript
+   declare global {
+     namespace JSX {
+       interface IntrinsicElements {
+         "dotlottie-player": React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+           src?: string;
+           autoplay?: boolean;
+           loop?: boolean;
+           mode?: string;
+           [key: string]: any;
+         };
+       }
+     }
+   }
+   ```
+
+2. Make sure the file is named `custom-elements.d.ts` (not `.ts`) and does **not** include `export {}` at the top.
+3. Restart your IDE/TypeScript server to ensure the new types are picked up.
+4. If the error persists, confirm that your `tsconfig.json` includes the root directory or the file path for type declarations.
+
+**Best Practice:**
+- Centralize all custom element typings in `custom-elements.d.ts` for maintainability.
+- Extend the interface as you add more custom web components.
+- Document all changes inline and in this README.
+
+---
 
 ## Features
 
@@ -79,6 +129,14 @@ A modern, responsive web application for showcasing logistics services, built wi
 ### [2025-05-19] Secure, Unguessable Public Tracking Codes
 - All shipment tracking now uses a secure, random, unguessable public tracking code: `trackingCode` (e.g., `SHIP-7G9X2A`).
 - Internal shipment IDs remain linear/incrementing for backend/database use, but are never exposed to users.
+
+### [2025-05-19] Dummy Shipment Data Generation Refactor
+- All dummy shipment data for `/api/awaiting-shipments` is now generated programmatically using the `generateDummyShipments` function in `app/api/awaiting-shipments/route.ts`.
+- All legacy, hardcoded shipment objects have been removed for maintainability, clarity, and clean code architecture.
+- The generator produces objects that match the API contract and are randomized for realistic testing.
+- All code is modular, OOP-friendly, and fully commented for maintainability.
+- This approach ensures the codebase is scalable, DRY, and easy to update as business requirements evolve.
+
 - This approach ensures security (codes can't be guessed or brute-forced), scalability, and professional UX.
 - All logic is fully commented and documented for maintainability and best practices.
 
@@ -811,7 +869,7 @@ For questions or support, please contact [austinbediako4@gmail.com](mailto:austi
 
 ### 2025-05-19
 
-#### Secure, Unguessable Public Tracking Codes
+#<!-- Removed duplicate 'Secure, Unguessable Public Tracking Codes' section for clarity. -->
 - Awaiting shipments now expose a random, unguessable `trackingCode` (e.g., `SHIP-7G9X2A`) for all user-facing tracking and display.
 - Internal IDs remain linear and are used only by backend/database logic.
 - This change improves security, prevents tracking code enumeration, and keeps the UI professional and scalable.

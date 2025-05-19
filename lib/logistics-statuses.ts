@@ -12,42 +12,42 @@ export const SHIPMENT_STATUSES = [
   {
     code: 'PENDING',
     label: 'Pending',
-    description: 'Package registered and awaiting drop-off or pickup by company.'
+    description: 'Awaiting Drop-off'
   },
   {
     code: 'RECEIVED_AT_ORIGIN',
-    label: 'Received at Origin Warehouse',
-    description: 'Package received at the origin warehouse and ready for transport.'
+    label: 'At Origin',
+    description: 'Origin Warehouse'
   },
   {
     code: 'READY_FOR_TRANSPORT',
-    label: 'Ready for Transport',
-    description: 'Package is ready and queued for international transport.'
+    label: 'Ready to Ship',
+    description: 'Queued' // Changed from 'Queued for Transport' to concise phrase
   },
   {
     code: 'IN_TRANSIT',
     label: 'In Transit',
-    description: 'Package is currently being transported to the destination country.'
+    description: 'En Route' // Changed from 'Package is currently being transported to the destination country.' to concise phrase
   },
   {
     code: 'RECEIVED_AT_DESTINATION',
-    label: 'Received at Destination Warehouse',
-    description: 'Package received in the destination country warehouse.'
+    label: 'At Destination',
+    description: 'Destination' // Changed from 'Destination Warehouse' to concise phrase
   },
   {
     code: 'READY_FOR_PICKUP',
-    label: 'Ready for Pickup',
-    description: 'Package is ready for recipient pickup at the destination warehouse.'
+    label: 'Pickup Ready',
+    description: 'Ready for Pickup'
   },
   {
     code: 'OUT_FOR_DELIVERY',
     label: 'Out for Delivery',
-    description: 'Package is being delivered to the recipient’s address.'
+    description: 'Delivering'
   },
   {
     code: 'DELIVERED',
     label: 'Delivered',
-    description: 'Package has been delivered to the recipient.'
+    description: 'Completed'
   }
 ] as const;
 
