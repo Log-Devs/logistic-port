@@ -160,7 +160,7 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
     const pageSize = 10; // Only 10 shipments per page for optimal UX (see README for rationale)
 
     // Sort shipments so the latest (most recent arrival) comes first for best UX
-    // Professional: Set expected arrival to always be 2 days from now for non-delivered shipments
+    // Set expected arrival to always be 2 days from now for non-delivered shipments
     const computeArrival = (shipment: AwaitingShipment): string => {
         if (shipment.status === 'DELIVERED') {
             // For delivered shipments, keep the original arrival
@@ -169,8 +169,8 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
         // For all other statuses, set arrival to 2 days from now
         const now = new Date();
         const arrivalDate = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
-        // Format as YYYY-MM-DD or a more user-friendly format
-        return arrivalDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+        // Format as YYYY-MM-DD for consistency
+        return arrivalDate.toISOString().split('T')[0];
     };
 
     // Map shipments to update the arrival field
