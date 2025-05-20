@@ -5,6 +5,7 @@ import StepIndicator from "../components/StepIndicator";
 import SenderForm from "../components/SenderForm";
 import RecipientForm from "../components/RecipientForm";
 import PackageForm from "../components/PackageForm";
+import ConfirmForm from "../components/ConfirmForm";
 import { useShipmentForm } from "@/hooks/useShipmentForm";
 import { initialFormData } from "@/lib/constants";
 
@@ -27,7 +28,7 @@ interface AddressSuggestion {
 }
 
 export default function SubmitShipmentPage() {
-  const { formData, setFormData } = useShipmentForm(initialFormData);
+  const { formData, setFormData, handleInputChange, resetForm } = useShipmentForm(initialFormData);
   const [step, setStep] = useState<number>(1);
   const [senderAddressSuggestions, setSenderAddressSuggestions] = useState<
     AddressSuggestion[]
@@ -41,31 +42,8 @@ export default function SubmitShipmentPage() {
   const [mapCoords, setMapCoords] = useState<{
     lat: number;
     lon: number;
-  } | null>(null);
-  const [locationSuccess, setLocationSuccess] = useState(false);
+  } | null>(null);  const [locationSuccess, setLocationSuccess] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
-
-  // Handlers for each step/component
-  const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value, type } = e.target;
-    const checked = (e.target as HTMLInputElement).checked;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-      // Reset recipient name if ID is being used and changes, or if switching modes
-      ...(name === "recipientId" &&
-        prev.recipientKnowsId && { recipientName: "" }),
-      ...(name === "recipientKnowsId" && {
-        recipientName: "",
-        recipientId: "",
-      }),
-    }));
-  };
 
   // Address auto-complete for sender (with keyboard nav)
   const handleSenderAddressInput = async (
@@ -231,16 +209,11 @@ export default function SubmitShipmentPage() {
             onSuggestionSelect={() => {}}
             //   highlightMatch={(text: string, query: string) => text}
           />
-        );
-      case 3:
+        );      case 3:
         return (
           <PackageForm
             formData={formData}
-            onInputChange={(
-              e: React.ChangeEvent<
-                HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-              >
-            ) => handleInputChange(e)}
+            onInputChange={handleInputChange}
             onPackageDescriptionChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
               setFormData((prev) => ({ ...prev, packageNote: e.target.value }))
             }
@@ -248,19 +221,73 @@ export default function SubmitShipmentPage() {
         );
       case 4:
         return (
-          <div>
-            <div>
-              <h2 className="text-2xl text-[#1A2B6D] font-bold">
-                Confirm Delivery
-              </h2>
-            </div>
-          </div>
+          <ConfirmForm
+            formData={formData}
+            onInputChange={handleInputChange}
+          />
         );
     }
+  };  // Form validation function
+  const validateForm = () => {
+    // Required fields validation
+    const requiredFields = {
+      // Sender information
+      senderName: "Sender Name",
+      senderAddress: "Sender Address",
+      senderEmail: "Sender Email",
+      senderPhone: "Sender Phone",
+      senderCity: "Sender City",
+      senderState: "Sender State",
+      senderZip: "Sender ZIP Code",
+      senderCountry: "Sender Country",
+
+      // Recipient information (conditionally required based on ID usage)
+      ...(formData.recipientKnowsId
+        ? { recipientId: "Recipient ID" }
+        : {
+            recipientName: "Recipient Name",
+            recipientEmail: "Recipient Email",
+            recipientPhone: "Recipient Phone",
+            recipientAddress: "Recipient Address",
+            recipientCity: "Recipient City",
+            recipientState: "Recipient State",
+            recipientZip: "Recipient ZIP Code",
+            recipientCountry: "Recipient Country",
+          }),
+
+      // Package information
+      freightType: "Delivery Type",
+      packageType: "Package Type",
+      packageCategory: "Package Category",
+      packageDescription: "Package Description",
+    };
+
+    const missingFields: string[] = [];
+    for (const [field, label] of Object.entries(requiredFields)) {
+      // Use index access with type assertion since we know these properties exist
+      if (!(formData as any)[field]) {
+        missingFields.push(label);
+      }
+    }
+
+    if (missingFields.length > 0) {
+      alert(`Please fill in the following required fields:\n${missingFields.join("\n")}`);
+      return false;
+    }
+
+    return true;
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    if (validateForm()) {
+      // Save to API or local storage
+      console.log("Form submitted successfully:", formData);
+      alert("Shipment submitted successfully!");
+      // Here you would typically send the data to your backend API
+      // Or redirect to a success page
+    }
   };
 
   return (
@@ -296,12 +323,14 @@ export default function SubmitShipmentPage() {
               className="bg-primary text-white py-2 sm:py-3 px-4 sm:px-8 text-sm sm:text-base rounded-md transition-colors disabled:opacity-50"
             >
               Continue
-            </button>
-          ) : (
+            </button>          ) : (
             <button
               type="submit"
-              className="bg-primary text-white py-2 sm:py-3 px-4 sm:px-8 text-sm sm:text-base rounded-md transition-colors flex items-center"
+              className="bg-primary hover:bg-primary/90 text-white py-2 sm:py-3 px-4 sm:px-8 text-sm sm:text-base rounded-md transition-colors flex items-center gap-2"
             >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
               Submit Shipment
             </button>
           )}

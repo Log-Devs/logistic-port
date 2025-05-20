@@ -1,5 +1,19 @@
 import {DUMMY_USER} from "@/app/app-config"
 
+export const DELIVERY_TYPES = [
+	{ id: "ground", label: "Ground" },
+	{ id: "air", label: "Air" },
+	{ id: "sea", label: "Sea" },
+	{ id: "express", label: "Express" }
+];
+
+export const PACKAGE_TYPES = [
+	{ id: "box", label: "Box" },
+	{ id: "envelope", label: "Envelope" },
+	{ id: "pallet", label: "Pallet" },
+	{ id: "tube", label: "Tube" }
+];
+
 export const initialFormData = {
 	senderName: DUMMY_USER.fullName,
 	senderAddress: DUMMY_USER.address,

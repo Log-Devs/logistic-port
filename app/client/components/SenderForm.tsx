@@ -78,9 +78,8 @@ const SenderForm: React.FC<SenderFormProps> = ({
   locationError,
 }) => {
   return (
-    <div>
-      <div>
-        <h2 className="text-2xl text-[#1A2B6D] font-bold my-2">
+    <div>      <div>
+        <h2 className="text-2xl text-[#1A2B6D] dark:text-[#AEB8D0] font-bold my-2">
           Sender Details
         </h2>
       </div>

@@ -50,9 +50,8 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
 
 }) => {
   return (
-    <div>
-      <div className="flex items-center mb-6">
-        <h2 className="text-2xl text-[#1A2B6D] font-bold">Recipient Details</h2>
+    <div>      <div className="flex items-center mb-6">
+        <h2 className="text-2xl text-[#1A2B6D] dark:text-[#AEB8D0] font-bold">Recipient Details</h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
