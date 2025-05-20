@@ -4,7 +4,7 @@
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      'dotlottie-player': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+      'dotlottie-player': React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> & {
         src?: string;
         background?: string;
         speed?: string | number;
@@ -53,26 +53,29 @@ interface AwaitingShipmentDetailProps {
 /**
  * Get the appropriate status badge color based on shipment status
  */
+/**
+ * Get the appropriate status badge color based on shipment status using the shared STATUS_COLOR_MAP.
+ * Only supports: Pending, Received, In Transit, Arrived, Delivered.
+ */
 const getStatusColor = (status: string): string => {
-  const statusMap: Record<string, string> = {
-    "Processing": "bg-yellow-100 text-yellow-800 border-yellow-200",
-    "Awaiting": "bg-blue-100 text-blue-800 border-blue-200",
-    "In Transit": "bg-purple-100 text-purple-800 border-purple-200",
-    "Delayed": "bg-red-100 text-red-800 border-red-200",
-    "Delivered": "bg-green-100 text-green-800 border-green-200",
-    "Canceled": "bg-gray-100 text-gray-800 border-gray-200"
-  };
-  
-  return statusMap[status] || "bg-gray-100 text-gray-800 border-gray-200";
+  // Use shared STATUS_COLOR_MAP for consistency
+  return STATUS_COLOR_MAP[status] || "bg-gray-100 text-gray-800 border-gray-200";
 };
+
 
 /**
  * Progress indicator for shipment journey
  */
+/**
+ * Progress indicator for shipment journey based on the new status workflow.
+ * Steps: Pending → Received → In Transit → Arrived → Delivered
+ */
 const ShipmentProgress: React.FC<{ status: string }> = ({ status }) => {
-  const steps = ["Processing", "Awaiting", "In Transit", "Delivered"];
-  const currentStep = steps.indexOf(status) !== -1 ? steps.indexOf(status) : 1;
-  
+  // Define the new shipment status steps for progress indication
+  const steps = ["Pending", "Received", "In Transit", "Arrived", "Delivered"];
+  // Find the current step index; default to 0 (Pending) if not found
+  const currentStep = steps.indexOf(status) !== -1 ? steps.indexOf(status) : 0;
+
   return (
     <div className="my-6">
       <div className="flex justify-between mb-2">
@@ -84,16 +87,15 @@ const ShipmentProgress: React.FC<{ status: string }> = ({ status }) => {
       </div>
       <div className="relative">
         <div className="h-2 bg-gray-200 rounded-full" />
-        <div 
-          className="absolute top-0 h-2 bg-primary rounded-full transition-all duration-300" 
+        <div
+          className="absolute top-0 h-2 bg-primary rounded-full transition-all duration-300"
           style={{ width: `${Math.max((currentStep / (steps.length - 1)) * 100, 5)}%` }}
         />
         {steps.map((step, index) => (
-          <div 
+          <div
             key={step}
-            className={`absolute top-0 w-4 h-4 rounded-full -mt-1 transform -translate-x-1/2 ${
-              index <= currentStep ? 'bg-primary' : 'bg-gray-200'
-            } border-2 border-white`}
+            className={`absolute top-0 w-4 h-4 rounded-full -mt-1 transform -translate-x-1/2 ${index <= currentStep ? 'bg-primary' : 'bg-gray-200'
+              } border-2 border-white`}
             style={{ left: `${(index / (steps.length - 1)) * 100}%` }}
           />
         ))}
@@ -101,6 +103,7 @@ const ShipmentProgress: React.FC<{ status: string }> = ({ status }) => {
     </div>
   );
 };
+
 
 /**
  * Map visualization placeholder component
@@ -141,10 +144,10 @@ const AwaitingShipmentDetail: React.FC<AwaitingShipmentDetailProps> = ({ shipmen
 
   // If no shipment is provided, do not render the modal
   if (!shipment) return null;
-  
+
   // Format weight to always show units
-  const formattedWeight = typeof shipment.weight === 'number' 
-    ? `${shipment.weight} kg` 
+  const formattedWeight = typeof shipment.weight === 'number'
+    ? `${shipment.weight} kg`
     : shipment.weight;
 
   // Professional, mobile-friendly modal overlay:
@@ -169,8 +172,8 @@ const AwaitingShipmentDetail: React.FC<AwaitingShipmentDetailProps> = ({ shipmen
         style={{ maxHeight: '90vh' }}
         onClick={(e) => e.stopPropagation()} // Prevent modal close when clicking inside content
         tabIndex={-1}
-      > 
-      {/* // Fixed: removed stray closing curly brace and corrected props */}
+      >
+        {/* // Fixed: removed stray closing curly brace and corrected props */}
 
         {/* Modal header with action buttons */}
         <div className="bg-gray-50 dark:bg-slate-700 px-6 py-4 flex justify-between items-center border-b border-gray-200 dark:border-slate-600">
@@ -190,7 +193,7 @@ const AwaitingShipmentDetail: React.FC<AwaitingShipmentDetailProps> = ({ shipmen
             </button>
           </div>
         </div>
-        
+
         {/* Tracking code highlight section */}
         <div className="px-6 py-4 bg-gray-50 dark:bg-slate-700 border-b border-gray-200 dark:border-slate-600">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between">
@@ -224,12 +227,12 @@ const AwaitingShipmentDetail: React.FC<AwaitingShipmentDetailProps> = ({ shipmen
 
           </div>
         </div>
-        
+
         {/* Progress indicator */}
         <div className="px-6 pt-4">
           <ShipmentProgress status={shipment.status} />
         </div>
-        
+
         {/* Lottie Animation Preview Section (replaces map preview) */}
         {/*
           The following Lottie animation visually represents shipment movement.
@@ -240,36 +243,36 @@ const AwaitingShipmentDetail: React.FC<AwaitingShipmentDetailProps> = ({ shipmen
           This ensures the animation always renders after hydration and SSR, following React best practices.
         */}
         <LottiePlayerSection />
-        
+
         {/* Shipment details grid */}
         <div className="px-6 pb-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <DetailCard 
+            <DetailCard
               icon={<User size={18} />}
               label="Recipient"
               value={shipment.recipient}
             />
-            <DetailCard 
+            <DetailCard
               icon={<Calendar size={18} />}
               label="Expected Arrival"
               value={shipment.arrival}
             />
-            <DetailCard 
+            <DetailCard
               icon={<Package size={18} />}
               label="Items"
               value={`${shipment.items} ${parseInt(String(shipment.items)) === 1 ? 'item' : 'items'}`}
             />
-            <DetailCard 
+            <DetailCard
               icon={<Scale size={18} />}
               label="Weight"
               value={formattedWeight}
             />
-            <DetailCard 
+            <DetailCard
               icon={<MapPin size={18} />}
               label="Origin"
               value={shipment.startLocation}
             />
-            <DetailCard 
+            <DetailCard
               icon={<MapPin size={18} />}
               label="Destination"
               value={shipment.destination}
@@ -279,7 +282,7 @@ const AwaitingShipmentDetail: React.FC<AwaitingShipmentDetailProps> = ({ shipmen
               The internal ID is no longer displayed.
               This follows clean code and UX best practices.
             */}
-            <DetailCard 
+            <DetailCard
               icon={<Tag size={18} />}
               label="Tracking ID"
               value={shipment.trackingCode}
@@ -287,10 +290,10 @@ const AwaitingShipmentDetail: React.FC<AwaitingShipmentDetailProps> = ({ shipmen
             />
           </div>
         </div>
-        
+
         {/* Footer with action buttons */}
         <div className="px-6 py-4 bg-gray-50 dark:bg-slate-700 border-t border-gray-200 dark:border-slate-600 flex justify-end gap-3">
-          <button 
+          <button
             className="px-4 py-2 bg-white dark:bg-slate-600 border border-gray-300 dark:border-gray-500 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-500 transition-colors text-sm font-medium"
             onClick={onClose}
           >
@@ -305,14 +308,14 @@ const AwaitingShipmentDetail: React.FC<AwaitingShipmentDetailProps> = ({ shipmen
             disabled
             tabIndex={-1}
             onClick={(e) => {
-               e.preventDefault();
-               // Always use the imported toast for reliability and clean code
-               toast({
-                 title: 'Tracking Unavailable',
-                 description: 'Shipment tracking is not yet available. Please check back soon.',
-                 variant: 'info',
-               });
-             }}
+              e.preventDefault();
+              // Always use the imported toast for reliability and clean code
+              toast({
+                title: 'Tracking Unavailable',
+                description: 'Shipment tracking is not yet available. Please check back soon.',
+                variant: 'default',
+              });
+            }}
             aria-disabled="true"
             title="Shipment tracking is not yet available."
           >
@@ -333,9 +336,9 @@ const AwaitingShipmentDetail: React.FC<AwaitingShipmentDetailProps> = ({ shipmen
  * DetailCard
  * Enhanced card component for displaying shipment details with icons
  */
-const DetailCard: React.FC<{ 
-  icon: React.ReactNode; 
-  label: string; 
+const DetailCard: React.FC<{
+  icon: React.ReactNode;
+  label: string;
   value: React.ReactNode;
   className?: string;
 }> = ({ icon, label, value, className = "" }) => (

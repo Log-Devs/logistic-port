@@ -22,9 +22,6 @@ import { SHIPMENT_STATUSES } from '@/lib/logistics-statuses';
 import { STATUS_COLOR_MAP } from '@/lib/status-color-map';
 import AwaitingShipmentDetail from './AwaitingShipmentDetail'; // Modal for shipment details
 
-
-
-// Props for the table component
 // Props for the AwaitingShipmentTable component
 export interface AwaitingShipmentTableProps {
     /**
@@ -32,6 +29,7 @@ export interface AwaitingShipmentTableProps {
      * This should be fetched from your API and passed as a prop.
      *
      * Note: Only 10 awaiting shipments are displayed per page (pageSize = 10).
+     * Only shipments with status Pending, Received, In Transit, or Arrived are shown.
      */
     awaitingShipments: AwaitingShipment[];
     /**
@@ -86,6 +84,14 @@ export function useAwaitingShipments(endpoint: string): [AwaitingShipment[], boo
  * @param error - Optional error message
  */
 const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingShipments, loading = false, error = undefined }) => {
+    // Only show shipments that are not delivered (Pending, Received, In Transit, Arrived)
+    const AWAITING_STATUSES = ["PENDING", "RECEIVED", "IN_TRANSIT", "ARRIVED"];
+    // Filter awaiting shipments by status
+    const filteredShipments = useMemo(() =>
+        awaitingShipments.filter(s => AWAITING_STATUSES.includes(s.status)),
+        [awaitingShipments]
+    );
+
     // Define columns for the table using useMemo for performance
     // Table columns definition: show trackingCode as 'Tracking Code' for users
     const columns = useMemo<ColumnDef<AwaitingShipment>[]>(
@@ -174,7 +180,8 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
     };
 
     // Map shipments to update the arrival field
-    const normalizedShipments = awaitingShipments.map(s => ({ ...s, arrival: computeArrival(s) }));
+    // Normalize and filter shipments for awaiting view
+    const normalizedShipments = filteredShipments.map(s => ({ ...s, arrival: computeArrival(s) }));
 
     const sortedShipments = useMemo(() => {
         // Parse arrival as Date; fallback to string compare if invalid
@@ -208,6 +215,7 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
 
     // Column widths in percentages - they must add up to 100%
     const columnWidths = ['10%', '18%', '22%', '14%', '10%', '12%', '14%'];
+
     // Render the AwaitingShipmentTable UI
     // Always return a single parent element (React Fragment) to satisfy JSX requirements
     return (
@@ -301,15 +309,19 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
                             >
                                 Previous
                             </button>
+                            {/* Robust pagination: never allow advancing past last page or before first page. Page count is always accurate. */}
                             <span className="text-gray-600 dark:text-gray-300">
-                                Page {pageIndex + 1} of {Math.ceil(awaitingShipments.length / pageSize)}
+                                Page {pageIndex + 1} of {Math.max(1, Math.ceil(filteredShipments.length / pageSize))}
                             </span>
                             <button
                                 className="px-4 py-2 bg-gray-200 dark:bg-slate-700 rounded disabled:opacity-50 text-[color:#1A2B6D] dark:text-gray-200"
-                                onClick={() => setPageIndex((prev) =>
-                                    Math.min(prev + 1, Math.ceil(awaitingShipments.length / pageSize) - 1)
-                                )}
-                                disabled={pageIndex >= Math.ceil(awaitingShipments.length / pageSize) - 1}
+                                onClick={() => setPageIndex((prev) => {
+                                    const maxPage = Math.max(0, Math.ceil(filteredShipments.length / pageSize) - 1);
+                                    // Robust: If already at or past the last page, do not advance
+                                    if (prev >= maxPage || paginatedData.length === 0) return prev;
+                                    return prev + 1;
+                                })}
+                                disabled={pageIndex >= Math.max(0, Math.ceil(filteredShipments.length / pageSize) - 1) || paginatedData.length === 0}
                             >
                                 Next
                             </button>
@@ -324,14 +336,13 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
                                     onClick={() => setSelectedShipment(shipment)}
                                 >
                                     <div className="flex justify-between items-center mb-3">
-                                        {/*
-                                        Show only the public tracking code to the user for clarity and security.
+                                        {/* Show only the public tracking code to the user for clarity and security.
                                         This matches the desktop view and avoids exposing internal IDs.
                                     */}
-                                    <div className="flex items-center space-x-2">
-                                        <span className="text-gray-500 text-xs">Tracking Code:</span>
-                                        <span className="font-bold text-primary text-sm">{shipment.trackingCode}</span>
-                                    </div>
+                                        <div className="flex items-center space-x-2">
+                                            <span className="text-gray-500 text-xs">Tracking Code:</span>
+                                            <span className="font-bold text-primary text-sm">{shipment.trackingCode}</span>
+                                        </div>
                                         <span
                                             className={`font-semibold px-3 py-1 rounded-full text-xs
                                             ${shipment.status === "PENDING"
@@ -387,13 +398,19 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
                                 >
                                     Previous
                                 </button>
+                                {/* Robust pagination: never allow advancing past last page or before first page. Page count is always accurate. */}
                                 <span className="text-gray-600 dark:text-gray-300">
-                                    Page {pageIndex + 1} of {Math.max(1, Math.ceil(awaitingShipments.length / pageSize))}
+                                    Page {pageIndex + 1} of {Math.max(1, Math.ceil(filteredShipments.length / pageSize))}
                                 </span>
                                 <button
                                     className="px-4 py-2 bg-gray-200 dark:bg-slate-700 rounded disabled:opacity-50 text-[color:#1A2B6D] dark:text-gray-200"
-                                    onClick={() => setPageIndex((prev) => Math.min(prev + 1, Math.ceil(awaitingShipments.length / pageSize) - 1))}
-                                    disabled={pageIndex >= Math.ceil(awaitingShipments.length / pageSize) - 1}
+                                    onClick={() => setPageIndex((prev) => {
+                                        const maxPage = Math.max(0, Math.ceil(filteredShipments.length / pageSize) - 1);
+                                        // Robust: If already at or past the last page, do not advance
+                                        if (prev >= maxPage || paginatedData.length === 0) return prev;
+                                        return prev + 1;
+                                    })}
+                                    disabled={pageIndex >= Math.max(0, Math.ceil(filteredShipments.length / pageSize) - 1) || paginatedData.length === 0}
                                 >
                                     Next
                                 </button>
@@ -403,15 +420,14 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
                 ) : (
                     <div className="text-center py-12 text-gray-500">No shipments available</div>
                 )}
-
-                {/* Shipment Detail Modal (renders when a shipment is selected) */}
-                {selectedShipment && (
-                    <AwaitingShipmentDetail
-                        shipment={selectedShipment}
-                        onClose={() => setSelectedShipment(null)}
-                    />
-                )}
             </div>
+            {/* Shipment Detail Modal (renders when a shipment is selected) */}
+            {selectedShipment && (
+                <AwaitingShipmentDetail
+                    shipment={selectedShipment}
+                    onClose={() => setSelectedShipment(null)}
+                />
+            )}
         </>
     );
 };

@@ -5,7 +5,7 @@ import { Clock, ArrowRight } from "lucide-react";
 import AwaitingShipmentCard from "@/app/client/components/AwaitingShipmentCard";
 import AwaitingShipmentTable, { AwaitingShipment, useAwaitingShipments } from "@/app/client/components/AwaitingShipmentTable";
 // Use Next.js alias if available, otherwise fallback to relative path
-import { SHIPMENT_STATUSES } from '@/lib/logistics-statuses';
+import { SHIPMENT_STATUSES, ShipmentStatus } from '@/lib/logistics-statuses'; // Import ShipmentStatus type for type safety
 import { STATUS_COLOR_MAP } from '@/lib/status-color-map';
 
 export default function AwaitingShipmentsPage() {
@@ -15,14 +15,16 @@ export default function AwaitingShipmentsPage() {
   const [shipments, loading, error] = useAwaitingShipments("/api/awaiting-shipments");
 
   // Compute dashboard cards before JSX for type safety and to avoid JSX IIFE errors
-  const pendingStatus = SHIPMENT_STATUSES.find(s => s.code === 'PENDING');
-  const receivedStatus = SHIPMENT_STATUSES.find(s => s.code === 'RECEIVED_AT_ORIGIN');
-  const total = shipments.length;
+  // Explicitly type the result of .find() for robust type inference
+  const pendingStatus: ShipmentStatus | undefined = SHIPMENT_STATUSES.find((s) => s.code === 'PENDING');
+  const receivedStatus: ShipmentStatus | undefined = SHIPMENT_STATUSES.find((s) => s.code === 'RECEIVED'); // Use correct code
+  // Only count shipments that are NOT delivered for the dashboard card
+  const totalAwaiting = shipments.filter(s => s.status !== 'DELIVERED').length;
   const cards = [
     {
       title: "Total Awaiting",
-      description: "All processing payments",
-      value: total,
+      description: "Shipments not yet delivered",
+      value: totalAwaiting,
       color: "bg-green-100 text-green-800 border-green-400",
     },
     ...(pendingStatus ? [{
