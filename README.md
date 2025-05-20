@@ -1,8 +1,25 @@
 # Logistics Portfolio
 
+## [2025-05-19] Bugfix: JSX Fragment Parse Error in AwaitingShipmentTable
+- **Issue:** A parse error occurred due to an invalid closing tag (`</div{'>'}`) in `app/client/components/AwaitingShipmentTable.tsx`.
+- **Root Cause:** The fragment parser expected a corresponding closing tag for a JSX fragment, but encountered `</div{'>'}` instead of `</div>`, breaking the fragment structure.
+- **Fix:** Replaced `</div{'>'}` with the correct `</div>` and added an explanatory inline comment for maintainability.
+- **Best Practices:** This fix follows clean code, OOP, and documentation standards. All code is fully commented and indexed for future reference.
+
+## [2025-05-19] Enhancement: Robust Pagination Logic in AwaitingShipmentTable
+
+- **Improvement:** Pagination logic in `AwaitingShipmentTable.tsx` is now extremely robust and professional.
+- **Details:**
+  - The "Next" and "Previous" buttons are disabled when at the last or first page, respectively. Users cannot advance past the last page or before the first page, even if the dataset changes size dynamically.
+  - Page counts are always accurate and reflect the filtered awaiting shipments.
+  - All pagination logic is clearly documented inline, following clean code and OOP best practices.
+  - All JSX fragment and closing tag issues were fixed as part of this update, ensuring bulletproof rendering and maintainability.
+- **Reference:** See code comments in `AwaitingShipmentTable.tsx` for implementation and rationale.
+
 A modern, responsive web application for showcasing logistics services, built with Next.js, React, and Tailwind CSS.
 
 ## Table of Contents
+- [Documentation Folder Structure](#documentation-folder-structure)
 - [Custom Elements TypeScript Support](#custom-elements-typescript-support)
 - [Troubleshooting: Custom Elements & TypeScript Errors](#troubleshooting-custom-elements--typescript-errors)
 
@@ -33,6 +50,10 @@ A modern, responsive web application for showcasing logistics services, built wi
 			- [Refactored Mobile Sidebar Logic](#refactored-mobile-sidebar-logic)
 		- [2025-05-15](#2025-05-15)
 			- [Major AI Chatbot Integration and Cross-App Auth Updates](#major-ai-chatbot-integration-and-cross-app-auth-updates)
+
+## Documentation Folder Structure
+
+All markdown documentation (except for this README) is now located in the `documentation/` folder at the project root. This keeps the codebase organized and maintainable. Update or add all future documentation in this folder for consistency.
 
 ## Overview
 
@@ -106,6 +127,14 @@ Property 'dotlottie-player' does not exist on type 'JSX.IntrinsicElements'.
 - Uses a clean, professional layout with responsive design.
 - All logic is fully commented inline for maintainability and onboarding.
 - Follows OOP and clean code principles for reuse and extensibility.
+
+### Shipment Status Codes & Workflow
+- All shipment status logic is driven by [`documentation/statuscodes.md`](./documentation/statuscodes.md).
+- Only the following statuses are valid: **Pending, Received, In Transit, Arrived, Delivered**.
+- Awaiting Shipments view only shows: Pending, Received, In Transit, Arrived (never Delivered).
+- Statuses are color-coded using a single source of truth in `lib/status-color-map.ts`, following the color scheme in `statuscodes.md`.
+- All components and business logic use the constants from `lib/logistics-statuses.ts` and `statuscodes.md` for consistency and maintainability.
+- See [`documentation/statuscodes.md`](./documentation/statuscodes.md) for full documentation, color mapping, and developer guidance.
 
 ### AwaitingShipmentTable Component
 - Renders shipment statuses dynamically from `SHIPMENT_STATUSES` (never hardcoded).
