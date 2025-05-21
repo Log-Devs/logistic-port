@@ -61,17 +61,17 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   // Navigation items
   const navItems = [
-    { icon: <LayoutDashboard size={20} />, text: 'Dashboard', path: '/dashboard' },
-    { icon: <PackageCheck size={20} />, text: 'Submit Shipment', path: '/submit-shipment' },
-    { icon: <Clock size={20} />, text: 'Awaiting Shipments', path: '/awaiting-shipments' },
-    { icon: <History size={20} />, text: 'Shipment History', path: '/shipment-history' },
+    { icon: <LayoutDashboard size={20} />, text: 'Dashboard', path: 'client/dashboard' },
+    { icon: <PackageCheck size={20} />, text: 'Submit Shipment', path: 'client/submit-shipment' },
+    { icon: <Clock size={20} />, text: 'Awaiting Shipments', path: 'client/awaiting-shipments' },
+    { icon: <History size={20} />, text: 'Shipment History', path: 'client/shipment-history' },
     { icon: <Settings size={20} />, text: 'Settings', path: '/settings' },
   ];
 
   // Footer items (excluding logout for custom button)
   const footerItems = [
-    { icon: <Headphones size={20} />, text: 'Support', path: '/support' },
-    { icon: <Info size={20} />, text: 'About', path: '/about' },
+    { icon: <Headphones size={20} />, text: 'Support', path: '/client/support' },
+    { icon: <Info size={20} />, text: 'About', path: '/client/about' },
     // Logout is now a dedicated button for best UX/security
   ];
 
@@ -231,9 +231,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         {/* Pass toggleSidebar to header for hamburger menu */}
         <ClientHeader isMobileView={isMobileView} toggleSidebar={toggleSidebar} />
         {/* Main content area grows naturally with content, no fixed or constrained height */}
-<main className="w-full overflow-y-auto bg-slate-50 dark:bg-slate-800">
-  {children}
-</main>
+        <main className="w-full overflow-y-auto bg-slate-50 dark:bg-slate-800">
+          {children}
+        </main>
       </div>
     </div>
   );

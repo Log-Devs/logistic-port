@@ -167,16 +167,21 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
 
     // Sort shipments so the latest (most recent arrival) comes first for best UX
     // Set expected arrival to always be 2 days from now for non-delivered shipments
+    // computeArrival: Returns the expected arrival date for a shipment in ISO format (YYYY-MM-DD)
+    // This ensures consistency for UI display and testability across environments.
+    // computeArrival: Always returns ISO format (YYYY-MM-DD) for both DELIVERED and non-DELIVERED shipments.
+    // This ensures consistency for UI display, tests, and API integrations.
     const computeArrival = (shipment: AwaitingShipment): string => {
+        // Convert any date input to ISO format (YYYY-MM-DD) for reliability
+        const toISO = (date: string | Date) => new Date(date).toISOString().split('T')[0];
         if (shipment.status === 'DELIVERED') {
-            // For delivered shipments, keep the original arrival
-            return shipment.arrival;
+            // For delivered shipments, return the original arrival in ISO format
+            return toISO(shipment.arrival);
         }
-        // For all other statuses, set arrival to 2 days from now
+        // For all other statuses, set arrival to 2 days from now, in ISO format
         const now = new Date();
         const arrivalDate = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
-        // Format as YYYY-MM-DD for consistency
-        return arrivalDate.toISOString().split('T')[0];
+        return toISO(arrivalDate);
     };
 
     // Map shipments to update the arrival field
@@ -234,6 +239,13 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
         if (currentPage >= maxPage || currentPageDataLength === 0) return currentPage;
         // Otherwise, advance to the next page
         return currentPage + 1;
+    }
+
+    function isNextPageDisabled(pageIndex: number, totalItems: number, pageSize: number, currentPageDataLength: number): boolean {
+        // Calculate the maximum page index (zero-based)
+        const maxPage = Math.max(0, Math.ceil(totalItems / pageSize) - 1);
+        // Disable if at the last page or there is no data on the current page
+        return pageIndex >= maxPage || currentPageDataLength === 0;
     }
 
     // Render the AwaitingShipmentTable UI

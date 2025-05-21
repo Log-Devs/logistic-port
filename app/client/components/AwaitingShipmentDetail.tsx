@@ -3,15 +3,18 @@
 // See README for details and web component usage
 declare global {
   namespace JSX {
+    // Fix: Correctly type the dotlottie-player custom element for TypeScript/React
+    // This matches the expected signature for custom elements in JSX.IntrinsicElements
     interface IntrinsicElements {
-      'dotlottie-player': React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> & {
+      'dotlottie-player': React.ClassAttributes<HTMLElement> & React.HTMLAttributes<HTMLElement> & {
         src?: string;
+        autoplay?: boolean;
+        loop?: boolean;
+        mode?: string;
         background?: string;
         speed?: string | number;
         style?: React.CSSProperties;
-        loop?: boolean;
-        autoplay?: boolean;
-        [key: string]: any;
+        [key: string]: any; // Allow additional props for flexibility
       };
     }
   }
@@ -247,24 +250,11 @@ const AwaitingShipmentDetail: React.FC<AwaitingShipmentDetailProps> = ({ shipmen
           <ShipmentProgress status={shipment.status} />
         </div>
 
-        {/* Lottie Animation Preview Section (replaces map preview) */}
         {/*
-          The following Lottie animation visually represents shipment movement.
-          The script is loaded only once in the browser for performance and SSR safety.
-        */}
-        {/*
-          Professional fix: Dynamically load the dotlottie-player web component only on the client using useEffect.
-          This ensures the animation always renders after hydration and SSR, following React best practices.
-        */}
-        {/*
-          LottiePlayerSection: Always remounts on modal open using a resetKey
-          This ensures the animation plays from the start every time the modal opens or shipment changes.
-          The resetKey is derived from shipment?.id and modal open state for uniqueness.
-        */}
-        {/*
-          LottiePlayerSection: Always remounts on modal open using a numeric resetKey
-          This ensures the animation plays from the start every time the modal opens or shipment changes.
-          The resetKey is a strictly incrementing number for type safety (fixes lint error).
+          LottiePlayerSection: Always remounts on modal open using a unique resetKey (derived from shipment id and modal state).
+          This ensures the animation always plays from the start every time the modal opens or shipment changes.
+          The script for dotlottie-player is loaded only on the client for SSR safety and performance.
+          See README for troubleshooting and usage notes.
         */}
         <LottiePlayerSection resetKey={modalOpenKey} />
 
@@ -439,7 +429,7 @@ const LottiePlayerSection: React.FC<{ resetKey?: number }> = ({ resetKey }) => {
   }, []);
 
   return (
-    <div className="px-6 flex justify-center items-center my-4 w-full">
+    <div className="px-6 flex justify-center items-center my-4 w-full" data-testid="lottie-player-section"> {/* test id for robust test selection */}
       {error ? (
         // Show error message if animation fails to load
         <div className="text-red-500 text-sm">Animation failed to load.</div>
@@ -454,8 +444,9 @@ const LottiePlayerSection: React.FC<{ resetKey?: number }> = ({ resetKey }) => {
               background="transparent"
               speed="1"
               style={{ width: '100%', maxWidth: 480, height: 240 }}
-              loop
-              autoplay
+              loop="1"
+              autoplay="true"
+              aria-hidden="true"
             />
           ) : (
             // Show loading state while the script is loading

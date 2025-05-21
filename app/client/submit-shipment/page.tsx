@@ -4,6 +4,10 @@
 
 "use client";
 
+// EMAIL_REGEX: File-level constant for robust email validation (clean code best practice)
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
 import React, { useState } from "react";
 import StepIndicator from "../components/StepIndicator";
 import SenderForm from "../components/SenderForm";
@@ -32,7 +36,13 @@ interface AddressSuggestion {
 }
 
 export default function SubmitShipmentPage() {
-  const { formData, setFormData, handleInputChange, resetForm } = useShipmentForm(initialFormData);
+  const { formData, setFormData, handleInputChange: baseHandleInputChange, resetForm } = useShipmentForm(initialFormData);
+
+  // Enhanced handleInputChange: clears stepValidationError if set, for instant UX feedback
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    if (stepValidationError) setStepValidationError(null); // Clear error on any input change
+    baseHandleInputChange(e);
+  }
   const [step, setStep] = useState<number>(1);
   const [senderAddressSuggestions, setSenderAddressSuggestions] = useState<
     AddressSuggestion[]
@@ -373,6 +383,7 @@ export default function SubmitShipmentPage() {
       // Package information
       freightType: "Delivery Type",
       packageType: "Package Type",
+      packageCategory: "Package Category", // [Required] Ensure package category is validated (re-added for completeness)
       packageDescription: "Package Description",
     };
 

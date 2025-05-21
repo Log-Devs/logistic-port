@@ -19,6 +19,7 @@ const computeArrival = (shipment: AwaitingShipment): string => {
 };
 
 describe('computeArrival', () => {
+    // Test: computeArrival returns the original arrival date for shipments with status 'DELIVERED'
     it('returns the original arrival for DELIVERED shipments', () => {
         const delivered: AwaitingShipment = {
             id: '1',
@@ -31,7 +32,25 @@ describe('computeArrival', () => {
             weight: 10,
             status: 'DELIVERED',
         };
+        // For DELIVERED, should return the original arrival date
         expect(computeArrival(delivered)).toBe('2025-05-10');
+    });
+
+    // Additional test: DELIVERED with a different arrival date
+    it('returns the correct arrival for DELIVERED shipments with different dates', () => {
+        const delivered: AwaitingShipment = {
+            id: '3',
+            trackingCode: 'SHIP-DELIV',
+            recipient: 'Alice',
+            startLocation: 'C',
+            destination: 'D',
+            arrival: '2025-12-31',
+            items: 3,
+            weight: 15,
+            status: 'DELIVERED',
+        };
+        // Should return the arrival date as-is
+        expect(computeArrival(delivered)).toBe('2025-12-31');
     });
 
     it('returns a date 2 days from now for non-DELIVERED shipments', () => {
@@ -47,6 +66,7 @@ describe('computeArrival', () => {
             status: 'PENDING',
         };
         // The computeArrival function returns the date as YYYY-MM-DD (ISO format)
+        // computeArrival returns ISO date string (YYYY-MM-DD) for all cases
         const expected = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
             .toISOString().split('T')[0];
         expect(computeArrival(pending)).toBe(expected);
