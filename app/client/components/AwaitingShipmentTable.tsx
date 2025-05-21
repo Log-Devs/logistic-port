@@ -342,7 +342,7 @@ const computeArrival = (shipment: AwaitingShipment): string => {
                                 className="px-4 py-2 bg-gray-200 dark:bg-slate-700 rounded disabled:opacity-50 text-[color:#1A2B6D] dark:text-gray-200"
                                 // Use a reusable function to calculate the next page index for maintainability
                                 onClick={() => setPageIndex((prev) => getNextPageIndex(prev, filteredShipments.length, pageSize, paginatedData.length))}
-                                disabled={pageIndex >= Math.max(0, Math.ceil(filteredShipments.length / pageSize) - 1) || paginatedData.length === 0}
+                                disabled={isNextPageDisabled(pageIndex, filteredShipments.length, pageSize, paginatedData.length)}
                             >
                                 Next
                             </button>
