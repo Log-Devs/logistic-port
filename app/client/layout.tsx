@@ -145,7 +145,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   // Add console log for debugging path matching issues
   useEffect(() => {
-    console.log('Current pathname:', pathname);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Current pathname:', pathname);
+    }
   }, [pathname]);
 
   return (
