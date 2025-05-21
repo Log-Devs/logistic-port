@@ -62,13 +62,28 @@ const Sidebar: React.FC = () => {
       {isOpen && (
         <nav className="sidebar-nav">
           <ul>
+            {/* Navigation item: Support page */}
+            <li>
+              {/* Button navigates to the Support page using handleItemClick */}
+              <button onClick={() => handleItemClick('/client/support')} className="sidebar-nav-item">
+                Support
+              </button>
+            </li>
+            {/* Navigation item: About page */}
+            <li>
+              {/* Button navigates to the About page using handleItemClick */}
+              <button onClick={() => handleItemClick('/c-about')} className="sidebar-nav-item">
+                About
+              </button>
+            </li>
             {/* Example logout nav item */}
             <li>
+              {/* Button logs out the user using handleItemClick */}
               <button onClick={() => handleItemClick('/logout')} className="sidebar-nav-item">
                 Logout
               </button>
             </li>
-            {/* Add more nav items here, passing handleItemClick as needed */}
+            {/* Additional navigation items can be added here following the same pattern */}
           </ul>
         </nav>
       )}

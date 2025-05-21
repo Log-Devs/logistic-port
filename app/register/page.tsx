@@ -42,7 +42,7 @@ export default function RegisterPage() {
 
   useEffect(() => {
     if (!loading && user) {
-      router.replace("/dashboard");
+      router.replace("/client/dashboard");
     }
   }, [user, loading, router]);
 
@@ -109,7 +109,7 @@ export default function RegisterPage() {
       if (res.ok) {
         // Optionally, call login to hydrate user state
         await login(formData.email, formData.password, formData.agreeTerms);
-        router.push("/dashboard");
+        router.push("/client/dashboard");
       } else {
         const data = await res.json();
         setError(data.error || "Registration failed");
@@ -121,7 +121,12 @@ export default function RegisterPage() {
     }
   };
 
-  if (loading) return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
+  if (loading)
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        Loading...
+      </div>
+    );
   if (user) return null;
 
   return (

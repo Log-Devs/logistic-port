@@ -35,7 +35,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!loading && user) {
-      router.replace("/dashboard");
+      router.replace("/client/dashboard");
     }
   }, [user, loading, router]);
 
