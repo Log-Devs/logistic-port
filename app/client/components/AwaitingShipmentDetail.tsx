@@ -444,9 +444,9 @@ const LottiePlayerSection: React.FC<{ resetKey?: number }> = ({ resetKey }) => {
               background="transparent"
               speed="1"
               style={{ width: '100%', maxWidth: 480, height: 240 }}
-              loop
-              autoplay
-              aria-hidden="true" // Decorative animation: hide from screen readers for accessibility compliance
+              loop="1"
+              autoplay="true"
+              aria-hidden="true"
             />
           ) : (
             // Show loading state while the script is loading
