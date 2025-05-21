@@ -49,7 +49,9 @@ export const initialFormData = {
 export const initialUserData = {
 	senderName: DUMMY_USER.fullName,
 	senderAddress: DUMMY_USER.address,
-	senderContact: DUMMY_USER.email,
+	// senderContact represents the primary contact method (e.g., phone number)
+	senderContact: DUMMY_USER.phone,
+	// senderEmail represents the email address of the sender
 	senderEmail: DUMMY_USER.email,
 	senderPhone: DUMMY_USER.phone,
 	senderCity: DUMMY_USER.city,
