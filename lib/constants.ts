@@ -45,3 +45,15 @@ export const initialFormData = {
 	packageValue: '',
 	packageWeight: '', // Changed from 0 (number) to '' (string) to match FormData interface
 };
+
+export const initialUserData = {
+	senderName: DUMMY_USER.fullName,
+	senderAddress: DUMMY_USER.address,
+	senderContact: DUMMY_USER.email,
+	senderEmail: DUMMY_USER.email,
+	senderPhone: DUMMY_USER.phone,
+	senderCity: DUMMY_USER.city,
+	senderState: DUMMY_USER.state,
+	senderZip: DUMMY_USER.zip,
+	senderCountry: DUMMY_USER.country,
+}
