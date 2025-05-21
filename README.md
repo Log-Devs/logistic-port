@@ -1,5 +1,12 @@
 # Logistics Portfolio
 
+## [2025-05-21] Bugfix: TypeScript Event Handler in SubmitShipmentPage
+
+- **Issue:** A TypeScript error occurred because a form submit handler (`(e: React.FormEvent<HTMLFormElement>) => Promise<void>`) was assigned to a button's `onClick` prop, which expects a mouse event handler (`MouseEventHandler<HTMLButtonElement>`). These event types are incompatible, leading to a type error.
+- **Solution:** The submit handler is now attached to the form's `onSubmit` prop, and the button is `type="submit"` only, with no `onClick`. This ensures the correct event type is passed and resolves the error.
+- **Best Practices:** Always use `onSubmit` on the form for submission logic and `type="submit"` on the button. Avoid using `onClick` for form submission unless mouse event details are needed. All changes are fully commented and follow clean code, OOP, and documentation standards.
+- **Reference:** See [`app/client/submit-shipment.md`](app/client/submit-shipment.md) for a detailed explanation, code samples, and rationale.
+
 ## [2025-05-20] Feature: Dynamic Page Size & Advanced Pagination Controls in AwaitingShipmentTable
 
 - **New Features:**
