@@ -42,7 +42,7 @@ export default function AccountSettings() {
               value={formData.senderName}
               onChange={onInputChange}
               placeholder="Enter your full name"
-              className="input-field"
+              className="w-full rounded-lg border border-gray-400 dark:border-gray-700 px-4 py-3 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 shadow-sm focus:border-navy-500 focus:ring-2 focus:ring-navy-200 dark:focus:ring-navy-700 transition-all placeholder-gray-400 dark:placeholder-gray-500"
             />
           </div>
 
