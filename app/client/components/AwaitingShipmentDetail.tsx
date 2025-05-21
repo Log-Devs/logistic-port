@@ -128,6 +128,20 @@ const RouteMapPreview: React.FC<{ from: string; to: string }> = ({ from, to }) =
  * Includes visual indicators, icons, and responsive design.
  */
 const AwaitingShipmentDetail: React.FC<AwaitingShipmentDetailProps> = ({ shipment, onClose }) => {
+  // State to track a unique modal open key for Lottie animation remounts
+  const [modalOpenKey, setModalOpenKey] = React.useState<number>(() => Date.now());
+  // Track previous shipment to detect modal open event
+  const prevShipmentRef = React.useRef<AwaitingShipment | null>(null);
+
+  // Effect: Only increment modalOpenKey when modal is opened (shipment transitions from null to non-null)
+  React.useEffect(() => {
+    if (!prevShipmentRef.current && shipment) {
+      // Modal is opening (was closed, now open)
+      setModalOpenKey(Date.now()); // Use timestamp for uniqueness
+    }
+    prevShipmentRef.current = shipment;
+  }, [shipment]);
+
   // Add Escape key listener for accessibility and UX
   React.useEffect(() => {
     // Handler to close modal on Escape key
@@ -242,7 +256,17 @@ const AwaitingShipmentDetail: React.FC<AwaitingShipmentDetailProps> = ({ shipmen
           Professional fix: Dynamically load the dotlottie-player web component only on the client using useEffect.
           This ensures the animation always renders after hydration and SSR, following React best practices.
         */}
-        <LottiePlayerSection />
+        {/*
+          LottiePlayerSection: Always remounts on modal open using a resetKey
+          This ensures the animation plays from the start every time the modal opens or shipment changes.
+          The resetKey is derived from shipment?.id and modal open state for uniqueness.
+        */}
+        {/*
+          LottiePlayerSection: Always remounts on modal open using a numeric resetKey
+          This ensures the animation plays from the start every time the modal opens or shipment changes.
+          The resetKey is a strictly incrementing number for type safety (fixes lint error).
+        */}
+        <LottiePlayerSection resetKey={modalOpenKey} />
 
         {/* Shipment details grid */}
         <div className="px-6 pb-6">
@@ -370,13 +394,20 @@ import { toast } from '@/components/ui/use-toast';
  * OOP/clean code: Prevents double script loads, documents every step, and handles errors gracefully.
  * See README for troubleshooting and usage notes.
  */
-const LottiePlayerSection: React.FC = () => {
+const LottiePlayerSection: React.FC<{ resetKey?: number }> = ({ resetKey }) => {
   // Ref for the animation container (reserved for future OOP extensions)
   const playerRef = React.useRef<HTMLDivElement>(null);
   // State to track if the Lottie script has loaded
   const [loaded, setLoaded] = React.useState(false);
   // State to track if an error occurred loading the script
   const [error, setError] = React.useState(false);
+  // State to force re-mount the animation player on modal open/close
+  const [playerKey, setPlayerKey] = React.useState(Date.now());
+
+  React.useEffect(() => {
+    // Force re-mount the dotlottie-player when parent key changes (modal open/close)
+    setPlayerKey(Date.now());
+  }, [resetKey]);
 
   React.useEffect(() => {
     // Ensure this runs only on the client (never during SSR)
@@ -418,6 +449,7 @@ const LottiePlayerSection: React.FC = () => {
           {/* Only render the animation after the script is loaded */}
           {loaded ? (
             <dotlottie-player
+              key={playerKey}
               src="https://lottie.host/476832d6-b952-454f-8d3b-dbe814f04d83/6IvdD4bQFr.lottie"
               background="transparent"
               speed="1"

@@ -1,3 +1,7 @@
+/**
+ * [2025-05-21] Fix: Removed onClick={handleSubmit} from the 'Submit Shipment' button. The form now uses onSubmit={handleSubmit}, and the button is type="submit" only. This resolves a TypeScript event type error and follows React/TypeScript best practices. See README for details. -- Cascade AI
+ */
+
 "use client";
 
 import React, { useState } from "react";
@@ -42,8 +46,12 @@ export default function SubmitShipmentPage() {
   const [mapCoords, setMapCoords] = useState<{
     lat: number;
     lon: number;
-  } | null>(null);  const [locationSuccess, setLocationSuccess] = useState(false);
+  } | null>(null);
+  const [locationSuccess, setLocationSuccess] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [stepValidationError, setStepValidationError] = useState<string | null>(null);
 
   // Address auto-complete for sender (with keyboard nav)
   const handleSenderAddressInput = async (
@@ -119,11 +127,114 @@ export default function SubmitShipmentPage() {
   };
 
   const goToPreviousStep = () => {
+    setStepValidationError(null);
     setStep(step - 1);
   };
 
-  const goToNextStep = async () => {
-    setStep(step + 1);
+  // Step validation helper functions
+  const validateSenderStep = () => {
+    const requiredFields = [
+      "senderName",
+      "senderAddress",
+      "senderEmail",
+      "senderPhone",
+      "senderCity",
+      "senderState",
+      "senderZip",
+      "senderCountry"
+    ];
+
+    const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
+
+    if (missingFields.length > 0) {
+      setStepValidationError("Please fill in all required fields marked with *");
+      return false;
+    }
+
+    // Email validation
+    if (!EMAIL_REGEX.test(formData.senderEmail)) {
+      setStepValidationError("Please enter a valid email address");
+      return false;
+    }
+
+    setStepValidationError(null);
+    return true;
+  };
+
+  const validateRecipientStep = () => {
+    if (formData.recipientKnowsId) {
+      if (!formData.recipientId) {
+        setStepValidationError("Please enter the recipient ID");
+        return false;
+      }
+    } else {
+      const requiredFields = [
+        "recipientName",
+        "recipientEmail",
+        "recipientPhone",
+        "recipientAddress",
+        "recipientCity",
+        "recipientState",
+        "recipientZip",
+        "recipientCountry"
+      ];
+
+      const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
+
+      if (missingFields.length > 0) {
+        setStepValidationError("Please fill in all required recipient fields marked with *");
+        return false;
+      }
+
+      // Email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.recipientEmail)) {
+        setStepValidationError("Please enter a valid recipient email address");
+        return false;
+      }
+    }
+
+    setStepValidationError(null);
+    return true;
+  };
+
+  const validatePackageStep = () => {
+    const requiredFields = ["freightType", "packageType", "packageDescription"];
+
+    const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
+
+    if (missingFields.length > 0) {
+      setStepValidationError("Please fill in all required package details marked with *");
+      return false;
+    }
+
+    setStepValidationError(null);
+    return true;
+  };
+
+  const goToNextStep = () => {
+    let isValid = false;
+
+    // Validate the current step
+    switch (step) {
+      case 1:
+        isValid = validateSenderStep();
+        break;
+      case 2:
+        isValid = validateRecipientStep();
+        break;
+      case 3:
+        isValid = validatePackageStep();
+        break;
+      default:
+        isValid = true;
+    }
+
+    if (isValid) {
+      setStepValidationError(null);
+      setStep(step + 1);
+      window.scrollTo(0, 0);
+    }
   };
 
   const handleDetectLocation = async () => {
@@ -206,10 +317,10 @@ export default function SubmitShipmentPage() {
             addressLoading={senderAddressLoading}
             addressError={senderAddressError}
             suggestionIndex={senderSuggestionIndex}
-            onSuggestionSelect={() => {}}
-            //   highlightMatch={(text: string, query: string) => text}
+            onSuggestionSelect={() => { }}
           />
-        );      case 3:
+        );
+      case 3:
         return (
           <PackageForm
             formData={formData}
@@ -224,10 +335,14 @@ export default function SubmitShipmentPage() {
           <ConfirmForm
             formData={formData}
             onInputChange={handleInputChange}
+            onBack={goToPreviousStep}
+            onSubmit={handleSubmit}
           />
         );
     }
-  };  // Form validation function
+  };
+
+  // Form validation function
   const validateForm = () => {
     // Required fields validation
     const requiredFields = {
@@ -245,20 +360,19 @@ export default function SubmitShipmentPage() {
       ...(formData.recipientKnowsId
         ? { recipientId: "Recipient ID" }
         : {
-            recipientName: "Recipient Name",
-            recipientEmail: "Recipient Email",
-            recipientPhone: "Recipient Phone",
-            recipientAddress: "Recipient Address",
-            recipientCity: "Recipient City",
-            recipientState: "Recipient State",
-            recipientZip: "Recipient ZIP Code",
-            recipientCountry: "Recipient Country",
-          }),
+          recipientName: "Recipient Name",
+          recipientEmail: "Recipient Email",
+          recipientPhone: "Recipient Phone",
+          recipientAddress: "Recipient Address",
+          recipientCity: "Recipient City",
+          recipientState: "Recipient State",
+          recipientZip: "Recipient ZIP Code",
+          recipientCountry: "Recipient Country",
+        }),
 
       // Package information
       freightType: "Delivery Type",
       packageType: "Package Type",
-      packageCategory: "Package Category",
       packageDescription: "Package Description",
     };
 
@@ -271,22 +385,47 @@ export default function SubmitShipmentPage() {
     }
 
     if (missingFields.length > 0) {
-      alert(`Please fill in the following required fields:\n${missingFields.join("\n")}`);
+      setValidationErrors(missingFields);
       return false;
     }
 
+    setValidationErrors([]);
     return true;
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
+    if (step !== 4) {
+      // If we're not on the final confirmation step, don't submit
+      return;
+    }
+
+    setIsSubmitting(true);
+
     if (validateForm()) {
-      // Save to API or local storage
-      console.log("Form submitted successfully:", formData);
-      alert("Shipment submitted successfully!");
-      // Here you would typically send the data to your backend API
-      // Or redirect to a success page
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        // Here you would send data to your backend
+        console.log("Form submitted successfully:", formData);
+
+        // Show success message
+        alert("Shipment submitted successfully!");
+
+        // Reset form and go back to step 1
+        resetForm();
+        setStep(1);
+      } catch (error) {
+        alert("There was an error submitting your shipment. Please try again.");
+        console.error("Submission error:", error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else {
+      setIsSubmitting(false);
+      window.scrollTo(0, 0);
     }
   };
 
@@ -300,43 +439,83 @@ export default function SubmitShipmentPage() {
       {/* Step Indicator */}
       <StepIndicator step={step} />
 
-      {/* form */}
-      <div className="w-full md:w-[90%] lg:w-[85%] mx-auto px-4 sm:px-8 md:px-12 lg:px-20 py-6 md:py-8 lg:py-10 bg-white dark:bg-slate-800 border border-gray-300 shadow-md rounded-lg">
-        <form onSubmit={handleSubmit}>
-        {renderStep()}
-        <div className="flex justify-between mt-8">
-          {step > 1 ? (
-            <button
-              type="button"
-              onClick={goToPreviousStep}
-              className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 py-2 sm:py-3 px-4 sm:px-8 text-sm sm:text-base rounded-md transition-colors"
-            >
-              Back
-            </button>
-          ) : (
-            <div></div>
-          )}
-          {step < 4 ? (
-            <button
-              type="button"
-              onClick={goToNextStep}
-              className="bg-primary text-white py-2 sm:py-3 px-4 sm:px-8 text-sm sm:text-base rounded-md transition-colors disabled:opacity-50"
-            >
-              Continue
-            </button>          ) : (
-            <button
-              type="submit"
-              className="bg-primary hover:bg-primary/90 text-white py-2 sm:py-3 px-4 sm:px-8 text-sm sm:text-base rounded-md transition-colors flex items-center gap-2"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              Submit Shipment
-            </button>
-          )}
+      {/* Error messages */}
+      {validationErrors.length > 0 && (
+        <div className="w-full md:w-[90%] lg:w-[85%] mx-auto mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300">
+          <h3 className="font-semibold mb-2">Please correct the following issues:</h3>
+          <ul className="list-disc list-inside space-y-1">
+            {validationErrors.map((error, idx) => (
+              <li key={idx}>{error} is required</li>
+            ))}
+          </ul>
         </div>
-		</form>
+      )}
+
+      {/* Step validation error */}
+      {stepValidationError && (
+        <div className="w-full md:w-[90%] lg:w-[85%] mx-auto mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg text-yellow-700 dark:text-yellow-300">
+          <div className="flex items-center">
+            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            {stepValidationError}
+          </div>
+        </div>
+      )}
+
+      {/* Form */}
+      {/* Main form container - opened here, closed after form */}
+      <div className="w-full md:w-[90%] lg:w-[85%] mx-auto px-4 sm:px-8 md:px-12 lg:px-20 py-6 md:py-8 lg:py-10 bg-white dark:bg-slate-800 border border-gray-300 shadow-md rounded-lg transition-all duration-300">
+        <form onSubmit={handleSubmit} noValidate>
+          {renderStep()}
+          <div className="flex justify-between mt-8">
+            {step > 1 ? (
+              <button
+                type="button"
+                onClick={goToPreviousStep}
+                className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 py-2 sm:py-3 px-4 sm:px-8 text-sm sm:text-base rounded-md transition-colors flex items-center gap-2"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                Back
+              </button>
+            ) : (
+              <div></div>
+            )}
+            {step < 4 ? (
+              // Render the "Continue" button for steps before the last (step < 4)
+              <button
+                type="button" // Prevents form submission on intermediate steps
+                onClick={goToNextStep}
+                className="bg-primary hover:bg-primary/90 text-white py-2 sm:py-3 px-4 sm:px-8 text-sm sm:text-base rounded-md transition-colors flex items-center gap-2"
+              >
+                Continue
+                <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                </svg>
+              </button>
+            ) : (
+              // Render the "Submit Shipment" button on the last step (step === 4)
+              <>
+                {/*
+                  The 'Submit Shipment' button is set to type="submit" and does NOT use onClick.
+                  This ensures the form's onSubmit handler (handleSubmit) receives a FormEvent<HTMLFormElement>,
+                  which matches its expected type and prevents TypeScript errors.
+                  See documentation in the README for details on this best practice.
+                */}
+                <button
+                  type="submit" // Triggers form submission and calls handleSubmit via form's onSubmit
+                  className="bg-red-500 hover:bg-red-700 text-white py-2 sm:py-3 px-4 sm:px-8 text-sm sm:text-base rounded-md transition-colors flex items-center gap-2"
+                >
+                  Submit Shipment
+                </button>
+              </>
+            )}
+          </div>
+        </form>
       </div>
+      {/* End of main form container - properly closed here */}
     </div>
   );
 }

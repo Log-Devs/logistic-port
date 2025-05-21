@@ -3,7 +3,7 @@
 // Clean code, OOP best practices, and full comments
 
 import { describe, it, expect } from '@jest/globals';
-import { AwaitingShipment } from '../AwaitingShipmentTable';
+import { AwaitingShipment } from '../app/client/components/AwaitingShipmentTable';
 
 // Inline replica of computeArrival for direct unit test coverage
 const computeArrival = (shipment: AwaitingShipment): string => {
@@ -46,8 +46,9 @@ describe('computeArrival', () => {
             weight: 20,
             status: 'PENDING',
         };
+        // The computeArrival function returns the date as YYYY-MM-DD (ISO format)
         const expected = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
-            .toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+            .toISOString().split('T')[0];
         expect(computeArrival(pending)).toBe(expected);
     });
 });
