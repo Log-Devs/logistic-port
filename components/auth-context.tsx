@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // State: authentication mode (always 'dummy' in this version)
   const [authMode] = useState<'real' | 'dummy'>('dummy');
   // Setter for authMode (no-op, always dummy)
-  const setAuthMode = () => {};
+// Removed the no-op setAuthMode function
   // Router (not used, but kept for interface compatibility)
   const router = useRouter();
 
