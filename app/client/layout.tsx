@@ -61,11 +61,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   // Navigation items
   const navItems = [
-    { icon: <LayoutDashboard size={20} />, text: 'Dashboard', path: 'client/dashboard' },
-    { icon: <PackageCheck size={20} />, text: 'Submit Shipment', path: 'client/submit-shipment' },
-    { icon: <Clock size={20} />, text: 'Awaiting Shipments', path: 'client/awaiting-shipments' },
-    { icon: <History size={20} />, text: 'Shipment History', path: 'client/shipment-history' },
-    { icon: <Settings size={20} />, text: 'Settings', path: '/settings' },
+    { icon: <LayoutDashboard size={20} />, text: 'Dashboard', path: '/client/dashboard' },
+    { icon: <PackageCheck size={20} />, text: 'Submit Shipment', path: '/client/submit-shipment' },
+    { icon: <Clock size={20} />, text: 'Awaiting Shipments', path: '/client/awaiting-shipments' },
+    { icon: <History size={20} />, text: 'Shipment History', path: '/client/shipment-history' },
+    { icon: <Settings size={20} />, text: 'Settings', path: '/client/settings' },
   ];
 
   // Footer items (excluding logout for custom button)
@@ -128,6 +128,21 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     }
   };
 
+  // Helper function to determine if a menu item should be active
+  const isItemActive = (itemPath: string) => {
+    // For dashboard, special handling to make sure it highlights correctly
+    if (itemPath === '/client/dashboard' && (pathname === '/client/dashboard' || pathname === '/client')) {
+      return true;
+    }
+
+    // For other paths, check if the pathname exactly matches or starts with the path + '/'
+    return pathname === itemPath || pathname.startsWith(itemPath + '/');
+  };
+
+  // Add console log for debugging path matching issues
+  useEffect(() => {
+    console.log('Current pathname:', pathname);
+  }, [pathname]);
 
   return (
     <div className="flex h-screen w-full bg-slate-100 dark:bg-slate-900">
@@ -187,7 +202,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   key={item.text}
                   icon={item.icon}
                   text={item.text}
-                  active={pathname === item.path}
+                  active={isItemActive(item.path)}
                   onClick={() => handleItemClick(item.path)}
                   collapsed={!isSidebarOpen && !isMobileView}
                 />
@@ -200,6 +215,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   key={item.text}
                   icon={item.icon}
                   text={item.text}
+                  active={isItemActive(item.path)}
                   onClick={() => handleItemClick(item.path)}
                   collapsed={!isSidebarOpen && !isMobileView}
                 />

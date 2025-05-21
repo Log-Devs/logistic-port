@@ -31,14 +31,14 @@ interface AuthContextType {
   setAuthMode: (mode: 'real' | 'dummy') => void;
   // Expose user role for role-based UI
   role?: string;
-} 
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function useAuth() {
-	const ctx = useContext(AuthContext);
-	if (!ctx) throw new Error("useAuth must be used within AuthProvider");
-	return ctx;
+  const ctx = useContext(AuthContext);;
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");;
+  return ctx;;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -47,14 +47,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // State to track loading status
   const [loading, setLoading] = useState(true);
   // State to control authentication mode: 'real' or 'dummy' (for testing)
-  // IMPORTANT: To avoid SSR hydration mismatches, always initialize with a deterministic value ('real').
-  // Sync with localStorage on the client after mount.
-  const [authMode, setAuthModeState] = useState<'real' | 'dummy'>('real');
+  // IMPORTANT: Setting default to 'dummy' for easier development testing
+  const [authMode, setAuthModeState] = useState<'real' | 'dummy'>('dummy');
   useEffect(() => {
     // Only runs on client
     const stored = typeof window !== 'undefined' ? window.localStorage.getItem('auth_mode') : null;
     if (stored === 'dummy' || stored === 'real') {
       setAuthModeState(stored);
+    } else {
+      // If no stored preference, default to dummy mode for development
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem('auth_mode', 'dummy');
+      }
     }
   }, []);
 
@@ -175,10 +179,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       return false;
     }
-  }; 
+  };
 
 
-	// Logout: call API, clear user state
+  // Logout: call API, clear user state
   /**
    * Handles user logout by calling the API with fallback.
    * Clears user state and redirects to home.

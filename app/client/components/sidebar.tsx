@@ -16,6 +16,8 @@ import { useRouter } from "next/navigation";
  * Provides professional logout logic with user feedback.
  * Follows clean code architecture and OOP principles.
  */
+import styles from './sidebar.module.css';
+
 const Sidebar: React.FC = () => {
   // State to track if the sidebar is open (for mobile/drawer UX)
   const [isOpen, setIsOpen] = useState(false);
@@ -65,21 +67,21 @@ const Sidebar: React.FC = () => {
             {/* Navigation item: Support page */}
             <li>
               {/* Button navigates to the Support page using handleItemClick */}
-              <button onClick={() => handleItemClick('/client/support')} className="sidebar-nav-item">
+              <button onClick={() => handleItemClick('/client/support')} className={styles['sidebar-nav-item']}>
                 Support
               </button>
             </li>
             {/* Navigation item: About page */}
             <li>
               {/* Button navigates to the About page using handleItemClick */}
-              <button onClick={() => handleItemClick('/c-about')} className="sidebar-nav-item">
+              <button onClick={() => handleItemClick('/c-about')} className={styles['sidebar-nav-item']}>
                 About
               </button>
             </li>
             {/* Example logout nav item */}
             <li>
               {/* Button logs out the user using handleItemClick */}
-              <button onClick={() => handleItemClick('/logout')} className="sidebar-nav-item">
+              <button onClick={() => handleItemClick('/logout')} className={styles['sidebar-nav-item']}>
                 Logout
               </button>
             </li>
