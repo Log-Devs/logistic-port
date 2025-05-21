@@ -38,7 +38,7 @@ const slides = [
 
 // Default interval (in milliseconds) for auto-sliding between cards
 // Extracted as a named constant for clarity and maintainability
-const DEFAULT_SLIDE_INTERVAL = 10000; // 30 seconds
+const DEFAULT_SLIDE_INTERVAL = 30000; // 30 seconds
 
 /**
  * ProfessionalCardSlider component displays a carousel of professional slides.
