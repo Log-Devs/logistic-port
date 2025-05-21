@@ -152,8 +152,7 @@ export default function SubmitShipmentPage() {
     }
 
     // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.senderEmail)) {
+    if (!EMAIL_REGEX.test(formData.senderEmail)) {
       setStepValidationError("Please enter a valid email address");
       return false;
     }
