@@ -31,201 +31,95 @@ interface AuthContextType {
   setAuthMode: (mode: 'real' | 'dummy') => void;
   // Expose user role for role-based UI
   role?: string;
-} 
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Custom hook to consume the authentication context
 export function useAuth() {
-	const ctx = useContext(AuthContext);
-	if (!ctx) throw new Error("useAuth must be used within AuthProvider");
-	return ctx;
+  // Get the context value
+  const ctx = useContext(AuthContext);
+  // Throw an error if used outside the AuthProvider for safety
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  // Return the context so consumers can destructure (e.g., const { logout } = useAuth())
+  return ctx;
 }
 
+
+// AuthProvider: Provides authentication context using only dummy data. All real authentication logic is bypassed.
+// Clean code, OOP, and best practices: all logic is modular, commented, and maintainable.
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // State to track the current user
+  // State: current user (null if not logged in, DUMMY_USER if logged in)
   const [user, setUser] = useState<User>(null);
-  // State to track loading status
-  const [loading, setLoading] = useState(true);
-  // State to control authentication mode: 'real' or 'dummy' (for testing)
-  // IMPORTANT: To avoid SSR hydration mismatches, always initialize with a deterministic value ('real').
-  // Sync with localStorage on the client after mount.
-  const [authMode, setAuthModeState] = useState<'real' | 'dummy'>('real');
-  useEffect(() => {
-    // Only runs on client
-    const stored = typeof window !== 'undefined' ? window.localStorage.getItem('auth_mode') : null;
-    if (stored === 'dummy' || stored === 'real') {
-      setAuthModeState(stored);
-    }
-  }, []);
-
-  // Custom setter to update both state and localStorage
-  const setAuthMode = (mode: 'real' | 'dummy') => {
-    setAuthModeState(mode);
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem('auth_mode', mode);
-    }
-  };
-
+  // State: loading (true during hydration, false otherwise)
+  const [loading, setLoading] = useState(false);
+  // State: authentication mode (always 'dummy' in this version)
+  const [authMode] = useState<'real' | 'dummy'>('dummy');
+  // Setter for authMode (no-op, always dummy)
+// Removed the no-op setAuthMode function
+  // Router (not used, but kept for interface compatibility)
   const router = useRouter();
 
-  // Configurable dummy session expiration in minutes (default: 120 min = 2 hours)
-  const DUMMY_SESSION_MINUTES = 120;
-
-  // Hydrate user from /api/auth/me or dummy user based on authMode
+  // Hydrate user state on mount: always set to null (not logged in) for demo mode
   useEffect(() => {
-    async function fetchUser() {
-      setLoading(true);
-      try {
-        if (authMode === 'dummy') {
-          // In dummy mode, check for the dummy_auth cookie (JSON: { user, expires })
-          const dummyAuthRaw = Cookies.get('dummy_auth');
-          if (dummyAuthRaw) {
-            try {
-              const dummySession = JSON.parse(dummyAuthRaw);
-              // Check expiration
-              if (dummySession.expires && Date.now() < dummySession.expires) {
-                setUser(dummySession.user);
-              } else {
-                // Expired: clear session
-                setUser(null);
-                Cookies.remove('dummy_auth');
-              }
-            } catch {
-              setUser(null);
-              Cookies.remove('dummy_auth');
-            }
-          } else {
-            setUser(null);
-          }
-        } else {
-          // Only hydrate from real API
-          const data = await fetchWithFallback<{ user: User }>(
-            "/api/auth/me",
-            { credentials: "include" }
-          );
-          setUser(data.user);
-        }
-      } catch {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchUser();
-    // Re-run hydration when authMode changes
-  }, [authMode]);
+    // No backend/API call: always start logged out
+    setUser(null);
+    setLoading(false);
+  }, []);
 
-  // Login: call API, update user state
   /**
-   * Handles user login by calling the API with fallback to dummy data.
-   * Updates user state accordingly.
+   * login: Authenticates the user using only dummy credentials.
+   * If the email and password match the DUMMY_USER, logs in; otherwise fails.
    * @param email - User email
    * @param password - User password
-   * @param rememberMe - Remember me flag
+   * @param rememberMe - Ignored (for interface compatibility)
    * @returns {Promise<boolean>} - True if login succeeded, false otherwise
    */
-  /**
-   * Handles user login. Attempts real API login, but allows dummy login fallback
-   * ONLY if credentials match known dummy credentials and only in development.
-   * This ensures fallback is never used for arbitrary users or in production.
-   */
-  // Login function supports both real and dummy auth modes
-  const login = async (email: string, password: string, rememberMe: boolean): Promise<boolean> => {
+  const login = async (
+    email: string,
+    password: string,
+    rememberMe: boolean
+  ): Promise<boolean> => {
     setLoading(true);
-    try {
-      if (authMode === 'dummy') {
-        // Dummy mode: Only allow login if credentials match the single dummy user
-        if (email === DUMMY_USER.email && password === DUMMY_USER.password) {
-          // Exclude password from user object for state/cookie
-          const { password, ...userNoPass } = DUMMY_USER;
-          setUser(userNoPass);
-          // Set a cookie with user info and expiration timestamp
-          const expires = Date.now() + DUMMY_SESSION_MINUTES * 60 * 1000;
-          Cookies.set('dummy_auth', JSON.stringify({ user: userNoPass, expires }), { expires: 7 });
-          setLoading(false);
-          return true;
-        } else {
-          setUser(null);
-          Cookies.remove('dummy_auth');
-          setLoading(false);
-          return false;
-        }
-      } else {
-        // Real mode: Attempt real API login
-        await fetchWithFallback(
-          "/api/auth/login",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ email, password, rememberMe }),
-          }
-        );
-        // On success, hydrate user from API
-        const data = await fetchWithFallback<{ user: User }>(
-          "/api/auth/me",
-          { credentials: "include" }
-        );
-        setUser(data.user);
-        setLoading(false);
-        return true;
-      }
-    } catch (err) {
-      setUser(null);
+    // If credentials match dummy user, log in
+    if (email === DUMMY_USER.email && password === DUMMY_USER.password) {
+      setUser({ ...DUMMY_USER, password: undefined }); // Never expose password
       setLoading(false);
-      return false;
+      return true;
     }
-  }; 
-
-
-	// Logout: call API, clear user state
-  /**
-   * Handles user logout by calling the API with fallback.
-   * Clears user state and redirects to home.
-   */
-  // Logout function supports both real and dummy auth modes
-  /**
-   * Logs out the user and redirects to '/'.
-   * Ensures that both state and navigation are handled reliably.
-   * Follows clean code and OOP best practices.
-   */
-  const logout = async () => {
-    setLoading(true);
-    try {
-      if (authMode === 'dummy') {
-        // Dummy mode: just clear user and remove dummy_auth cookie
-        setUser(null);
-        Cookies.remove('dummy_auth');
-      } else {
-        // Real mode: Use fetchWithFallback for logout API call
-        await fetchWithFallback(
-          "/api/auth/logout",
-          { method: "POST", credentials: "include" },
-          {} // fallback: no-op for logout
-        );
-        setUser(null);
-      }
-    } finally {
-      setLoading(false);
-      // Defensive: log before and after navigation for debugging
-      console.log("[Logout] Redirecting to '/'");
-      // Await navigation for reliability
-      await router.push("/");
-      console.log("[Logout] Navigation to '/' complete");
-    }
+    // Otherwise, login fails
+    setUser(null);
+    setLoading(false);
+    return false;
   };
 
-
-
+  /**
+   * logout: Logs the user out by clearing the user state.
+   * @returns {Promise<void>}
+   */
+  const logout = async (): Promise<void> => {
+    setLoading(true);
+    setUser(null);
+    setLoading(false);
+  };
 
   // Provide user role for role-based UI
   const role = user && user.role ? user.role : undefined;
 
+  // Provide the authentication context to children, always using dummy logic.
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, authMode, setAuthMode, role }}>
-
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        logout,
+        authMode,
+        setAuthMode,
+        role: user?.role ?? undefined,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
-

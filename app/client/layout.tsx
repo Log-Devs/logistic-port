@@ -15,6 +15,9 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+// Import the authentication context hook for logout functionality
+import { useAuth } from "@/components/auth-context";
+
 // Line removed as ThemeProvider is no longer used in this file.
 // Interface for sidebar items
 interface SidebarItemProps {
@@ -36,7 +39,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   return (
     <div
       className={`sidebar-item flex items-center w-full px-4 py-3 transition-colors duration-200
-        ${active ? 'bg-red-700 text-white border-l-4 border-white' : 'text-white hover:bg-red-700 hover:border-l-4 hover:border-white'}
+        ${active ? 'bg-red-900 text-white border-l-4 border-white' : 'text-white hover:bg-red-700 hover:border-0 '}
         cursor-pointer`}
       onClick={onClick}
       style={{ minHeight: '48px' }}
@@ -61,11 +64,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   // Navigation items
   const navItems = [
-    { icon: <LayoutDashboard size={20} />, text: 'Dashboard', path: 'client/dashboard' },
-    { icon: <PackageCheck size={20} />, text: 'Submit Shipment', path: 'client/submit-shipment' },
-    { icon: <Clock size={20} />, text: 'Awaiting Shipments', path: 'client/awaiting-shipments' },
-    { icon: <History size={20} />, text: 'Shipment History', path: 'client/shipment-history' },
-    { icon: <Settings size={20} />, text: 'Settings', path: '/settings' },
+    { icon: <LayoutDashboard size={20} />, text: 'Dashboard', path: '/client/dashboard' },
+    { icon: <PackageCheck size={20} />, text: 'Submit Shipment', path: '/client/submit-shipment' },
+    { icon: <Clock size={20} />, text: 'Awaiting Shipments', path: '/client/awaiting-shipments' },
+    { icon: <History size={20} />, text: 'Shipment History', path: '/client/shipment-history' },
+    { icon: <Settings size={20} />, text: 'Settings', path: '/client/settings' },
   ];
 
   // Footer items (excluding logout for custom button)
@@ -100,9 +103,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
    */
   const toggleSidebar = () => setIsSidebarOpen((open) => !open);
 
-  // Import the authentication context
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { logout } = require("@/components/auth-context").useAuth();
+  // Use the useAuth hook to get the logout function from the AuthProvider context
+  const { logout } = useAuth();
 
   /**
    * Handles navigation item clicks.
@@ -128,6 +130,25 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     }
   };
 
+  // Helper function to determine if a menu item should be active
+  // Explicitly types the parameter and return value for type safety and maintainability
+  const isItemActive = (itemPath: string): boolean => {
+    // Special handling for the dashboard route: highlights if on /client/dashboard or /client
+    if (itemPath === '/client/dashboard' && (pathname === '/client/dashboard' || pathname === '/client')) {
+      return true;
+    }
+
+    // For other paths, checks if the current pathname exactly matches or starts with the menu item's path
+    return pathname === itemPath || pathname.startsWith(itemPath + '/');
+  };
+
+
+  // Add console log for debugging path matching issues
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Current pathname:', pathname);
+    }
+  }, [pathname]);
 
   return (
     <div className="flex h-screen w-full bg-slate-100 dark:bg-slate-900">
@@ -181,33 +202,34 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               )}
             </div>
             {/* Navigation Links */}
-            <div className="flex-grow p-0">
+            <div className="flex-grow py-5">
               {navItems.map((item) => (
                 <SidebarItem
                   key={item.text}
                   icon={item.icon}
                   text={item.text}
-                  active={pathname === item.path}
+                  active={isItemActive(item.path)}
                   onClick={() => handleItemClick(item.path)}
                   collapsed={!isSidebarOpen && !isMobileView}
                 />
               ))}
             </div>
             {/* Footer Links */}
-            <div className="flex flex-col gap-1 px-2 pb-4">
+            <div className="flex flex-col gap-1 pb-4">
               {footerItems.map((item) => (
                 <SidebarItem
                   key={item.text}
                   icon={item.icon}
                   text={item.text}
+                  active={isItemActive(item.path)}
                   onClick={() => handleItemClick(item.path)}
                   collapsed={!isSidebarOpen && !isMobileView}
                 />
               ))}
-              {/* Logout Button: Rendered exactly where the 'Exit' SidebarItem was, using SidebarItem style */}
+              {/* Logout Button: Rendered exactly where the 'Logout' SidebarItem was, using SidebarItem style */}
               <SidebarItem
                 icon={<LogOut size={20} />}
-                text="Exit"
+                text="Logout"
                 active={false}
                 onClick={async () => {
                   try {

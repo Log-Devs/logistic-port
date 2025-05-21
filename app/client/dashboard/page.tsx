@@ -17,22 +17,22 @@ const dashboardCards = [
   {
     title: "Submit Shipment",
     icon: submitShipmentIcon,
-    href: "/submit-shipment",
+    href: "/client/submit-shipment",
   },
   {
     title: "Awaiting Shipments",
     icon: awaitingShipmentsIcon,
-    href: "/awaiting-shipments",
+    href: "/client/awaiting-shipments",
   },
   {
     title: "Fund Wallet",
     icon: fundWalletIcon,
-    href: "/wallet",
+    href: "/client/wallet",
   },
   {
     title: "Shipment History",
     icon: shipmentHistoryIcon,
-    href: "/shipment-history",
+    href: "/client/shipment-history",
   },
 ];
 

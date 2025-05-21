@@ -1,27 +1,18 @@
 # Logistics Portfolio
 
-## [2025-05-21] Client Navigation and Layout Refactor
+## [2025-05-21] Authentication Removed: Dummy Login Only (Demo Mode)
 
-- All client-specific routes (Dashboard, Submit Shipment, Awaiting Shipments, Shipment History, Support, About) are now under `/client/` (e.g., `/client/dashboard`, `/client/support`, `/client/about`).
-- The client-specific About and Support pages inherit the client layout with sidebar and header for a unified user experience.
-- Sidebar and layout navigation have been updated to use these `/client/` routes for consistency and professionalism.
-- All navigation and page components follow clean code architecture, OOP, and are fully commented for maintainability.
-- The client layout (`app/client/layout.tsx`) ensures all client pages render with sidebar and header for a cohesive UX.
-- The Support page (`app/client/support/page.tsx`) is marked as a client component with `"use client"` to enable React hooks.
-- The About page for the client app is now at `/client/about`. All About navigation and links have been updated accordingly.
-- All changes are fully indexed, documented inline, and follow best practices for scalability and maintainability.
-- **Refactored computeArrival to a Dedicated Module:**
-  - Extracted `computeArrival` from the AwaitingShipmentTable component into its own module (`app/client/components/computeArrival.ts`) for improved testability, separation of concerns, and maintainability.
-  - Updated all usages and imports to reference the new module, ensuring clean code and OOP best practices.
-  - Refactored the test for `computeArrival` to import the real implementation from the dedicated module (`computeArrival.ts`).
-  - **Motivation for Refactor:**
-    - **Testability:** Allows direct import of the production function in tests, ensuring tests always reflect real business logic.
-    - **Clean Code & OOP:** Promotes single responsibility and reusability across components and tests.
-    - **Maintainability:** Centralizes shipment arrival logic, making future updates easier and less error-prone.
-  - **Update Instructions for Future Contributors:**
-    - When updating or extending shipment arrival logic, modify the `computeArrival` function in `computeArrival.ts`.
-    - Ensure to update all imports and usages to reference the new module.
-    - Follow clean code, OOP, and maintainability best practices when making changes.
+- **Major Change:** All real authentication and backend/JWT logic has been removed from the app. The authentication provider now uses only dummy logic.
+- **How It Works:**
+  - Logging in with the credentials below always works, regardless of backend/API/JWT state:
+    - **Email:** `test@example.com`
+    - **Password:** `password123`
+  - No backend, JWT, or session logic is required.
+  - Logging out simply clears the user state.
+- **Intended Use:** This mode is for demo, offline, QA, and development only. Not for production.
+- **Code Quality:** All authentication code is fully commented, follows clean code architecture, and is OOP-friendly for maintainability.
+- **Where:** See `components/auth-context.tsx` for implementation details.
+
 
 ## [2025-05-21] Support Page 404 Error Fixed and Navigation Paths Standardized
 
@@ -444,21 +435,6 @@ For local development and QA, the app provides a built-in toggle to switch betwe
   3. Updated all documentation and tests to reflect the new architecture.
 
 #### Usage
-  - To trigger the global loader, set the `loading` state in `AuthProvider` to `true`.
-  - The loader will automatically appear and hide based on the global loading state.
-  - No component/page should manage its own loading UI—use the context instead.
-
-#### Testing the Loader
-  - Automated tests are provided in `tests/global-loader.test.tsx`.
-  - These tests ensure:
-    - The loader is visible when the global loading state is `true`.
-    - The loader is hidden and content is visible when loading is `false`.
-    - No duplicate loaders appear from local/component state.
-  - Run tests with `npm test` or `yarn test` (see package.json for details).
-  - All tests follow clean code and OOP best practices.
-
-- **Global Theming:**
-  - The `ThemeProvider` from `next-themes` is now applied **only at the root layout** (`app/layout.tsx` or `app/client/layout.tsx`).
   - To trigger the global loader, set the `loading` state in `AuthProvider` to `true`.
   - The loader will automatically appear and hide based on the global loading state.
   - No component/page should manage its own loading UI—use the context instead.
