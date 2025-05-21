@@ -1,5 +1,43 @@
 # Logistics Portfolio
 
+## [2025-05-21] Client Navigation and Layout Refactor
+
+- All client-specific routes (Dashboard, Submit Shipment, Awaiting Shipments, Shipment History, Support, About) are now under `/client/` (e.g., `/client/dashboard`, `/client/support`, `/client/about`).
+- The client-specific About and Support pages inherit the client layout with sidebar and header for a unified user experience.
+- Sidebar and layout navigation have been updated to use these `/client/` routes for consistency and professionalism.
+- All navigation and page components follow clean code architecture, OOP, and are fully commented for maintainability.
+- The client layout (`app/client/layout.tsx`) ensures all client pages render with sidebar and header for a cohesive UX.
+- The Support page (`app/client/support/page.tsx`) is marked as a client component with `"use client"` to enable React hooks.
+- The About page for the client app is now at `/client/about`. All About navigation and links have been updated accordingly.
+- All changes are fully indexed, documented inline, and follow best practices for scalability and maintainability.
+
+
+## [2025-05-21] Support Page 404 Error Fixed and Navigation Paths Standardized
+
+- **Issues Fixed:**
+  - Fixed 404 error on support page by correcting the navigation path to match the file structure
+  - Updated all client-side navigation paths to use the `/client/` prefix to match the Next.js App Router file structure
+  - Standardized the redirection logic after login and registration to properly navigate to `/client/dashboard`
+  - Added middleware to handle duplicate `/client/client/` paths by redirecting to the login page
+
+- **Technical Changes:**
+  - Updated footerItems in client layout to use `/client/support` instead of `/support`
+  - Changed About page path from `/client-about` to `/about` to match file structure
+  - Modified login and register pages to redirect to `/client/dashboard` instead of `/dashboard`
+  - Created a middleware.ts file to detect and redirect duplicate client paths
+
+- **Implementation Details:**
+  - All navigation links now use paths that correctly match the file structure under `/app`
+  - The middleware uses Next.js built-in path detection to identify incorrect routes
+  - Changes maintain backward compatibility and follow Next.js best practices
+  - These changes ensure proper routing behavior as expected in Next.js App Router architecture
+
+- **Best Practices:**
+  - In Next.js App Router, URL paths should match the directory structure under `/app` 
+  - When nesting layouts (like in `/app/client/`), all routes should include the parent segment prefix
+  - Using middleware provides a clean solution for catching and redirecting invalid paths
+  - Standardizing redirect paths improves user experience and maintains consistent navigation flow
+
 ## [2025-05-21] Bugfix: TypeScript Event Handler in SubmitShipmentPage
 
 - **Issue:** A TypeScript error occurred because a form submit handler (`(e: React.FormEvent<HTMLFormElement>) => Promise<void>`) was assigned to a button's `onClick` prop, which expects a mouse event handler (`MouseEventHandler<HTMLButtonElement>`). These event types are incompatible, leading to a type error.
@@ -265,47 +303,6 @@ _This ensures a seamless transition from dummy data to real backend integration 
 
 ---
 
-  awaitingShipments: AwaitingShipment[]; // Array of shipments (from API or static)
-  loading?: boolean;                    // Optional loading state
-  error?: string;                       // Optional error message
-}
-```
-
-#### API Data Fetching Hook
-
-A custom hook, `useAwaitingShipments(endpoint)`, is provided for fetching data from your API with built-in loading and error state management:
-
-```tsx
-const [data, loading, error] = useAwaitingShipments("/api/awaiting-shipments");
-```
-
-#### Example Usage
-
-```tsx
-import { AwaitingShipmentTable, useAwaitingShipments } from "@/app/client/components/AwaitingShipmentTable";
-
-function AwaitingShipmentPage() {
-  const [data, loading, error] = useAwaitingShipments("/api/awaiting-shipments");
-  return <AwaitingShipmentTable awaitingShipments={data} loading={loading} error={error} />;
-}
-```
-
-#### Best Practices
-- All code is modular and follows OOP and clean code principles
-- Every line is commented for clarity and maintainability
-- Error and loading states are surfaced to the user for robust UX
-- Component is ready to drop in for real-world API integration
-
----
-
-- Refactored `AwaitingShipmentTable.tsx` to use the correct TanStack React Table v8+ API.
-- Removed legacy `useTable` and `usePagination` usage (not part of v8+).
-- Now uses `useReactTable`, `getCoreRowModel`, and `ColumnDef` for table logic.
-- Manual pagination and virtualization are handled outside the table instance, for full control and performance.
-- All code is modular, fully commented, and follows OOP, clean code, and best practices.
-- This ensures compatibility, scalability, and professional UX for large logistics data tables.
-
-
 ### ProfessionalCardSlider Slide Interval Configuration (2025-05-18)
 
 ### AwaitingShipmentTable Column API Migration (2025-05-18)
@@ -436,6 +433,21 @@ For local development and QA, the app provides a built-in toggle to switch betwe
   3. Updated all documentation and tests to reflect the new architecture.
 
 #### Usage
+  - To trigger the global loader, set the `loading` state in `AuthProvider` to `true`.
+  - The loader will automatically appear and hide based on the global loading state.
+  - No component/page should manage its own loading UI—use the context instead.
+
+#### Testing the Loader
+  - Automated tests are provided in `tests/global-loader.test.tsx`.
+  - These tests ensure:
+    - The loader is visible when the global loading state is `true`.
+    - The loader is hidden and content is visible when loading is `false`.
+    - No duplicate loaders appear from local/component state.
+  - Run tests with `npm test` or `yarn test` (see package.json for details).
+  - All tests follow clean code and OOP best practices.
+
+- **Global Theming:**
+  - The `ThemeProvider` from `next-themes` is now applied **only at the root layout** (`app/layout.tsx` or `app/client/layout.tsx`).
   - To trigger the global loader, set the `loading` state in `AuthProvider` to `true`.
   - The loader will automatically appear and hide based on the global loading state.
   - No component/page should manage its own loading UI—use the context instead.
