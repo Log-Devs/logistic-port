@@ -1,5 +1,20 @@
 # Logistics Portfolio
 
+## [2025-05-20] Feature: Dynamic Page Size & Advanced Pagination Controls in AwaitingShipmentTable
+
+- **New Features:**
+  - Users can now select the number of rows per page (5, 10, 20, 50, 100) directly from the Awaiting Shipment Table UI.
+  - Pagination controls now include "First", "Previous", "Next", and "Last" buttons for both desktop and mobile views.
+  - Changing the page size resets to the first page for optimal UX.
+- **Details:**
+  - All pagination and page size logic is implemented with clean code and OOP best practices.
+  - All controls are robust against edge cases (e.g., disabling navigation when at the first/last page, empty datasets, etc).
+  - Inline comments document every line for clarity and maintainability.
+- **How to Use:**
+  - Use the "Rows per page" dropdown above the table to change the page size at runtime.
+  - Use the navigation buttons to move between pages. The UI is fully responsive and accessible.
+- **Reference:** See code comments in `AwaitingShipmentTable.tsx` for implementation and rationale.
+
 ## [2025-05-19] Bugfix: JSX Fragment Parse Error in AwaitingShipmentTable
 - **Issue:** A parse error occurred due to an invalid closing tag (`</div{'>'}`) in `app/client/components/AwaitingShipmentTable.tsx`.
 - **Root Cause:** The fragment parser expected a corresponding closing tag for a JSX fragment, but encountered `</div{'>'}` instead of `</div>`, breaking the fragment structure.
@@ -108,6 +123,14 @@ Property 'dotlottie-player' does not exist on type 'JSX.IntrinsicElements'.
 ---
 
 ## Features
+
+### AwaitingShipmentDetail Animation Fix
+- The Lottie animation in the AwaitingShipmentDetail modal now always plays reliably.
+- This is achieved by forcing a remount of the `<dotlottie-player>` web component using a `resetKey` prop passed to `LottiePlayerSection`.
+- The script for the player is loaded only once, and the animation is reset on each modal open for a seamless user experience.
+- All code follows OOP and clean code best practices, with thorough inline documentation.
+- All TypeScript and linter errors, including duplicate component definitions, have been resolved.
+- See `AwaitingShipmentDetail.tsx` for implementation details and comments.
 
 ---
 

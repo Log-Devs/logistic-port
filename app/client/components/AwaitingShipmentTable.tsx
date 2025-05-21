@@ -216,6 +216,26 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
     // Column widths in percentages - they must add up to 100%
     const columnWidths = ['10%', '18%', '22%', '14%', '10%', '12%', '14%'];
 
+    /**
+     * Helper function to calculate the next page index for pagination controls.
+     * Ensures that the page index does not exceed the maximum or go below zero.
+     * This function centralizes pagination logic to avoid duplication and inconsistencies.
+     *
+     * @param currentPage - The current page index
+     * @param totalItems - The total number of items (filteredShipments.length)
+     * @param pageSize - The number of items per page
+     * @param currentPageDataLength - The number of items on the current page (paginatedData.length)
+     * @returns The next valid page index
+     */
+    function getNextPageIndex(currentPage: number, totalItems: number, pageSize: number, currentPageDataLength: number): number {
+        // Calculate the maximum page index (zero-based)
+        const maxPage = Math.max(0, Math.ceil(totalItems / pageSize) - 1);
+        // If already at or past the last page, or no data on the current page, stay on the current page
+        if (currentPage >= maxPage || currentPageDataLength === 0) return currentPage;
+        // Otherwise, advance to the next page
+        return currentPage + 1;
+    }
+
     // Render the AwaitingShipmentTable UI
     // Always return a single parent element (React Fragment) to satisfy JSX requirements
     return (
@@ -315,12 +335,8 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
                             </span>
                             <button
                                 className="px-4 py-2 bg-gray-200 dark:bg-slate-700 rounded disabled:opacity-50 text-[color:#1A2B6D] dark:text-gray-200"
-                                onClick={() => setPageIndex((prev) => {
-                                    const maxPage = Math.max(0, Math.ceil(filteredShipments.length / pageSize) - 1);
-                                    // Robust: If already at or past the last page, do not advance
-                                    if (prev >= maxPage || paginatedData.length === 0) return prev;
-                                    return prev + 1;
-                                })}
+                                // Use a reusable function to calculate the next page index for maintainability
+                                onClick={() => setPageIndex((prev) => getNextPageIndex(prev, filteredShipments.length, pageSize, paginatedData.length))}
                                 disabled={pageIndex >= Math.max(0, Math.ceil(filteredShipments.length / pageSize) - 1) || paginatedData.length === 0}
                             >
                                 Next
