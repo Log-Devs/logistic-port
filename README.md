@@ -10,7 +10,18 @@
 - The Support page (`app/client/support/page.tsx`) is marked as a client component with `"use client"` to enable React hooks.
 - The About page for the client app is now at `/client/about`. All About navigation and links have been updated accordingly.
 - All changes are fully indexed, documented inline, and follow best practices for scalability and maintainability.
-
+- **Refactored computeArrival to a Dedicated Module:**
+  - Extracted `computeArrival` from the AwaitingShipmentTable component into its own module (`app/client/components/computeArrival.ts`) for improved testability, separation of concerns, and maintainability.
+  - Updated all usages and imports to reference the new module, ensuring clean code and OOP best practices.
+  - Refactored the test for `computeArrival` to import the real implementation from the dedicated module (`computeArrival.ts`).
+  - **Motivation for Refactor:**
+    - **Testability:** Allows direct import of the production function in tests, ensuring tests always reflect real business logic.
+    - **Clean Code & OOP:** Promotes single responsibility and reusability across components and tests.
+    - **Maintainability:** Centralizes shipment arrival logic, making future updates easier and less error-prone.
+  - **Update Instructions for Future Contributors:**
+    - When updating or extending shipment arrival logic, modify the `computeArrival` function in `computeArrival.ts`.
+    - Ensure to update all imports and usages to reference the new module.
+    - Follow clean code, OOP, and maintainability best practices when making changes.
 
 ## [2025-05-21] Support Page 404 Error Fixed and Navigation Paths Standardized
 

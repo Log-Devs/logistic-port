@@ -5,18 +5,9 @@
 import { describe, it, expect } from '@jest/globals';
 import { AwaitingShipment } from '../app/client/components/AwaitingShipmentTable';
 
-// Inline replica of computeArrival for direct unit test coverage
-const computeArrival = (shipment: AwaitingShipment): string => {
-    if (shipment.status === 'DELIVERED') {
-        // For delivered shipments, keep the original arrival
-        return shipment.arrival;
-    }
-    // For all other statuses, set arrival to 2 days from now
-    const now = new Date();
-    const arrivalDate = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
-    // Format as YYYY-MM-DD or a more user-friendly format
-    return arrivalDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-};
+// Import the real computeArrival implementation for true production test coverage
+// Import computeArrival from the dedicated module for accurate production logic
+import { computeArrival } from '../app/client/components/computeArrival';
 
 describe('computeArrival', () => {
     // Test: computeArrival returns the original arrival date for shipments with status 'DELIVERED'
