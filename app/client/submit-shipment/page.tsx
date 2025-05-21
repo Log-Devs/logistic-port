@@ -374,6 +374,7 @@ export default function SubmitShipmentPage() {
       // Package information
       freightType: "Delivery Type",
       packageType: "Package Type",
+      packageCategory: "Package Category", // [Required] Ensure package category is validated (re-added for completeness)
       packageDescription: "Package Description",
     };
 
