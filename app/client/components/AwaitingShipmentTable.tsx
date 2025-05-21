@@ -1,4 +1,6 @@
 import React, { useMemo, useState } from 'react';
+// Import computeArrival from the dedicated module for consistent logic and testability
+import { computeArrival } from './computeArrival';
 import { useReactTable, getCoreRowModel, flexRender, ColumnDef } from '@tanstack/react-table';
 import { FixedSizeList as List } from 'react-window';
 import { Clock, ArrowRight, ChevronRight } from "lucide-react";
@@ -171,18 +173,6 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
     // This ensures consistency for UI display and testability across environments.
     // computeArrival: Always returns ISO format (YYYY-MM-DD) for both DELIVERED and non-DELIVERED shipments.
     // This ensures consistency for UI display, tests, and API integrations.
-    const computeArrival = (shipment: AwaitingShipment): string => {
-        // Convert any date input to ISO format (YYYY-MM-DD) for reliability
-        const toISO = (date: string | Date) => new Date(date).toISOString().split('T')[0];
-        if (shipment.status === 'DELIVERED') {
-            // For delivered shipments, return the original arrival in ISO format
-            return toISO(shipment.arrival);
-        }
-        // For all other statuses, set arrival to 2 days from now, in ISO format
-        const now = new Date();
-        const arrivalDate = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
-        return toISO(arrivalDate);
-    };
 
     // Map shipments to update the arrival field
     // Normalize and filter shipments for awaiting view
