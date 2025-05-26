@@ -2,6 +2,8 @@
  * [2025-05-26] Updated ConfirmForm to reflect the simplified shipment flow.
  * Removed sender section and replaced with client/origin information.
  * This aligns with the admin's request to simplify the process and remove sender creation.
+ * 
+ * [2025-05-26] Added loading state and submit button with professional animation
  * -- Cascade AI
  */
 
@@ -45,6 +47,9 @@ interface ConfirmFormProps {
   
   // Accepts a form event for proper form submission handling
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void | Promise<void>;
+  
+  // New prop for loading state
+  isSubmitting: boolean;
 }
 
 /**
@@ -55,7 +60,8 @@ const ConfirmForm: React.FC<ConfirmFormProps> = ({
   formData,
   onInputChange,
   onBack,
-  onSubmit
+  onSubmit,
+  isSubmitting
 }) => {
   // Format section for display
   const SectionTitle = ({ title }: { title: string }) => (
@@ -96,7 +102,10 @@ const ConfirmForm: React.FC<ConfirmFormProps> = ({
         <p className="text-gray-500 mb-6">Please review all information before submitting your package request.</p>
       </div>
 
-      <div className="space-y-6">
+      <form onSubmit={(e) => {
+        e.preventDefault(); // Ensure we prevent default form submission behavior
+        onSubmit(e); // Pass the event to the parent handler
+      }} className="space-y-6">
         {/* Summary sections */}
         <div className="mt-8 space-y-8 bg-gray-50 dark:bg-gray-900 rounded-lg p-4 sm:p-6">
           {/* Client Information */}
@@ -151,8 +160,45 @@ const ConfirmForm: React.FC<ConfirmFormProps> = ({
               <p>After submitting your request, we'll coordinate with the sender to arrange pickup and delivery of your package. You'll receive updates via email and can track the status through your dashboard.</p>
             </div>
           </div>
+          
+          {/* Form Action Buttons */}
+          <div className="flex flex-col sm:flex-row justify-between space-y-4 sm:space-y-0 sm:space-x-4 mt-8">
+            {/* Back Button */}
+            <button
+              type="button"
+              onClick={onBack}
+              disabled={isSubmitting}
+              className="px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Back to Package Details
+            </button>
+            
+            {/* Submit Button with Loading State - Using red color scheme */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all duration-200 disabled:opacity-80 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <>
+                  <span>Submit Package Request</span>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </>
+              )}
+            </button>
+          </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 };

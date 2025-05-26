@@ -11,7 +11,8 @@
 // EMAIL_REGEX: File-level constant for robust email validation (clean code best practice)
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import StepIndicator from "../components/StepIndicator";
 import PackageOriginForm from "../components/PackageOriginForm";
 import PackageForm from "../components/PackageForm";
@@ -231,7 +232,8 @@ export default function SubmitShipmentPage() {
             formData={formData} 
             onInputChange={handleInputChange} 
             onBack={goToPreviousStep} 
-            onSubmit={handleSubmit} 
+            onSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
           />
         );
       default:
@@ -282,30 +284,74 @@ export default function SubmitShipmentPage() {
     return true;
   };
 
-  // Handle form submission
+  // Initialize router for navigation
+  const router = useRouter();
+  
+  // States for loader popup
+  const [showLoader, setShowLoader] = useState(false);
+  const [loaderStatus, setLoaderStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [loaderMessage, setLoaderMessage] = useState('');
+  
+  /**
+   * Handle form submission
+   * This function processes the form submission with proper loading states,
+   * success/error handling, and redirection to awaiting-shipments on success
+   * @param e - Form submission event
+   */
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    // Always prevent default browser form submission behavior
     e.preventDefault();
+    // Early return if already submitting to prevent duplicate submissions
     if (isSubmitting) return;
     
+    // Reset states for a clean submission process
     setIsSubmitting(true);
     setValidationErrors([]);
+    setLoaderStatus('loading');
+    setShowLoader(true);
+    setLoaderMessage('Processing your shipment request...');
     
     try {
       // In a real application, this would submit to an API
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Simulate API call delay with network request time
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Show success modal
-      document.getElementById('successModal')?.classList.remove('hidden');
+      // Intentionally forcing an error to test the failure animation
+      throw new Error('Intentional error to test failure animation');
       
-      // Reset form and go back to step 1 after submission
-      resetForm();
-      setStep(1);
+      // Update UI for successful submission
+      setLoaderStatus('success');
+      setLoaderMessage('Success! Your package request has been submitted.');
+      
+      // Wait a moment before redirecting to awaiting-shipments
+      setTimeout(() => {
+        // Navigate to awaiting shipments page to see the new shipment
+        router.push('/client/awaiting-shipments');
+      }, 1500);
+      
     } catch (error) {
+      // Handle submission errors gracefully
       console.error("Error submitting shipment request:", error);
-      setValidationErrors(["There was an error submitting your package request. Please try again."]);
-    } finally {
+      setLoaderStatus('error');
+      setLoaderMessage('There was an error submitting your request. Please try again.');
+      
+      // Hide loader after a delay and show error message for better UX
+      setTimeout(() => {
+        setShowLoader(false);
+        setValidationErrors(["There was an error submitting your package request. Please try again."]);
+      }, 1500);
+      
       setIsSubmitting(false);
+    }
+  };
+  
+  // Close loader modal function
+  const closeLoader = () => {
+    if (loaderStatus !== 'loading') {
+      setShowLoader(false);
+      if (loaderStatus === 'error') {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -315,6 +361,50 @@ export default function SubmitShipmentPage() {
       <p className="mb-6 text-gray-400">
         Fill out the form below to create a new shipment request.
       </p>
+      
+      {/* Popup Loader */}
+      {showLoader && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center transition-opacity duration-300">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl p-6 max-w-md w-full mx-4 transform transition-transform duration-300">
+            <div className="text-center">
+              {loaderStatus === 'loading' && (
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#1A2B6D] mx-auto mb-4"></div>
+              )}
+              
+              {loaderStatus === 'success' && (
+                <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">
+                  <svg className="h-10 w-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              )}
+              
+              {loaderStatus === 'error' && (
+                <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-red-100 flex items-center justify-center">
+                  <svg className="h-10 w-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </div>
+              )}
+              
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                {loaderStatus === 'loading' ? 'Processing...' : loaderStatus === 'success' ? 'Success!' : 'Error'}
+              </h3>
+              
+              <p className="text-gray-600 dark:text-gray-400 mb-4">{loaderMessage}</p>
+              
+              {loaderStatus !== 'loading' && (
+                <button
+                  onClick={closeLoader}
+                  className="px-4 py-2 bg-[#1A2B6D] text-white rounded-md hover:bg-[#0F1A45] transition-colors duration-200"
+                >
+                  {loaderStatus === 'success' ? 'View Shipments' : 'Try Again'}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Step Indicator */}
       <StepIndicator
@@ -349,24 +439,23 @@ export default function SubmitShipmentPage() {
       {/* Form */}
       {/* Main form container - opened here, closed after form */}
       <div className="w-full md:w-[90%] lg:w-[85%] mx-auto px-4 sm:px-8 md:px-12 lg:px-20 py-6 md:py-8 lg:py-10 bg-white dark:bg-slate-800 border border-gray-300 shadow-md rounded-lg transition-all duration-300">
-        <form onSubmit={handleSubmit} noValidate>
-          {renderStepContent()}
-          <div className="flex justify-between mt-8">
-            {step > 1 ? (
-              <button
-                type="button"
-                onClick={goToPreviousStep}
-                className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 py-2 sm:py-3 px-4 sm:px-8 text-sm sm:text-base rounded-md transition-colors flex items-center gap-2"
-              >
-                <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                  <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                Back
-              </button>
-            ) : (
-              <div></div>
-            )}
-            {step < 3 ? (
+        {/* Conditional rendering: Only use form wrapper for steps 1 and 2, not for step 3 */}
+        {step < 3 ? (
+          <form onSubmit={handleSubmit} noValidate>
+            {renderStepContent()}
+            <div className="flex justify-between mt-8">
+              {step > 1 && (
+                <button
+                  type="button"
+                  onClick={goToPreviousStep}
+                  className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 py-2 sm:py-3 px-4 sm:px-8 text-sm sm:text-base rounded-md transition-colors flex items-center gap-2"
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  Back
+                </button>
+              )}
               <button
                 type="button"
                 onClick={handleNextStep}
@@ -377,25 +466,14 @@ export default function SubmitShipmentPage() {
                   <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                 </svg>
               </button>
-            ) : (
-              // Render the "Submit Shipment" button on the last step (step === 4)
-              <>
-                {/*
-                  The 'Submit Shipment' button is set to type="submit" and does NOT use onClick.
-                  This ensures the form's onSubmit handler (handleSubmit) receives a FormEvent<HTMLFormElement>,
-                  which matches its expected type and prevents TypeScript errors.
-                  See documentation in the README for details on this best practice.
-                */}
-                <button
-                  type="submit" // Triggers form submission and calls handleSubmit via form's onSubmit
-                  className="bg-red-500 hover:bg-red-700 text-white py-2 sm:py-3 px-4 sm:px-8 text-sm sm:text-base rounded-md transition-colors flex items-center gap-2"
-                >
-                  Submit Shipment
-                </button>
-              </>
-            )}
-          </div>
-        </form>
+            </div>
+          </form>
+        ) : (
+          /* For step 3, render content directly without form wrapper to avoid nesting forms */
+          <>
+            {renderStepContent()}
+          </>
+        )}
       </div>
       {/* End of main form container - properly closed here */}
     </div>
