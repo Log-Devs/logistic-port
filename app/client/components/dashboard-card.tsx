@@ -42,11 +42,11 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
 
   return (
     <div 
-      className="relative rounded-lg overflow-hidden cursor-pointer w-full hover:shadow-lg transition-shadow"
+      className="relative rounded-lg overflow-hidden cursor-pointer w-full hover:shadow-xl shadow-lg transition-shadow dark:bg-slate-800 dark:hover:bg-slate-700"
       onClick={onClick}
     >
       {/* Image Background - full size to match the image design */}
-      <div className="w-full h-44 relative">
+      <div className="w-full h-64 relative">
         <Image
           src={imageSrc}
           alt={title}
@@ -58,12 +58,12 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
       
       {/* Content overlay at the bottom */}
       <div className="absolute bottom-0 left-0 right-0 p-4 bg-white">
-        <h3 className="text-lg font-medium">{title}</h3>
-        <p className="text-sm text-gray-500">{description}</p>
+        <h3 className="text-lg font-medium dark:text-gray-700">{title}</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
       </div>
       
       {/* Circular icon on the right side - exactly as in the image */}
-      <div className="absolute bottom-4 right-4 bg-blue-800 rounded-full p-3 flex items-center justify-center">
+      <div className="absolute bottom-4 right-4 bg-blue-800 rounded-full p-3 flex items-center justify-center my-8">
         {renderIcon()}
       </div>
     </div>
