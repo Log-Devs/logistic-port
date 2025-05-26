@@ -316,17 +316,17 @@ export default function SubmitShipmentPage() {
       // Simulate API call delay with network request time
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Uncomment the line below to test the error animation
-      // throw new Error('Intentional error to test failure animation');
+      // Intentionally forcing an error to test the failure animation
+      throw new Error('Intentional error to test failure animation');
       
       // Update UI for successful submission
       setLoaderStatus('success');
       setLoaderMessage('Success! Your package request has been submitted.');
       
-      // Wait a moment before redirecting to awaiting-shipments
+      // Wait a moment before redirecting to shipment-history
       setTimeout(() => {
-        // Navigate to awaiting shipments page to see the new shipment
-        router.push('/client/awaiting-shipments');
+        // Navigate to shipment history page to see the new shipment
+        router.push('/client/shipment-history');
       }, 1500);
       
     } catch (error) {
