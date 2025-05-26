@@ -1,18 +1,56 @@
+/**
+ * [2025-05-26] Updated ConfirmForm to reflect the simplified shipment flow.
+ * Removed sender section and replaced with client/origin information.
+ * This aligns with the admin's request to simplify the process and remove sender creation.
+ * -- Cascade AI
+ */
+
 import React from "react";
 import { DELIVERY_TYPES, PACKAGE_TYPES } from "@/lib/constants";
 
-// Props interface for ConfirmForm, following clean code and OOP best practices
+// Props interface for ConfirmForm following clean code and OOP best practices
 interface ConfirmFormProps {
-  formData: any;
+  formData: {
+    // Client information
+    clientName: string;
+    clientEmail: string;
+    clientPhone: string;
+    clientAddress?: string;
+    clientCity?: string;
+    clientState?: string;
+    clientZip?: string;
+    clientCountry?: string;
+    
+    // Package origin
+    originCountry: string;
+    originCity?: string;
+    originAddress?: string;
+    originState?: string;
+    
+    // Package details
+    packageType: string;
+    packageCategory: string;
+    packageDescription: string;
+    freightType: string;
+    packageWeight?: string;
+    
+    // Any other properties
+    [key: string]: any;
+  };
+  
   onInputChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => void;
   onBack: () => void;
+  
   // Accepts a form event for proper form submission handling
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void | Promise<void>;
 }
 
-// ConfirmForm component renders a confirmation summary and handles form submission
+/**
+ * ConfirmForm component renders a confirmation summary and handles form submission
+ * for the simplified shipment flow
+ */
 const ConfirmForm: React.FC<ConfirmFormProps> = ({
   formData,
   onInputChange,
@@ -23,6 +61,7 @@ const ConfirmForm: React.FC<ConfirmFormProps> = ({
   const SectionTitle = ({ title }: { title: string }) => (
     <h3 className="text-lg font-semibold text-[#1A2B6D] dark:text-[#AEB8D0] border-b border-gray-200 dark:border-gray-700 pb-2 mb-3">{title}</h3>
   );
+  
   // Helper function to format values properly
   const formatValue = (value: any): string => {
     if (value === undefined || value === null || value === '') return "-";
@@ -42,6 +81,7 @@ const ConfirmForm: React.FC<ConfirmFormProps> = ({
     return packageType ? packageType.label : id || '-';
   };
 
+  // Component to display a row of information
   const InfoRow = ({ label, value }: { label: string; value: any }) => (
     <div className="flex flex-col sm:flex-row py-2 border-b border-gray-100 dark:border-gray-800 last:border-b-0">
       <div className="font-medium text-gray-600 dark:text-gray-400 w-full sm:w-1/3 mb-1 sm:mb-0">{label}:</div>
@@ -52,52 +92,35 @@ const ConfirmForm: React.FC<ConfirmFormProps> = ({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl text-[#1A2B6D] dark:text-[#AEB8D0] font-bold mb-4">Confirm Delivery</h2>
-        <p className="text-gray-500 mb-6">Please review all information before submitting your shipment request.</p>
+        <h2 className="text-2xl text-[#1A2B6D] dark:text-[#AEB8D0] font-bold mb-4">Confirm Package Request</h2>
+        <p className="text-gray-500 mb-6">Please review all information before submitting your package request.</p>
       </div>
 
       <div className="space-y-6">
         {/* Summary sections */}
         <div className="mt-8 space-y-8 bg-gray-50 dark:bg-gray-900 rounded-lg p-4 sm:p-6">
-          {/* Sender Information */}
+          {/* Client Information */}
           <div>
-            <SectionTitle title="Sender Information" />
+            <SectionTitle title="Your Information" />
             <div className="space-y-1">
-              <InfoRow label="Name" value={formData.senderName} />
-              <InfoRow label="Email" value={formData.senderEmail} />
-              <InfoRow label="Phone" value={formData.senderPhone} />
-              <InfoRow label="Address" value={formData.senderAddress} />
-              <InfoRow label="City" value={formData.senderCity} />
-              <InfoRow label="State" value={formData.senderState} />
-              <InfoRow label="ZIP Code" value={formData.senderZip} />
-              <InfoRow label="Country" value={formData.senderCountry} />
+              <InfoRow label="Name" value={formData.clientName} />
+              <InfoRow label="Email" value={formData.clientEmail} />
+              <InfoRow label="Phone" value={formData.clientPhone} />
+              <InfoRow label="Address" value={formData.clientAddress} />
+              <InfoRow label="City" value={formData.clientCity} />
+              <InfoRow label="State" value={formData.clientState} />
+              <InfoRow label="Country" value={formData.clientCountry} />
             </div>
           </div>
 
-          {/* Recipient Information */}
+          {/* Package Origin */}
           <div>
-            <SectionTitle title="Recipient Information" />
+            <SectionTitle title="Package Origin" />
             <div className="space-y-1">
-              <InfoRow label="Uses ID" value={formData.recipientKnowsId} />
-
-              {formData.recipientKnowsId ? (
-                <InfoRow label="ID Number" value={formData.recipientId} />
-              ) : (
-                <>
-                  <InfoRow label="Name" value={formData.recipientName} />
-                  <InfoRow label="Email" value={formData.recipientEmail} />
-                  <InfoRow label="Phone" value={
-                    formData.recipientPhone ?
-                      `${formData.recipientPhoneCountryCode || ''} ${formData.recipientPhone}`.trim() :
-                      '-'
-                  } />
-                  <InfoRow label="Address" value={formData.recipientAddress} />
-                  <InfoRow label="City" value={formData.recipientCity} />
-                  <InfoRow label="State" value={formData.recipientState} />
-                  <InfoRow label="ZIP Code" value={formData.recipientZip} />
-                  <InfoRow label="Country" value={formData.recipientCountry} />
-                </>
-              )}
+              <InfoRow label="Origin Country" value={formData.originCountry} />
+              <InfoRow label="Origin City" value={formData.originCity} />
+              <InfoRow label="Origin Address" value={formData.originAddress} />
+              <InfoRow label="Origin State" value={formData.originState} />
             </div>
           </div>
 
@@ -106,8 +129,10 @@ const ConfirmForm: React.FC<ConfirmFormProps> = ({
             <SectionTitle title="Package Information" />
             <div className="space-y-1">
               <InfoRow label="Package Type" value={getPackageTypeLabel(formData.packageType)} />
+              <InfoRow label="Package Category" value={formData.packageCategory} />
               <InfoRow label="Description" value={formData.packageDescription} />
               <InfoRow label="Delivery Type" value={getDeliveryTypeLabel(formData.freightType)} />
+              <InfoRow label="Weight" value={formData.packageWeight ? `${formData.packageWeight} kg` : '-'} />
             </div>
           </div>
         </div>
@@ -122,8 +147,8 @@ const ConfirmForm: React.FC<ConfirmFormProps> = ({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div>
-              <p className="font-medium mb-1">Shipping Cost Calculation</p>
-              <p>The final shipping cost will be calculated based on package dimensions, weight, delivery type, and distance. You will receive a quote after submission for your approval before payment.</p>
+              <p className="font-medium mb-1">Next Steps</p>
+              <p>After submitting your request, we'll coordinate with the sender to arrange pickup and delivery of your package. You'll receive updates via email and can track the status through your dashboard.</p>
             </div>
           </div>
         </div>

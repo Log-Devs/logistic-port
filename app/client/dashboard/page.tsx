@@ -59,13 +59,13 @@ const ClientDashboard: React.FC = () => {
   }
 
   return (
-    <div className="w-full px-2 md:px-12 py-8 dark:bg-slate-900 min-h-screen">
+    <div className="min-h-screen px-4 sm:px-10 py-6 bg-gray-100 dark:bg-slate-900 transition-colors duration-300">
       {/* Welcome Header - exactly as in the image */}
-      <h1 className="text-3xl font-semibold mb-6">Welcome</h1>
+      <h1 className="text-2xl font-bold mb-2">Welcome</h1>
       
       {/* Prompt - exactly as in the image */}
       <div className="mb-12">
-        <h2 className="text-2xl font-semibold">What would you like to do?</h2>
+        <p className="mb-6 text-gray-400">What would you like to do?</p>
       </div>
       
       {/* 2x2 Grid of Dashboard Cards - exact layout from image */}

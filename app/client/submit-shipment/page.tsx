@@ -1,5 +1,9 @@
 /**
- * [2025-05-21] Fix: Removed onClick={handleSubmit} from the 'Submit Shipment' button. The form now uses onSubmit={handleSubmit}, and the button is type="submit" only. This resolves a TypeScript event type error and follows React/TypeScript best practices. See README for details. -- Cascade AI
+ * [2025-05-26] Major Update: Simplified shipment submission flow per admin request.
+ * Removed sender information step and focused only on package details.
+ * The client now only provides information about receiving a package and its details.
+ * This aligns with the new business logic where clients only submit requests for packages they will receive.
+ * See README for details. -- Cascade AI
  */
 
 "use client";
@@ -7,16 +11,15 @@
 // EMAIL_REGEX: File-level constant for robust email validation (clean code best practice)
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-
 import React, { useState } from "react";
 import StepIndicator from "../components/StepIndicator";
-import SenderForm from "../components/SenderForm";
-import RecipientForm from "../components/RecipientForm";
+import PackageOriginForm from "../components/PackageOriginForm";
 import PackageForm from "../components/PackageForm";
 import ConfirmForm from "../components/ConfirmForm";
 import { useShipmentForm } from "@/hooks/useShipmentForm";
 import { initialFormData } from "@/lib/constants";
 
+// Interface for address suggestions from OpenStreetMap API
 interface AddressSuggestion {
   display_name: string;
   lat: string;
@@ -36,6 +39,7 @@ interface AddressSuggestion {
 }
 
 export default function SubmitShipmentPage() {
+  // Initialize form with simplified data structure
   const { formData, setFormData, handleInputChange: baseHandleInputChange, resetForm } = useShipmentForm(initialFormData);
 
   // Enhanced handleInputChange: clears stepValidationError if set, for instant UX feedback
@@ -43,115 +47,95 @@ export default function SubmitShipmentPage() {
     if (stepValidationError) setStepValidationError(null); // Clear error on any input change
     baseHandleInputChange(e);
   }
-  const [step, setStep] = useState<number>(1);
-  const [senderAddressSuggestions, setSenderAddressSuggestions] = useState<
-    AddressSuggestion[]
-  >([]);
-  const [senderAddressLoading, setSenderAddressLoading] = useState(false);
-  const [senderAddressError, setSenderAddressError] = useState<string | null>(
-    null
-  );
-  const [senderSuggestionIndex, setSenderSuggestionIndex] = useState(-1);
-  const [locating, setLocating] = useState(false);
-  const [mapCoords, setMapCoords] = useState<{
-    lat: number;
-    lon: number;
-  } | null>(null);
-  const [locationSuccess, setLocationSuccess] = useState(false);
-  const [locationError, setLocationError] = useState<string | null>(null);
+  
+  // Core state variables for the simplified flow
+  const [step, setStep] = useState<number>(1); // Start with step 1 (origin country)
+  const [originAddressSuggestions, setOriginAddressSuggestions] = useState<AddressSuggestion[]>([]);
+  const [originAddressLoading, setOriginAddressLoading] = useState(false);
+  const [originAddressError, setOriginAddressError] = useState<string | null>(null);
+  const [originSuggestionIndex, setOriginSuggestionIndex] = useState(-1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [stepValidationError, setStepValidationError] = useState<string | null>(null);
 
-  // Address auto-complete for sender (with keyboard nav)
-  const handleSenderAddressInput = async (
+  // Address auto-complete for package origin (with keyboard nav)
+  const handleOriginCountryInput = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
+    // Handle address/country input for package origin
     const value = e.target.value;
-    setFormData((prev) => ({ ...prev, senderAddress: value }));
-    setSenderAddressError(null);
-    setSenderAddressLoading(true);
-    setSenderAddressSuggestions([]);
-    setSenderSuggestionIndex(-1);
+    setFormData((prev) => ({ ...prev, originCountry: value }));
+    setOriginAddressError(null);
+    setOriginAddressLoading(true);
+    setOriginAddressSuggestions([]);
+    setOriginSuggestionIndex(-1);
+    
+    // Only search if user has typed at least 2 characters
     if (value.length > 2) {
       try {
-        const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(
-          value
-        )}`;
+        // Use OpenStreetMap API to get country suggestions
+        const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(value)}&countrycodes=1`;
         const res = await fetch(url);
         const data = await res.json();
-        setSenderAddressSuggestions(data);
+        setOriginAddressSuggestions(data);
       } catch {
-        setSenderAddressError("Failed to fetch address suggestions.");
+        setOriginAddressError("Failed to fetch country suggestions.");
       }
     }
-    setSenderAddressLoading(false);
+    setOriginAddressLoading(false);
   };
 
-  // Keyboard navigation for suggestions
-  const handleSenderAddressKeyDown = (
+  // Keyboard navigation for country suggestions
+  const handleOriginCountryKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>
   ) => {
-    if (!senderAddressSuggestions.length) return;
+    if (!originAddressSuggestions.length) return;
+    
+    // Navigate through suggestions with arrow keys
     if (e.key === "ArrowDown") {
-      setSenderSuggestionIndex((idx) =>
-        Math.min(idx + 1, senderAddressSuggestions.length - 1)
+      setOriginSuggestionIndex((idx) =>
+        Math.min(idx + 1, originAddressSuggestions.length - 1)
       );
     } else if (e.key === "ArrowUp") {
-      setSenderSuggestionIndex((idx) => Math.max(idx - 1, 0));
-    } else if (e.key === "Enter" && senderSuggestionIndex >= 0) {
-      handleSenderSuggestionSelect(
-        senderAddressSuggestions[senderSuggestionIndex]
+      setOriginSuggestionIndex((idx) => Math.max(idx - 1, 0));
+    } else if (e.key === "Enter" && originSuggestionIndex >= 0) {
+      // Select the highlighted suggestion on Enter key
+      handleOriginSuggestionSelect(
+        originAddressSuggestions[originSuggestionIndex]
       );
     }
   };
 
-  // When user selects a suggestion (full form auto-fill)
-  const handleSenderSuggestionSelect = async (
+  // When user selects a country suggestion
+  const handleOriginSuggestionSelect = (
     suggestion: AddressSuggestion
   ) => {
+    // Update form with selected country
     setFormData((prev) => ({
       ...prev,
-      senderAddress:
-        suggestion.address?.road ||
-        suggestion.address?.pedestrian ||
-        suggestion.address?.footway ||
-        suggestion.display_name ||
-        "",
-      senderCity:
-        suggestion.address?.city ||
-        suggestion.address?.town ||
-        suggestion.address?.village ||
-        suggestion.address?.hamlet ||
-        "",
-      senderState: suggestion.address?.state || "",
-      senderZip: suggestion.address?.postcode || "",
-      senderCountry: suggestion.address?.country || "",
+      originCountry: suggestion.address?.country || suggestion.display_name || "",
+      originCity: suggestion.address?.city || "",
     }));
-    setMapCoords({
-      lat: parseFloat(suggestion.lat),
-      lon: parseFloat(suggestion.lon),
-    });
-    setSenderAddressSuggestions([]);
-    setSenderSuggestionIndex(-1);
+    
+    // Clear suggestions after selection
+    setOriginAddressSuggestions([]);
+    setOriginSuggestionIndex(-1);
   };
 
+  // Simple function to go back to previous step
   const goToPreviousStep = () => {
     setStepValidationError(null);
     setStep(step - 1);
   };
 
   // Step validation helper functions
-  const validateSenderStep = () => {
+  const validateOriginStep = () => {
+    // Check required fields for the origin step
     const requiredFields = [
-      "senderName",
-      "senderAddress",
-      "senderEmail",
-      "senderPhone",
-      "senderCity",
-      "senderState",
-      "senderZip",
-      "senderCountry"
+      "originCountry",
+      "clientEmail",
+      "clientName",
+      "clientPhone"
     ];
 
     const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
@@ -162,7 +146,7 @@ export default function SubmitShipmentPage() {
     }
 
     // Email validation
-    if (!EMAIL_REGEX.test(formData.senderEmail)) {
+    if (!EMAIL_REGEX.test(formData.clientEmail)) {
       setStepValidationError("Please enter a valid email address");
       return false;
     }
@@ -171,50 +155,19 @@ export default function SubmitShipmentPage() {
     return true;
   };
 
-  const validateRecipientStep = () => {
-    if (formData.recipientKnowsId) {
-      if (!formData.recipientId) {
-        setStepValidationError("Please enter the recipient ID");
-        return false;
-      }
-    } else {
-      const requiredFields = [
-        "recipientName",
-        "recipientEmail",
-        "recipientPhone",
-        "recipientAddress",
-        "recipientCity",
-        "recipientState",
-        "recipientZip",
-        "recipientCountry"
-      ];
-
-      const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
-
-      if (missingFields.length > 0) {
-        setStepValidationError("Please fill in all required recipient fields marked with *");
-        return false;
-      }
-
-      // Email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.recipientEmail)) {
-        setStepValidationError("Please enter a valid recipient email address");
-        return false;
-      }
-    }
-
-    setStepValidationError(null);
-    return true;
-  };
-
   const validatePackageStep = () => {
-    const requiredFields = ["freightType", "packageType", "packageDescription"];
+    // Check required fields for package details
+    const requiredFields = [
+      "packageType",
+      "packageCategory",
+      "packageDescription",
+      "freightType"
+    ];
 
     const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
 
     if (missingFields.length > 0) {
-      setStepValidationError("Please fill in all required package details marked with *");
+      setStepValidationError("Please fill in all required package fields marked with *");
       return false;
     }
 
@@ -222,133 +175,67 @@ export default function SubmitShipmentPage() {
     return true;
   };
 
-  const goToNextStep = () => {
+  // Handle moving to the next step in the form flow
+  const handleNextStep = () => {
+    setStepValidationError(null);
+    
+    // Step validation based on current step
     let isValid = false;
-
-    // Validate the current step
+    
     switch (step) {
-      case 1:
-        isValid = validateSenderStep();
+      case 1: // Package Origin & Client Info
+        isValid = validateOriginStep();
         break;
-      case 2:
-        isValid = validateRecipientStep();
-        break;
-      case 3:
+      case 2: // Package Details
         isValid = validatePackageStep();
         break;
       default:
         isValid = true;
     }
-
+    
+    // Only proceed if current step is valid
     if (isValid) {
-      setStepValidationError(null);
       setStep(step + 1);
-      window.scrollTo(0, 0);
-    }
-  };
-
-  const handleDetectLocation = async () => {
-    setLocating(true);
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          setMapCoords({ lat: latitude, lon: longitude });
-
-          // Reverse geocode to get address details
-          try {
-            const address = await import("@/lib/utils").then((m) =>
-              m.reverseGeocode(latitude, longitude)
-            );
-            const resolved = await address;
-            setFormData((prev) => ({
-              ...prev,
-              senderCity:
-                resolved.city ||
-                resolved.town ||
-                resolved.village ||
-                resolved.hamlet ||
-                "",
-              senderState: resolved.state || "",
-              senderZip: resolved.postcode || "",
-              senderCountry: prev.senderCountry || resolved.country || "", // Only set if not already set
-            }));
-          } catch {
-            // Optionally handle error
-          }
-
-          setLocating(false);
-          setLocationSuccess(true);
-          setLocationError(null);
-        },
-        () => {
-          setLocating(false);
-          setLocationSuccess(false);
-          setLocationError(
-            "Unable to detect your location. Please allow location access."
-          );
-        }
-      );
-    } else {
-      setLocating(false);
-      setLocationSuccess(false);
-      setLocationError("Geolocation is not supported by your browser.");
+      window.scrollTo(0, 0); // Scroll to top when changing steps
     }
   };
 
   // Step Rendering
-  const renderStep = () => {
+  const renderStepContent = () => {
     switch (step) {
       case 1:
         return (
-          <SenderForm
+          <PackageOriginForm
             formData={formData}
             onInputChange={handleInputChange}
-            onAddressInput={handleSenderAddressInput}
-            onAddressKeyDown={handleSenderAddressKeyDown}
-            addressSuggestions={senderAddressSuggestions}
-            addressLoading={senderAddressLoading}
-            addressError={senderAddressError}
-            suggestionIndex={senderSuggestionIndex}
-            onDetectLocation={handleDetectLocation}
-            locating={locating}
-            locationSuccess={locationSuccess}
-            locationError={locationError}
+            onOriginCountryInput={handleOriginCountryInput}
+            onOriginCountryKeyDown={handleOriginCountryKeyDown}
+            countrySuggestions={originAddressSuggestions}
+            countryLoading={originAddressLoading}
+            countryError={originAddressError}
+            suggestionIndex={originSuggestionIndex}
+            onSuggestionSelect={handleOriginSuggestionSelect}
           />
         );
       case 2:
         return (
-          <RecipientForm
+          <PackageForm
             formData={formData}
             onInputChange={handleInputChange}
-            onAddressInput={handleSenderAddressInput}
-            onAddressKeyDown={handleSenderAddressKeyDown}
-            addressSuggestions={senderAddressSuggestions}
-            addressLoading={senderAddressLoading}
-            addressError={senderAddressError}
-            suggestionIndex={senderSuggestionIndex}
-            onSuggestionSelect={() => { }}
+            onPackageDescriptionChange={handleInputChange}
           />
         );
       case 3:
         return (
-          <PackageForm
-            formData={formData}
-            onInputChange={handleInputChange}
-            onPackageDescriptionChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-              setFormData((prev) => ({ ...prev, packageNote: e.target.value }))
-            }
+          <ConfirmForm 
+            formData={formData} 
+            onInputChange={handleInputChange} 
+            onBack={goToPreviousStep} 
+            onSubmit={handleSubmit} 
           />
         );
-      case 4:
-        return (
-          <ConfirmForm
-            formData={formData}
-            onInputChange={handleInputChange}
-            onBack={goToPreviousStep}
-            onSubmit={handleSubmit}
-          />
-        );
+      default:
+        return null; // Handle unexpected step values
     }
   };
 
@@ -356,47 +243,38 @@ export default function SubmitShipmentPage() {
   const validateForm = () => {
     // Required fields validation
     const requiredFields = {
-      // Sender information
-      senderName: "Sender Name",
-      senderAddress: "Sender Address",
-      senderEmail: "Sender Email",
-      senderPhone: "Sender Phone",
-      senderCity: "Sender City",
-      senderState: "Sender State",
-      senderZip: "Sender ZIP Code",
-      senderCountry: "Sender Country",
-
-      // Recipient information (conditionally required based on ID usage)
-      ...(formData.recipientKnowsId
-        ? { recipientId: "Recipient ID" }
-        : {
-          recipientName: "Recipient Name",
-          recipientEmail: "Recipient Email",
-          recipientPhone: "Recipient Phone",
-          recipientAddress: "Recipient Address",
-          recipientCity: "Recipient City",
-          recipientState: "Recipient State",
-          recipientZip: "Recipient ZIP Code",
-          recipientCountry: "Recipient Country",
-        }),
-
+      // Client information
+      clientName: "Your Name", 
+      clientEmail: "Your Email",
+      clientPhone: "Your Phone",
+      
+      // Origin information
+      originCountry: "Origin Country",
+      
       // Package information
-      freightType: "Delivery Type",
       packageType: "Package Type",
-      packageCategory: "Package Category", // [Required] Ensure package category is validated (re-added for completeness)
+      packageCategory: "Package Category",
       packageDescription: "Package Description",
+      freightType: "Delivery Type",
     };
 
     const missingFields: string[] = [];
+
     for (const [field, label] of Object.entries(requiredFields)) {
-      // Use index access with type assertion since we know these properties exist
-      if (!(formData as any)[field]) {
+      // @ts-ignore: dynamic access
+      if (!formData[field]) {
         missingFields.push(label);
       }
     }
 
     if (missingFields.length > 0) {
-      setValidationErrors(missingFields);
+      setValidationErrors([`Please fill in all required fields: ${missingFields.join(", ")}`]);
+      return false;
+    }
+
+    // Email validation
+    if (!EMAIL_REGEX.test(formData.clientEmail)) {
+      setValidationErrors(["Please enter a valid email address"]);
       return false;
     }
 
@@ -404,39 +282,30 @@ export default function SubmitShipmentPage() {
     return true;
   };
 
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    if (step !== 4) {
-      // If we're not on the final confirmation step, don't submit
-      return;
-    }
-
+    if (isSubmitting) return;
+    
     setIsSubmitting(true);
-
-    if (validateForm()) {
-      try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-
-        // Here you would send data to your backend
-        console.log("Form submitted successfully:", formData);
-
-        // Show success message
-        alert("Shipment submitted successfully!");
-
-        // Reset form and go back to step 1
-        resetForm();
-        setStep(1);
-      } catch (error) {
-        alert("There was an error submitting your shipment. Please try again.");
-        console.error("Submission error:", error);
-      } finally {
-        setIsSubmitting(false);
-      }
-    } else {
+    setValidationErrors([]);
+    
+    try {
+      // In a real application, this would submit to an API
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Show success modal
+      document.getElementById('successModal')?.classList.remove('hidden');
+      
+      // Reset form and go back to step 1 after submission
+      resetForm();
+      setStep(1);
+    } catch (error) {
+      console.error("Error submitting shipment request:", error);
+      setValidationErrors(["There was an error submitting your package request. Please try again."]);
+    } finally {
       setIsSubmitting(false);
-      window.scrollTo(0, 0);
     }
   };
 
@@ -448,7 +317,10 @@ export default function SubmitShipmentPage() {
       </p>
 
       {/* Step Indicator */}
-      <StepIndicator step={step} />
+      <StepIndicator
+        steps={["Origin & Client", "Package", "Confirm"]}
+        currentStep={step}
+      />
 
       {/* Error messages */}
       {validationErrors.length > 0 && (
@@ -478,7 +350,7 @@ export default function SubmitShipmentPage() {
       {/* Main form container - opened here, closed after form */}
       <div className="w-full md:w-[90%] lg:w-[85%] mx-auto px-4 sm:px-8 md:px-12 lg:px-20 py-6 md:py-8 lg:py-10 bg-white dark:bg-slate-800 border border-gray-300 shadow-md rounded-lg transition-all duration-300">
         <form onSubmit={handleSubmit} noValidate>
-          {renderStep()}
+          {renderStepContent()}
           <div className="flex justify-between mt-8">
             {step > 1 ? (
               <button
@@ -494,14 +366,13 @@ export default function SubmitShipmentPage() {
             ) : (
               <div></div>
             )}
-            {step < 4 ? (
-              // Render the "Continue" button for steps before the last (step < 4)
+            {step < 3 ? (
               <button
-                type="button" // Prevents form submission on intermediate steps
-                onClick={goToNextStep}
+                type="button"
+                onClick={handleNextStep}
                 className="bg-primary hover:bg-primary/90 text-white py-2 sm:py-3 px-4 sm:px-8 text-sm sm:text-base rounded-md transition-colors flex items-center gap-2"
               >
-                Continue
+                Next
                 <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                   <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                 </svg>

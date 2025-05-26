@@ -1,10 +1,18 @@
-import React from "react";
+/**
+ * [2025-05-26] Updated PackageForm to restrict delivery type to Air only
+ * as per admin requirements. All other delivery types are disabled.
+ * -- Cascade AI
+ */
 
+import React, { useEffect } from "react";
+import { FaPlane } from "react-icons/fa";
+
+// Only Air delivery type is available as per admin requirements
 const DELIVERY_TYPES = [
-  { id: "ground", label: "Ground" },
-  { id: "air", label: "Air" },
-  { id: "sea", label: "Sea" },
-  { id: "express", label: "Express" }
+  { id: "air", label: "Air", icon: <FaPlane className="text-blue-500" />, available: true },
+  { id: "ground", label: "Ground", available: false },
+  { id: "sea", label: "Sea", available: false },
+  { id: "express", label: "Express", available: false }
 ];
 
 const PACKAGE_TYPES = [
@@ -56,13 +64,14 @@ const PACKAGE_CATEGORIES: PackageCategoryOption[] = [
   },
 ];
 
-// Extend formData to include packageCategory
+// Interface for the form data in PackageForm
 interface PackageFormProps {
   formData: {
     freightType: string;
     packageType: string;
-    packageCategory?: string; // Added for category
+    packageCategory: string; 
     packageDescription: string;
+    [key: string]: any; // Allow for additional properties
   };
   onInputChange: (
     event: React.ChangeEvent<
@@ -72,12 +81,29 @@ interface PackageFormProps {
   onPackageDescriptionChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
-// PackageForm component for package details, including professional category selection
+/**
+ * PackageForm component for package details
+ * Air delivery is the only available option and is set as default
+ */
 const PackageForm: React.FC<PackageFormProps> = ({
   formData,
   onInputChange,
   onPackageDescriptionChange,
 }) => {
+  // Auto-select Air delivery type if none is selected
+  useEffect(() => {
+    // If freightType is not set or not 'air', set it to 'air'
+    if (!formData.freightType || formData.freightType !== 'air') {
+      const fakeEvent = {
+        target: {
+          name: 'freightType',
+          value: 'air'
+        }
+      } as React.ChangeEvent<HTMLSelectElement>;
+      onInputChange(fakeEvent);
+    }
+  }, [formData.freightType, onInputChange]);
+  
   // Find the selected category object for display
   const selectedCategory = PACKAGE_CATEGORIES.find(
     (cat) => cat.id === formData.packageCategory
@@ -90,22 +116,45 @@ const PackageForm: React.FC<PackageFormProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <div className="space-y-2 mb-2">
-              <label htmlFor="deliveryType" className="font-semibold">
+              <label htmlFor="deliveryType" className="font-semibold flex items-center">
                 Delivery Type <span className="text-primary text-lg">*</span>
+                <FaPlane className="ml-2 text-blue-500" />
               </label>
-              <select
-                id="freightType"
-                name="freightType"
-                value={formData.freightType || ""}
-                onChange={onInputChange}
-                className="w-full rounded-lg border border-gray-400 dark:border-gray-700 px-4 py-3 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 shadow-sm focus:border-navy-500 focus:ring-2 focus:ring-navy-200 dark:focus:ring-navy-700 transition-all placeholder-gray-400 dark:placeholder-gray-500"
-                required
-              >
-                <option value="">Select delivery type</option>
-                {DELIVERY_TYPES.map(type => (
-                  <option key={type.id} value={type.id}>{type.label}</option>
-                ))}
-              </select>
+              
+              {/* Delivery Type Selector - Air Only */}
+              <div className="relative">
+                <select
+                  id="freightType"
+                  name="freightType"
+                  value="air"
+                  onChange={onInputChange}
+                  className="w-full rounded-lg border border-gray-400 dark:border-gray-700 px-4 py-3 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 shadow-sm focus:border-navy-500 focus:ring-2 focus:ring-navy-200 dark:focus:ring-navy-700 transition-all"
+                  required
+                  disabled
+                >
+                  {DELIVERY_TYPES.map(type => (
+                    <option 
+                      key={type.id} 
+                      value={type.id} 
+                      disabled={!type.available}
+                    >
+                      {type.label} {type.id === 'air' && '✓'}
+                    </option>
+                  ))}
+                </select>
+                
+                {/* Overlay to indicate Air is the only option */}
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full dark:bg-blue-900/40 dark:text-blue-200">
+                    Air Only
+                  </span>
+                </div>
+              </div>
+              
+              {/* Info text */}
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Currently only Air delivery is available for this route
+              </p>
             </div>
 
             <div className="space-y-2">
