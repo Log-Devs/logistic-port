@@ -14,7 +14,31 @@ export const PACKAGE_TYPES = [
 	{ id: "tube", label: "Tube" }
 ];
 
+/**
+ * [2025-05-26] Updated initialFormData to support the simplified shipment request flow.
+ * Added client and origin fields, removed sender fields as per admin requirements.
+ * The new flow focuses only on package details and origin, not sender information.
+ * -- Cascade AI
+ */
 export const initialFormData = {
+	// Client information (person requesting the shipment)
+	clientName: DUMMY_USER.fullName,
+	clientEmail: DUMMY_USER.email,
+	clientPhone: DUMMY_USER.phone,
+	clientAddress: DUMMY_USER.address,
+	clientCity: DUMMY_USER.city,
+	clientState: DUMMY_USER.state,
+	clientZip: DUMMY_USER.zip,
+	clientCountry: DUMMY_USER.country,
+	
+	// Package origin information
+	originCountry: "",
+	originCity: "",
+	originAddress: "",
+	originState: "",
+	originContactName: "",
+	
+	// Legacy fields kept for backward compatibility
 	senderName: DUMMY_USER.fullName,
 	senderAddress: DUMMY_USER.address,
 	senderContact: DUMMY_USER.email,
@@ -35,15 +59,19 @@ export const initialFormData = {
 	recipientZip: DUMMY_USER.zip,
 	recipientKnowsId: false,
 	recipientCountry: "",
+	
+	// Package information
 	freightType: "",
 	packageType: "",
 	packageCategory: "",
 	packageDescription: "",
-	packageNote: "", // Added packageNote with a default value
-	recipientPhoneCountryCode: '', // Added missing property
-	recipientId: '', // Added missing property
-	packageValue: '',
-	packageWeight: '', // Changed from 0 (number) to '' (string) to match FormData interface
+	packageNote: "", 
+	packageValue: "",
+	packageWeight: "",
+	
+	// System fields
+	recipientPhoneCountryCode: "",
+	recipientId: "",
 };
 
 export const initialUserData = {

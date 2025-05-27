@@ -1,72 +1,71 @@
-// Next.js DashboardCard component using next/image for optimized images
-// Follows clean code architecture, OOP principles, and is fully documented
+import Image from 'next/image';
+import React from 'react';
+import { Box, Clock, History, MapPin } from 'lucide-react'; // Import icons that match the design
 
-import Image from 'next/image'; // Next.js optimized image component
-import React from 'react'; // React for functional components and typing
+// Type for the icon component name
+type IconComponentName = "box" | "clock-delivery" | "history" | "location";
 
-// Interface for DashboardCard props, ensuring type safety and clarity
+// Interface for DashboardCard props
 export interface DashboardCardProps {
-  /**
-   * The title to display on the card
-   */
   title: string;
-  /**
-   * The path or URL to the icon image (should be a static asset or optimized URL)
-   */
-  icon: string;
-  /**
-   * Optional click handler for the card (e.g., navigation or modal open)
-   */
+  description: string;
+  imageSrc: string;
+  iconComponent: IconComponentName;
   onClick?: () => void;
 }
 
 /**
- * DashboardCard component for displaying an icon and a title in a styled card.
- * Uses next/image for optimized image loading and accessibility best practices.
- *
- * @param {DashboardCardProps} props - The properties for the DashboardCard
- * @returns {JSX.Element} The rendered dashboard card
+ * DashboardCard component that exactly matches the design in the image
  */
-const DashboardCard: React.FC<DashboardCardProps> = ({ title, icon, onClick }) => {
+const DashboardCard: React.FC<DashboardCardProps> = ({ 
+  title, 
+  description, 
+  imageSrc, 
+  iconComponent, 
+  onClick 
+}) => {
+  // Function to render the appropriate icon based on the iconComponent prop
+  const renderIcon = () => {
+    switch (iconComponent) {
+      case "box":
+        return <Box className="h-8 w-8 text-white" />;
+      case "clock-delivery":
+        return <Clock className="h-8 w-8 text-white" />;
+      case "history":
+        return <History className="h-8 w-8 text-white" />;
+      case "location":
+        return <MapPin className="h-8 w-8 text-white" />;
+      default:
+        return <Box className="h-8 w-8 text-white" />;
+    }
+  };
+
   return (
-    // Main card container with click handler
-    <div
-      className={[
-  // Border, rounded corners, padding, flex column, centered content
-  'border rounded-lg p-6 flex flex-col items-center justify-center',
-  // Transition for all properties, shadow on hover, pointer cursor
-  'transition-all hover:shadow-lg cursor-pointer',
-  // Border and background for light and dark mode
-  'bg-white  dark:bg-slate-800 border-gray-200 dark:border-gray-700',
-  // Custom hover border color for light and dark mode
-  'hover:border-[#e60000] dark:hover:border-[#ff3333]',
-  // Fixed height and full width
-  'h-[250px] w-full',
-  // Prevent text selection for UX
-  'select-none'
-].join(' ')}
+    <div 
+      className="relative rounded-lg overflow-hidden cursor-pointer w-full hover:shadow-xl shadow-lg transition-shadow dark:bg-slate-800 dark:hover:bg-slate-700"
       onClick={onClick}
-      role={onClick ? 'button' : undefined} // Accessibility: role button if clickable
-      tabIndex={onClick ? 0 : undefined} // Accessibility: focusable if clickable
-      aria-label={title} // Accessibility: label for screen readers
     >
-      {/* Icon container, centers the icon vertically and horizontally */}
-      <div className=" mb-4 flex items-center justify-center h-20">
-        {/*
-          Use next/image for optimized image loading. For static assets, place them in the public/ directory and pass the relative path.
-          Example: icon="/icons/dashboard.svg"
-        */}
+      {/* Image Background - full size to match the image design */}
+      <div className="w-full h-64 relative">
         <Image
-          src={icon}
+          src={imageSrc}
           alt={title}
-          width={64} // 4rem (h-16/w-16)
-          height={64}
-          className="h-16 w-16 object-contain"
-          priority // Loads the image with high priority
+          fill
+          className="object-cover"
+          priority
         />
       </div>
-      {/* Title text, centered and styled */}
-      <div className="text-center font-medium text-lg truncate">{title}</div>
+      
+      {/* Content overlay at the bottom */}
+      <div className="absolute bottom-0 left-0 right-0 p-4 bg-white">
+        <h3 className="text-lg font-medium dark:text-gray-700">{title}</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
+      </div>
+      
+      {/* Circular icon on the right side - exactly as in the image */}
+      <div className="absolute bottom-4 right-4 bg-blue-800 rounded-full p-3 flex items-center justify-center my-8">
+        {renderIcon()}
+      </div>
     </div>
   );
 };

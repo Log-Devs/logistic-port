@@ -62,12 +62,25 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isMobileView, setIsMobileView] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Default closed on mobile for UX
 
-  // Navigation items
+  /**
+   * Navigation items
+   * [2025-05-26] Updated navigation to match the design requirements exactly
+   * Renamed to "Shipment History" to "Awaiting Shipment" to match UI design
+   * - Cascade AI
+   */
+  /**
+   * Main navigation items array
+   * Each item contains the icon, text label, and path to navigate to
+   * Order matters - appears in sidebar in this exact order
+   */
   const navItems = [
+    // Dashboard entry point with dashboard icon
     { icon: <LayoutDashboard size={20} />, text: 'Dashboard', path: '/client/dashboard' },
+    // Submit Shipment option with package check icon
     { icon: <PackageCheck size={20} />, text: 'Submit Shipment', path: '/client/submit-shipment' },
-    { icon: <Clock size={20} />, text: 'Awaiting Shipments', path: '/client/awaiting-shipments' },
-    { icon: <History size={20} />, text: 'Shipment History', path: '/client/shipment-history' },
+    // Awaiting Shipment (singular) to match the design in the provided UI mockup
+    { icon: <History size={20} />, text: 'Awaiting Shipment', path: '/client/shipment-history' },
+    // Settings page with settings icon
     { icon: <Settings size={20} />, text: 'Settings', path: '/client/settings' },
   ];
 

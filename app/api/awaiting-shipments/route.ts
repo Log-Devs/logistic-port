@@ -91,26 +91,44 @@ DUMMY_SHIPMENTS.forEach((shipment, idx) => {
  *
  * Clean code, OOP, and best practices are followed. All logic is documented for maintainability.
  */
+/**
+ * GET handler for the awaiting-shipments API
+ * This function provides shipment data to client components
+ * It first checks if we're in a development environment or if a real backend URL is available
+ * If in production with a valid URL, it attempts to fetch from the backend
+ * Otherwise, it falls back to dummy data for development and testing
+ * 
+ * @returns NextResponse with shipment data in JSON format
+ */
 export async function GET() {
+  // Check if we're in development mode (process.env.NODE_ENV will be 'development' in dev mode)
+  const isDev = process.env.NODE_ENV === 'development';
+  
+  // Get the configured backend URL (if any)
   const backendUrl = process.env.REAL_AWAITING_SHIPMENTS_API_URL;
-  if (backendUrl) {
+  
+  // Only attempt to fetch from backend if we're in production AND have a valid URL
+  if (!isDev && backendUrl && !backendUrl.includes('your-production-api.com')) {
     try {
-      // Fetch shipment data from backend API
-      const res = await fetch(backendUrl, { next: { revalidate: 60 } }); // Revalidate every minute
+      // Fetch shipment data from backend API with 60-second cache
+      const res = await fetch(backendUrl, { next: { revalidate: 60 } });
+      
       if (res.ok) {
+        // If fetch successful, return the data from backend
         const data = await res.json();
-        // Optionally validate data shape here for safety
         return NextResponse.json(data);
       } else {
-        // Log error for debugging
+        // Log API errors for monitoring and debugging
         console.error(`Backend API error: ${res.status} ${res.statusText}`);
       }
     } catch (err) {
-      // Log fetch error for debugging
+      // Log network or parsing errors
       console.error('Error fetching shipments from backend:', err);
     }
   }
-  // Fallback to dummy data for dev/testing or if backend is down
+  
+  // Always fall back to dummy data if we're in development
+  // or if there was an error fetching from the backend
   return NextResponse.json(DUMMY_SHIPMENTS);
 }
 

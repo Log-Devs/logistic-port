@@ -1,5 +1,25 @@
 # Logistics Portfolio
 
+<!-- [2025-05-22] Upcoming Major Refactor Announcement -->
+
+> **Notice [2025-05-22]: Full Codebase Refactor Incoming**
+>
+> We are planning a comprehensive refactor of the entire Logistics Portfolio codebase. This initiative will:
+> - Modernize all architectural patterns and enforce clean code principles
+> - Fully embrace object-oriented programming (OOP) best practices
+> - Address technical debt, improve maintainability, and enhance scalability
+> - Ensure every component, module, and utility is robustly documented and indexed
+>
+> **What to Expect:**
+> - No area of the codebase is out of scope: all files, components, hooks, utilities, and styles will be reviewed and improved
+> - All changes will be fully commented, follow industry best practices, and be reflected in this README
+> - The refactor will be rolled out incrementally, with clear documentation for every update
+>
+> _Stay tuned for detailed migration guides and changelogs as the process unfolds._
+
+<!-- End Major Refactor Announcement -->
+
+
 ## [2025-05-21] Authentication Removed: Dummy Login Only (Demo Mode)
 
 - **Major Change:** All real authentication and backend/JWT logic has been removed from the app. The authentication provider now uses only dummy logic.

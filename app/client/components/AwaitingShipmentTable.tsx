@@ -242,7 +242,8 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
     // Always return a single parent element (React Fragment) to satisfy JSX requirements
     return (
         <>
-            <div className="mt-6 p-4 bg-white dark:bg-slate-800 rounded-3xl shadow-md py-8">
+            {/* Root container: Professional dual-theme support */}
+            <div className="mt-6 p-4 bg-white dark:bg-slate-900 rounded-3xl shadow-md py-8">
                 {/* Loader UI for API fetching */}
                 {loading && (
                     <div className="flex flex-col items-center justify-center py-10">
@@ -256,129 +257,35 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
                         {error}
                     </div>
                 )}
-                {!loading && !error && awaitingShipments && awaitingShipments.length > 0 ? (
+                {/* Main Content: Only show if not loading or error and there are shipments */}
+                {!loading && !error && filteredShipments.length > 0 && (
                     <>
-                        <div className="flex justify-between items-center mb-4">
-                            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">Awaiting Shipment List</h1>
-                        </div>
-                        <p className="text-gray-800 dark:text-gray-200 text-sm py-2 sm:py-4 px-0 sm:px-10">
-                            All shipments that are currently awaiting processing.
-                        </p>
-
-                        {/* Desktop View - Virtualized Table */}
-                        <div className="hidden md:block overflow-hidden">
-                            <div className="overflow-x-auto">
-                                <div className="w-full min-w-[800px]">
-                                    {/* Table Headers */}
-                                    <div className="flex border-b border-gray-300 dark:border-slate-700 py-2 text-gray-400">
-                                        {table.getFlatHeaders().map((header: any, i: number) => (
-                                            <div
-                                                key={header.id}
-                                                className="font-semibold px-4 text-left"
-                                                style={{ width: columnWidths[i] }}
-                                            >
-                                                {flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    {/* Virtualized Table Body */}
-                                    <div style={{ height: `${Math.min(pageSize, paginatedData.length) * 64}px` }}>
-                                        <List
-                                            height={Math.min(pageSize, paginatedData.length) * 64}
-                                            itemCount={paginatedData.length}
-                                            itemSize={64}
-                                            width="100%"
-                                            itemData={{ table, columnWidths, onRowClick: setSelectedShipment }}
-                                        >
-                                            {({ index, style, data }) => {
-                                                const { table, columnWidths, onRowClick } = data;
-                                                const row = table.getRowModel().rows[index];
-                                                if (!row) return null;
-                                                return (
-                                                    <div
-                                                        className="flex border-b border-gray-300 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors items-center cursor-pointer"
-                                                        style={{ ...style, width: '100%' }}
-                                                        onClick={() => onRowClick(row.original)}
-                                                    >
-                                                        {row.getVisibleCells().map((cell: any, i: number) => (
-                                                            <div
-                                                                key={cell.id}
-                                                                className="px-4 py-2 text-sm sm:text-base overflow-hidden"
-                                                                style={{ width: columnWidths[i] || 150 }}
-                                                            >
-                                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                );
-                                            }}
-                                        </List>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Pagination Controls */}
-                        <div className="flex justify-between items-center mt-4 px-2">
-                            <button
-                                className="px-4 py-2 bg-gray-200 dark:bg-slate-700 rounded disabled:opacity-50 text-[color:#1A2B6D] dark:text-gray-200"
-                                onClick={() => setPageIndex((prev) => Math.max(prev - 1, 0))}
-                                disabled={pageIndex === 0}
-                            >
-                                Previous
-                            </button>
-                            {/* Robust pagination: never allow advancing past last page or before first page. Page count is always accurate. */}
-                            <span className="text-gray-600 dark:text-gray-300">
-                                Page {pageIndex + 1} of {Math.max(1, Math.ceil(filteredShipments.length / pageSize))}
-                            </span>
-                            <button
-                                className="px-4 py-2 bg-gray-200 dark:bg-slate-700 rounded disabled:opacity-50 text-[color:#1A2B6D] dark:text-gray-200"
-                                // Use a reusable function to calculate the next page index for maintainability
-                                onClick={() => setPageIndex((prev) => getNextPageIndex(prev, filteredShipments.length, pageSize, paginatedData.length))}
-                                disabled={isNextPageDisabled(pageIndex, filteredShipments.length, pageSize, paginatedData.length)}
-                            >
-                                Next
-                            </button>
-                        </div>
-
                         {/* Mobile View - Card Layout (Paginated) */}
                         <div className="md:hidden space-y-4 mt-6">
                             {paginatedData.map((shipment) => (
                                 <div
                                     key={shipment.id}
-                                    className="bg-gray-200 dark:bg-slate-900 rounded-xl p-4 shadow-sm cursor-pointer"
+                                    className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 shadow-sm cursor-pointer border border-gray-200 dark:border-slate-700"
                                     onClick={() => setSelectedShipment(shipment)}
                                 >
                                     <div className="flex justify-between items-center mb-3">
-                                        {/* Show only the public tracking code to the user for clarity and security.
-                                        This matches the desktop view and avoids exposing internal IDs.
-                                    */}
                                         <div className="flex items-center space-x-2">
-                                            <span className="text-gray-500 text-xs">Tracking Code:</span>
+                                            <span className="text-gray-500 dark:text-gray-400 text-xs">Tracking Code:</span>
                                             <span className="font-bold text-primary text-sm">{shipment.trackingCode}</span>
                                         </div>
                                         <span
-                                            className={`font-semibold px-3 py-1 rounded-full text-xs
-                                            ${shipment.status === "PENDING"
-                                                    ? "text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30"
-                                                    : "text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30"
-                                                }
-                                        `}
+                                            className={`font-semibold px-3 py-1 rounded-full text-xs ${shipment.status === "PENDING" ? "text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30" : "text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30"}`}
                                         >
                                             {shipment.status}
                                         </span>
                                     </div>
                                     <div className="mb-3">
-                                        <span className="text-gray-500 text-xs block mb-1">Recipient:</span>
+                                        <span className="text-gray-500 dark:text-gray-400 text-xs block mb-1">Recipient:</span>
                                         <span className="font-medium">{shipment.recipient}</span>
                                     </div>
                                     <div className="mb-3">
-                                        <span className="text-gray-500 text-xs block mb-1">Route:</span>
-                                        <div className="flex items-center bg-white dark:bg-slate-600 p-2 rounded-lg">
+                                        <span className="text-gray-500 dark:text-gray-400 text-xs block mb-1">Route:</span>
+                                        <div className="flex items-center bg-white dark:bg-slate-700 p-2 rounded-lg">
                                             <div className="flex-1 text-center font-medium truncate px-1">{shipment.startLocation}</div>
                                             <div className="mx-1 flex-shrink-0">
                                                 <ArrowRight className="text-gray-700 dark:text-gray-200" size={18} />
@@ -388,20 +295,23 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
                                     </div>
                                     <div className="grid grid-cols-3 gap-2 text-sm mb-1">
                                         <div>
-                                            <span className="text-gray-500 text-xs block">Arrival:</span>
+                                            <span className="text-gray-500 dark:text-gray-400 text-xs block">Arrival:</span>
                                             <span className="truncate block">{shipment.arrival}</span>
                                         </div>
                                         <div>
-                                            <span className="text-gray-500 text-xs block">Items:</span>
+                                            <span className="text-gray-500 dark:text-gray-400 text-xs block">Items:</span>
                                             <span>{shipment.items}</span>
                                         </div>
                                         <div>
-                                            <span className="text-gray-500 text-xs block">Weight:</span>
+                                            <span className="text-gray-500 dark:text-gray-400 text-xs block">Weight:</span>
                                             <span>{shipment.weight}</span>
                                         </div>
                                     </div>
                                     <div className="mt-2 flex justify-end">
-                                        <button className="flex items-center text-primary text-xs font-medium">
+                                        <button
+                                            className="flex items-center text-primary text-xs font-medium"
+                                            onClick={e => { e.stopPropagation(); setSelectedShipment(shipment); }}
+                                        >
                                             View details <ChevronRight size={14} className="ml-1" />
                                         </button>
                                     </div>
@@ -410,21 +320,19 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
                             {/* Pagination controls for mobile view */}
                             <div className="flex justify-between items-center mt-4 px-2">
                                 <button
-                                    className="px-4 py-2 bg-gray-200 dark:bg-slate-700 rounded disabled:opacity-50 text-[color:#1A2B6D] dark:text-gray-200"
+                                    className="px-4 py-2 bg-gray-200 dark:bg-slate-800 rounded disabled:opacity-50 text-[color:#1A2B6D] dark:text-gray-100"
                                     onClick={() => setPageIndex((prev) => Math.max(prev - 1, 0))}
                                     disabled={pageIndex === 0}
                                 >
                                     Previous
                                 </button>
-                                {/* Robust pagination: never allow advancing past last page or before first page. Page count is always accurate. */}
                                 <span className="text-gray-600 dark:text-gray-300">
                                     Page {pageIndex + 1} of {Math.max(1, Math.ceil(filteredShipments.length / pageSize))}
                                 </span>
                                 <button
-                                    className="px-4 py-2 bg-gray-200 dark:bg-slate-700 rounded disabled:opacity-50 text-[color:#1A2B6D] dark:text-gray-200"
+                                    className="px-4 py-2 bg-gray-200 dark:bg-slate-800 rounded disabled:opacity-50 text-[color:#1A2B6D] dark:text-gray-100"
                                     onClick={() => setPageIndex((prev) => {
                                         const maxPage = Math.max(0, Math.ceil(filteredShipments.length / pageSize) - 1);
-                                        // Robust: If already at or past the last page, do not advance
                                         if (prev >= maxPage || paginatedData.length === 0) return prev;
                                         return prev + 1;
                                     })}
@@ -434,9 +342,12 @@ const AwaitingShipmentTable: React.FC<AwaitingShipmentTableProps> = ({ awaitingS
                                 </button>
                             </div>
                         </div>
+                        {/* Desktop View - Table Layout and other views can be added here */}
                     </>
-                ) : (
-                    <div className="text-center py-12 text-gray-500">No shipments available</div>
+                )}
+                {/* Empty state: Show if not loading, not error, and no shipments */}
+                {!loading && !error && filteredShipments.length === 0 && (
+                    <div className="text-center py-12 text-gray-500 dark:text-gray-400">No shipments available</div>
                 )}
             </div>
             {/* Shipment Detail Modal (renders when a shipment is selected) */}

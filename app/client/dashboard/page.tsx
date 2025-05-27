@@ -3,91 +3,86 @@
 import React, { useEffect } from "react";
 import { useAuth } from "@/components/auth-context";
 import { useRouter } from "next/navigation";
-import DashboardCard from "../components/dashboard-card"; // Fixed: directory renamed to 'components'
+import DashboardCard, { DashboardCardProps } from "../components/dashboard-card";
 
-// Import static images from the public directory for dashboard card icons
-// Place your images in /public and use the relative path (e.g., "/submit-shipment.png")
-const submitShipmentIcon = "/submit-shipment.png"; // Replace with your actual image
-const awaitingShipmentsIcon = "/awaiting-shipments.png"; // Replace with your actual image
-const fundWalletIcon = "/fund-wallet.png"; // Replace with your actual image
-const shipmentHistoryIcon = "/shipment-history.png"; // Replace with your actual image
+// Dashboard card configuration with exact cards from the image
+// Type the array to ensure iconComponent is properly typed as IconComponentName
+type DashboardCardConfig = Omit<DashboardCardProps, 'onClick'> & { href: string };
 
-// Dashboard card configuration array with title, icon, and action
-const dashboardCards = [
+const dashboardCards: DashboardCardConfig[] = [
   {
     title: "Submit Shipment",
-    icon: submitShipmentIcon,
+    description: "Create a new delivery",
+    imageSrc: "/submit-girl.png", // Person signing for package
     href: "/client/submit-shipment",
+    iconComponent: "box" // Using the box icon from the image
   },
   {
-    title: "Awaiting Shipments",
-    icon: awaitingShipmentsIcon,
+    title: "Awaiting Deliveries",
+    description: "View pending deliveries",
+    imageSrc: "/awaiting-time.png", // Stopwatch with boxes
     href: "/client/awaiting-shipments",
-  },
-  {
-    title: "Fund Wallet",
-    icon: fundWalletIcon,
-    href: "/client/wallet",
+    iconComponent: "clock-delivery" // Using the clock icon from the image
   },
   {
     title: "Shipment History",
-    icon: shipmentHistoryIcon,
+    description: "Visit previous orders",
+    imageSrc: "/shipment-history.jpg", // Smiling courier with boxes
     href: "/client/shipment-history",
+    iconComponent: "history" // Using the history icon from the image
+  },
+  {
+    title: "Track Shipment",
+    description: "Receive Live Updates on delivery",
+    imageSrc: "/track.png", // Map with pins
+    href: "/client/track-shipment",
+    iconComponent: "location" // Using the location icon from the image
   },
 ];
 
-
 /**
  * Dashboard page for Logistics app
- * - Welcome message, prompt, 2x2 grid of action cards
- * - Clean code, OOP, and best practices
+ * - Matches the exact design from the provided image
  */
 const ClientDashboard: React.FC = () => {
-  // Get user and loading state from auth context
   const { user, loading } = useAuth();
   const router = useRouter();
 
-  // Redirect to login if not authenticated
   useEffect(() => {
     if (!loading && !user) {
       router.replace("/login");
     }
   }, [user, loading, router]);
 
-  // Only render dashboard content if not loading and user exists
-  // Global loader (AppLoaderWrapper) will handle loading state
   if (loading || !user) {
-    // Render nothing while loading; global loader will show
     return null;
   }
 
-  // Render the dashboard UI
   return (
-    <div className="w-full max-h-screen px-2 md:px-12 py-8 bg-gray-100 dark:bg-slate-900 min-h-screen flex flex-col items-start">
-
-      {/* Welcome Header */}
-      {/* <h1 className="text-3xl font-bold mb-2 dark:text-gray-100">Welcome</h1> */}
-      {/* Prompt */}
-      <div className="mb-8 w-full">
-        <div className="text-2xl font-semibold dark:text-gray-300">
-          What would you like to do?
-        </div>
-      </div>      {/* Responsive 2x2 Grid of Dashboard Cards */}
-      <div className="flex-1 w-full flex items-center justify-center">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-4xl w-full">
-          {dashboardCards.map((card) => (
-            <DashboardCard
-              key={card.title}
-              title={card.title}
-              icon={card.icon}
-              onClick={() => router.push(card.href)}
-            />
-          ))}
-        </div>
+    <div className="min-h-screen px-4 sm:px-10 py-6 bg-gray-100 dark:bg-slate-900 transition-colors duration-300">
+      {/* Welcome Header - exactly as in the image */}
+      <h1 className="text-2xl font-bold mb-2">Welcome</h1>
+      
+      {/* Prompt - exactly as in the image */}
+      <div className="mb-12">
+        <p className="mb-6 text-gray-400">What would you like to do?</p>
+      </div>
+      
+      {/* 2x2 Grid of Dashboard Cards - exact layout from image */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl h-full mx-auto">
+        {dashboardCards.map((card, index) => (
+          <DashboardCard
+            key={card.title}
+            title={card.title}
+            description={card.description}
+            imageSrc={card.imageSrc}
+            iconComponent={card.iconComponent}
+            onClick={() => router.push(card.href)}
+          />
+        ))}
       </div>
     </div>
   );
 };
-
 
 export default ClientDashboard;
